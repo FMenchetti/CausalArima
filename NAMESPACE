@@ -2,3 +2,4 @@
 
 S3method(plot,cArima)
 export(CausalArima)
+export(CausalVAR)

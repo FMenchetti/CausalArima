@@ -32,7 +32,7 @@ according to the selected \code{ic}. Defaults to TRUE.}
 \item{ic}{Information criterion to use for model selection. Possible values in c("aicc", "aic", "bic").
 Defaults to \code{"aic"}.}
 
-\item{xreg}{Optional vector, matrix or data.frame of regressors to be included in the model. 
+\item{xreg}{Optional vector, matrix or data.frame of regressors to be included in the model.
 It must have the same length of y.}
 
 \item{dates}{Vector of dates of length t (with elements of class \code{Date}) corresponding to the
@@ -43,7 +43,7 @@ observations in y.}
 \item{alpha}{Confidence level for the estimated causal effect. Defaults to 0.05, i.e., reporting
 a two-sided 95\% confidence interval.}
 
-\item{horizon}{Optional vector with elements of class \code{Date}. If provided the function 
+\item{horizon}{Optional vector with elements of class \code{Date}. If provided the function
 computes a causal effect up to each specified date.}
 
 \item{arima.args}{Additional arguments to be passed to Arima.}
@@ -55,17 +55,17 @@ A list with the following components:
 \item{effect}{The estimated temporal average effect and cumulative effect
               with the corresponding t-statistics. Returns a list if \code{horizon}
               is specified.}
-\item{forecast.mean}{Forecasted time series in the absence of intervention. 
+\item{forecast.mean}{Forecasted time series in the absence of intervention.
                      Returns a list if \code{horizon} is specified.}
-\item{effect.lower}{Lower bound of a (1- \code{alpha})% confidence interval 
+\item{effect.lower}{Lower bound of a (1- \code{alpha})% confidence interval
                     around the point effect. Returns a list if \code{horizon} is specified.}
-\item{effect.upper}{Upper bound of a (1- \code{alpha})% confidence interval 
+\item{effect.upper}{Upper bound of a (1- \code{alpha})% confidence interval
                     around the point effect. Returns a list if \code{horizon} is specified.}
 \item{effect.mean}{Estimated causal effect at each point in time after the intervention
                    date (point effect). Returns a list if \code{horizon} is specified.}
 \item{dates}{The vector of dates considered in the analysis.}
 \item{y}{The vector of observations considered in the analysis.}
-\item{model}{The model estimated in the pre-intervention period, 
+\item{model}{The model estimated in the pre-intervention period,
              result of a call to \code{Arima}.}
 \item{sigma.mean}{The estimated standard deviation of the temporal average effect.}
 \item{sigma.sum}{The estimated standard deviation of the cumulative effect.}
@@ -79,7 +79,7 @@ Causal effect of an intervention
 y <- 0.5*seq(0.5, 250, by = 0.5) + rnorm(500, sd = 6)
 dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
 
-# Adding a fictional intervention 
+# Adding a fictional intervention
 int.date <- as.Date("2015-04-01")
 horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25

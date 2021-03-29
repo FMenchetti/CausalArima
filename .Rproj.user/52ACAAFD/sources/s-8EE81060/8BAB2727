@@ -1,0 +1,25 @@
+{
+    "id": "8BAB2727",
+    "path": "~/GitHub/CausalArima/R/plot_var.R",
+    "project_path": "R/plot_var.R",
+    "type": "r_source",
+    "hash": "4266308209",
+    "contents": "",
+    "dirty": false,
+    "created": 1617024518997.0,
+    "source_on_save": false,
+    "relative_order": 5,
+    "properties": {
+        "tempName": "Untitled1",
+        "cursorPosition": "35,21",
+        "scrollLine": "25"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1617040992,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1617040992531,
+    "read_only": false,
+    "read_only_alternatives": []
+}

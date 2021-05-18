@@ -114,10 +114,10 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 
   if(auto){
-    model <- do.call("auto.arima", c(list(y = ts(y.00, start = start, frequency = frequency(y.new))),
+    model <- do.call("auto.arima", c(list(y = ts(y.00, start = start, frequency = frequency(y))),
                                      list(ic = ic), list(xreg = xreg0), auto.args))
     } else {
-    model <- do.call("Arima", c(list(y = ts(y.00, start = start, frequency = frequency(y.new))),
+    model <- do.call("Arima", c(list(y = ts(y.00, start = start, frequency = frequency(y))),
                                 list(order = order), list(seasonal = seasonal), list(xreg = xreg0),
                                 arima.args))
   }

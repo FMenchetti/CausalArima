@@ -63,12 +63,12 @@ plot.cArima <- function(x, int.date, type = c("forecast", "impact", "residuals")
 
   # Plot "Observed vs Forecast"
   if("forecast" %in% type){
-    .forecast(x, int.date = int.date)
+    .forecast(x, int.date = int.date, ...)
   }
 
   # Plot "Causal effect"
   if("impact" %in% type){
-    .impact(x, int.date = int.date)
+    .impact(x, int.date = int.date, ...)
   }
 
   # Residuals plots
@@ -81,40 +81,39 @@ plot.cArima <- function(x, int.date, type = c("forecast", "impact", "residuals")
 
 # -----------------------------------------------------------------------------------------
 
-.impact <- function(cArima, int.date){
+.impact <- function(cArima, int.date, ...){
   dates <- cArima$dates
 
   if(!is.list(cArima$effect)){
-    ylim <- c(min(cArima$effect.lower), max(cArima$effect.upper))
     x <- dates[dates >= int.date]
     main <- "Point effect"
-    plot(y = cArima$effect.upper, x = x, type = "l", ylim = ylim,
-         main = main, ylab = "", xlab = "")
-    lines(y = cArima$effect.lower, x = x)
-    polygon(c(x, rev(x)), c(cArima$effect.lower, rev(cArima$effect.upper)),
-            col = "grey", border = "grey")
-    lines(y = cArima$effect.mean, x = x, col = "blue")
+    dat <- data.frame(x = x, y = cArima$effect.mean, y.upper = cArima$effect.upper, y.lower = cArima$effect.lower)
+    ylim <- c(min(dat[, "y.lower"]), max(dat[, "y.upper"]))
+    ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = main, y = "", x = "") +
+      geom_line(aes(y = y), color = "navy") +
+      geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill="steelblue", alpha=.5)
 
   } else {
+    g <- list()
     for(i in 1:length(cArima$effect)){
-      ylim <- c(min(cArima$effect.lower[[i]]), max(cArima$effect.upper[[i]]))
       start <- which(dates == int.date)
       end <- start + length(cArima$forecast.mean[[i]])
       x <- dates[start:(end -1)]
-      main <- paste("Point effect, horizon ", i, sep = "")
-      plot(y = cArima$effect.upper[[i]], x = x, type = "l", ylim = ylim,
-           main = main, ylab = "", xlab = "")
-      lines(y = cArima$effect.lower[[i]], x = x)
-      polygon(c(x, rev(x)), c(cArima$effect.lower[[i]], rev(cArima$effect.upper[[i]])),
-              col = "grey", border = "grey")
-      lines(y = cArima$effect.mean[[i]], x = x, col = "blue")
+      dat <- data.frame(x = x, y = cArima$effect.mean[[i]], y.upper = cArima$effect.upper[[i]], y.lower = cArima$effect.lower[[i]])
+      ylim <- c(min(dat[, "y.lower"]), max(dat[, "y.upper"]))
+      main <- paste("Point effect")
+      sub <- paste("Time horizon ", i, sep = "")
+      g[[i]] <- ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = main, subtitle = sub, y = "", x = "") +
+        geom_line(aes(y = y), color = "navy") +
+        geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill="steelblue", alpha=.5)
     }
+    do.call(grid.arrange, c(g, ...))
   }
 }
 
 # -----------------------------------------------------------------------------------------
 
-.forecast <- function(cArima, int.date){
+.forecast <- function(cArima, int.date, ...){
   dates <- cArima$dates
   observed <- cArima$y
   start <- which(dates == int.date) - round(0.4 * sum(dates < int.date))
@@ -123,31 +122,42 @@ plot.cArima <- function(x, int.date, type = c("forecast", "impact", "residuals")
     forecasted <- c(cArima$model$fitted, cArima$forecast.mean)
     end <- length(forecasted)
     x <- dates[start:(end - 1)]
-    forecasted.cut <- forecasted[start:(end - 1)]
-    observed.cut <- observed[start:(end - 1)]
-    ylim <- c(min(observed.cut, forecasted.cut), max(observed.cut, forecasted.cut))
+    dat <- data.frame(x = x, forecasted.cut = forecasted[start:(end - 1)], observed.cut = observed[start:(end - 1)])
+    ylim <- c(min(dat[, -1]), max(dat[, -1]))
     main <- "Forecasted series"
-    plot(y = observed.cut, x = x, type = "l", ylim = ylim, ylab = "", xlab = "", main = main)
-    lines(forecasted.cut, col = "blue", x = x)
-    abline(v = int.date, col = "red")
+    ggplot(data = dat, aes(x = x, colour = "Legend")) +  coord_cartesian(ylim = ylim) + labs(title = main, y = "", x = "") +
+      geom_line(aes(y = forecasted.cut, color = "Forecast"))  +
+      geom_line(aes(y = observed.cut, color = "Observed")) +
+      scale_colour_manual(values = c("deepskyblue", "gray40")) +
+      geom_vline(aes(xintercept = int.date, linetype = paste(int.date))) +
+      scale_linetype_manual(values = "dashed") +
+      labs(color="Time series", linetype="Intervention date") +
+      guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))
 
   } else {
-
+    g <- list()
     for(i in 1:length(cArima$effect)){
       forecasted <- c(cArima$model$fitted, cArima$forecast.mean[[i]])
       end <- length(forecasted)
       x <- dates[start:(end - 1)]
-      forecasted.cut <- forecasted[start:(end - 1)]
-      observed.cut <- observed[start:(end - 1)]
-      ylim <- c(min(observed.cut, forecasted.cut), max(observed.cut, forecasted.cut))
-      main <- paste("Forecasted series, horizon ", i, sep = "")
-      plot(y = observed.cut, x = x, type = "l", ylim = ylim, ylab = "", xlab = "", main = main)
-      lines(forecasted.cut, col = "blue", x = x)
-      abline(v = int.date, col = "red")
+      dat <- data.frame(x = x, forecasted.cut = forecasted[start:(end - 1)], observed.cut = observed[start:(end - 1)])
+      ylim <- c(min(dat[, -1]), max(dat[, -1]))
+      main <- "Forecasted series"
+      sub <- paste("Time horizon ", i, sep = "")
+      g[[i]] <-ggplot(data = dat, aes(x = x, colour = "Legend")) +  coord_cartesian(ylim = ylim) + labs(title = main, subtitle = sub, y = "", x = "") +
+        geom_line(aes(y = forecasted.cut, color = "Forecast"))  +
+        geom_line(aes(y = observed.cut, color = "Observed")) +
+        scale_colour_manual(values = c("deepskyblue", "gray40")) +
+        geom_vline(aes(xintercept = int.date, linetype = paste(int.date))) +
+        scale_linetype_manual(values = "dashed") +
+        labs(color="Time series", linetype="Intervention date") +
+        guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))
     }
+
+    do.call(grid.arrange, c(g, ...))
+
   }
 }
-
 # -----------------------------------------------------------------------------------------
 
 .residuals <- function(cArima){

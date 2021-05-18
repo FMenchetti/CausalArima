@@ -3,22 +3,22 @@
     "path": "~/GitHub/CausalArima/R/plot_arima.R",
     "project_path": "R/plot_arima.R",
     "type": "r_source",
-    "hash": "3046563400",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1613579320062.0,
     "source_on_save": false,
     "relative_order": 2,
     "properties": {
-        "cursorPosition": "69,25",
-        "scrollLine": "60"
+        "cursorPosition": "18,37",
+        "scrollLine": "64"
     },
     "folds": "",
-    "lastKnownWriteTime": 1621347632,
+    "lastKnownWriteTime": 1621351825,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1621347632148,
+    "last_content_update": 1621351825495,
     "read_only": false,
     "read_only_alternatives": []
 }

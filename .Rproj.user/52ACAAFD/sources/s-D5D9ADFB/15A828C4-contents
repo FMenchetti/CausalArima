@@ -16,6 +16,7 @@
 
 #' Plotting method for object of class cArima
 #'
+#' @importFrom gridExtra grid.arrange
 #' @param x Object of class \code{cArima}.
 #' @param int.date Date of the intervention (required for types "forecast" and "impact").
 #' @param type Character string indicating the plot to be produced. Possible values
@@ -52,7 +53,7 @@
 #' plot(ce, type = "impact", int.date = int.date)
 #' plot(ce, type = "residuals")
 #'
-plot.cArima <- function(x, int.date, type = c("forecast", "impact", "residuals")){
+plot.cArima <- function(x, int.date, type = c("forecast", "impact", "residuals"), ...){
 
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")

@@ -4,7 +4,7 @@
 \alias{plot.cArima}
 \title{Plotting method for object of class cArima}
 \usage{
-\method{plot}{cArima}(x, int.date, type = c("forecast", "impact", "residuals"))
+\method{plot}{cArima}(x, int.date, type = c("forecast", "impact", "residuals"), ...)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}

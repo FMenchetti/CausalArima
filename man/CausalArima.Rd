@@ -13,10 +13,9 @@ CausalArima(
   xreg = NULL,
   dates,
   int.date,
-  alpha = 0.05,
-  horizon = NULL,
   arima.args = list(),
-  auto.args = list()
+  auto.args = list(),
+  nboot = NULL
 )
 }
 \arguments{
@@ -40,35 +39,30 @@ observations in y.}
 
 \item{int.date}{Date of the intervention (must be of class \code{Date}).}
 
-\item{alpha}{Confidence level for the estimated causal effect. Defaults to 0.05, i.e., reporting
-a two-sided 95\% confidence interval.}
-
-\item{horizon}{Optional vector with elements of class \code{Date}. If provided the function
-computes a causal effect up to each specified date.}
-
 \item{arima.args}{Additional arguments to be passed to Arima.}
 
 \item{auto.args}{Additional arguments to be passed to auto.arima.}
+
+\item{nboot}{Number of bootstrap iteration. Optional, if \code{nboot > 0} the function samples
+\code{nboot} times from the empirical distribution of model residuals and computes
+empirical critical values for the point, cumulative and temporal average effect statistics.}
 }
 \value{
 A list with the following components:
-\item{effect}{The estimated temporal average effect and cumulative effect
-              with the corresponding t-statistics. Returns a list if \code{horizon}
-              is specified.}
-\item{forecast.mean}{Forecasted time series in the absence of intervention.
-                     Returns a list if \code{horizon} is specified.}
-\item{effect.lower}{Lower bound of a (1- \code{alpha})% confidence interval
-                    around the point effect. Returns a list if \code{horizon} is specified.}
-\item{effect.upper}{Upper bound of a (1- \code{alpha})% confidence interval
-                    around the point effect. Returns a list if \code{horizon} is specified.}
-\item{effect.mean}{Estimated causal effect at each point in time after the intervention
-                   date (point effect). Returns a list if \code{horizon} is specified.}
-\item{dates}{The vector of dates considered in the analysis.}
-\item{y}{The vector of observations considered in the analysis.}
+\item{norm}{The inferred point, cumulative and temporal average effects at each point in time after the
+            intervention with standard deviations and p-values (left-sided, right-sided, bidirectional)
+            estimated under the assumption of Normally distributed residuals.}
+\item{boot}{The inferred point, cumulative and temporal average effects at each point in time after the
+            intervention and empirical critical values (left-sided, right-sided, bidirectional) estimated
+            by bootstrapping the errors from model residuals.}
+\item{causal.effect}{Estimated causal effect at each point in time after the intervention
+                   date (point effect).}
 \item{model}{The model estimated in the pre-intervention period,
              result of a call to \code{Arima}.}
-\item{sigma.mean}{The estimated standard deviation of the temporal average effect.}
-\item{sigma.sum}{The estimated standard deviation of the cumulative effect.}
+\item{dates}{The vector of dates considered in the analysis.}
+\item{int.date}{The intervention date.}
+\item{y}{The vector of observations considered in the analysis.}
+\item{forecast}{Forecasted time series in the absence of intervention.}
 }
 \description{
 Causal effect of an intervention

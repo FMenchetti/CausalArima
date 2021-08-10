@@ -2,20 +2,24 @@
 % Please edit documentation in R/plot_arima.R
 \name{plot.cArima}
 \alias{plot.cArima}
-\title{Plotting method for object of class cArima}
+\title{Plotting method for object of class 'cArima'}
 \usage{
-\method{plot}{cArima}(x, int.date, type = c("forecast", "impact", "residuals"), ...)
+\method{plot}{cArima}(x, type = c("forecast", "impact", "residuals"), horizon = NULL, ...)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}
 
-\item{int.date}{Date of the intervention (required for types "forecast" and "impact").}
-
 \item{type}{Character string indicating the plot to be produced. Possible values
 in c("forecast", "impact", "residuals").}
+
+\item{horizon}{Optional vector with elements of class \code{Date}. If provided, the function
+plots the pointwise causal effect (for \code{type = "impact"}) or the forecasted
+time series (for \code{type = "forecast"}) up to the required time horizon(s).}
+
+\item{...}{Optional arguments passed to \code{grid.arrange}, to be used if \code{!is.null(horizon)}.}
 }
 \description{
-Plotting method for object of class cArima
+Plotting method for object of class 'cArima'
 }
 \details{
 The option 'forecast' plots the observed time series as compared to the forecasted
@@ -23,7 +27,7 @@ series. The option 'impact' plots the causal effect at each point in time after 
 intervention date, as resulting from the direct comparison between the observed and
 forecasted time series. Finally, the option 'residuals' draws the autocorrelation and
 partial autocorrelation functions of the residuals of the model fitted to the data
-in the pre-intervention period as well as the Normal Q-Q Plot.
+in the pre-intervention period as well as the Normal QQ Plot.
 }
 \examples{
 ## Example 1 (daily data, no predictors)
@@ -41,8 +45,8 @@ start<-as.numeric(strftime(as.Date(dates[1], "\%Y-\%m-\%d"), "\%u"))
 ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
 
 # Plot
-plot(ce, type = "forecast", int.date = int.date)
-plot(ce, type = "impact", int.date = int.date)
+plot(ce, type = "forecast")
+plot(ce, type = "impact", horizon = horizon, nrow = 2, ncol = 1)
 plot(ce, type = "residuals")
 
 }

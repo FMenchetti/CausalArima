@@ -5,10 +5,10 @@
 ####                                                                              ####
 ####  Date last update: 2021-08-09                                                ####
 ####                                                                              ####
-####  Content:          Summary methods for objects of class 'cArima'             ####
+####  Content:          Summary & print methods for objects of class 'cArima'     ####
 ####                                                                              ####
-####  Main function :   summary.cArima                                            ####
-####                                                                              ####
+####  Main functions :   summary.cArima                                           ####
+####                     print.cArima                                             ####
 ######################################################################################
 ######################################################################################
 
@@ -16,13 +16,13 @@
 #'
 #' @param x Object of class \code{cArima}.
 #' @param type Character string indicating the summary to be produced. Possible values
-#'             in c("norm", "boot").
+#'             in \code{c("norm", "boot")}. Defaults to \code{"norm"}.
 #' @param horizon Optional vector with elements of class \code{Date}. If provided, the function
 #'                summarizes the point, cumulative and temporal average effects at the given
 #'                time horizon(s).
 #'
-#' @return A data.frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
-#'         a single row corresponding to the last date of the post-intervetion period) with the
+#' @return A data frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
+#'         a single row corresponding to the last date of the post-intervention period) with the
 #'         following columns:
 #'         \item{tau}{The estimated causal effect at the given time horizon or at the end of analysis
 #'                    period if \code{is.null(horizon)}.}
@@ -60,7 +60,7 @@
 #' summary(ce, type = "norm")
 #' summary(ce, type = "boot", horizon = horizon)
 #'
-summary.cArima<- function(x, type, horizon = NULL){
+summary.cArima<- function(x, type = "norm", horizon = NULL){
 
   if(!is.null(horizon)){
 
@@ -80,13 +80,58 @@ summary.cArima<- function(x, type, horizon = NULL){
     colnames(summary) <- c("Time horizon", colnames(x[[type]]$inf))
     summary[, 1] <- horizon
     summary[, 2:ncol] <- x[[type]]$inf[ind, ]
-    summary
 
   } else {
     h <- dim(x[[type]]$inf)[1]
-    x[[type]]$inf[h, ]
+    summary <- x[[type]]$inf[h, ]
   }
+
+  summary
 }
 
+# ------------------------------------------------------------------------------
 
+#' Print method for object of class 'cArima'
+#'
+#' Format and prints the point, cumulative and temporal average effects (standard errors
+#' and critical values) in a nice and clean output.
+#'
+#' @param x Object of class \code{cArima}.
+#' @param type Character string indicating the summary to be produced. Possible values
+#'             in \code{c("norm", "boot")}. Defaults to \code{"norm"}.
+#' @param horizon Optional vector with elements of class \code{Date}. If provided, the function
+#'                summarizes the point, cumulative and temporal average effects at the given
+#'                time horizon(s).
+#' @param digits Integer, indicating the number of decimal places to show in the output.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.cArima <- function(x, type = "norm", horizon = NULL, digits = 3){
+
+  # param checks
+  if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
+
+  # summary
+  sumryy <- summary(x, type = type, horizon = horizon)
+
+  # printing
+  if(is.numeric(sumryy)){
+    sumry <- as.matrix(round(sumryy, digits = digits))
+    obj <- rbind(as.matrix(sumry[1:5,]), "", as.matrix(sumry[6:10,]), "", as.matrix(sumry[11:15,]))
+    colnames(obj) <- ""
+
+  } else {
+
+    sumry <- round(t(sumryy[,-1]), digits = digits)
+    obj <- rbind(sumry[1:5,], "", sumry[6:10,], "", sumry[11:15,])
+    colnames(obj) <- paste(sumryy[,1])
+  }
+
+  rownames(obj) <- c("Point causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
+                     "Cumulative causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
+                     "Temporal average causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value")
+  noquote(obj)
+}
 

@@ -4,21 +4,21 @@
 \alias{summary.cArima}
 \title{Summary method for object of class 'cArima'}
 \usage{
-\method{summary}{cArima}(x, type, horizon = NULL)
+\method{summary}{cArima}(x, type = "norm", horizon = NULL)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}
 
 \item{type}{Character string indicating the summary to be produced. Possible values
-in c("norm", "boot").}
+in \code{c("norm", "boot")}. Defaults to \code{"norm"}.}
 
 \item{horizon}{Optional vector with elements of class \code{Date}. If provided, the function
 summarizes the point, cumulative and temporal average effects at the given
 time horizon(s).}
 }
 \value{
-A data.frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
-        a single row corresponding to the last date of the post-intervetion period) with the
+A data frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
+        a single row corresponding to the last date of the post-intervention period) with the
         following columns:
         \item{tau}{The estimated causal effect at the given time horizon or at the end of analysis
                    period if \code{is.null(horizon)}.}

@@ -3,7 +3,7 @@
     "path": "~/GitHub/CausalArima/R/plot_arima.R",
     "project_path": "R/plot_arima.R",
     "type": "r_source",
-    "hash": "2204643673",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1613579320062.0,
@@ -11,7 +11,7 @@
     "relative_order": 2,
     "properties": {
         "cursorPosition": "121,43",
-        "scrollLine": "111"
+        "scrollLine": "0"
     },
     "folds": "",
     "lastKnownWriteTime": 1628672952,

@@ -114,14 +114,14 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
 # -----------------------------------------------------------------------------------------
 
-.forecast <- function(cArima, horizon = NULL, ...){
+.forecast <- function(cArima, horizon = NULL, win = 0.4, ...){
 
   # Settings
   dates <- cArima$dates[!is.na(cArima$y)]
   int.date <- cArima$int.date
   observed <- na.omit(as.numeric(cArima$y))
   forecasted <- na.omit(c(cArima$model$fitted, cArima$forecast))
-  start <- which(dates == int.date) - round(0.4 * sum(dates < int.date))
+  start <- which(dates == int.date) - round(win * sum(dates < int.date))
   end <- length(forecasted)
   x <- dates[start:end]
 

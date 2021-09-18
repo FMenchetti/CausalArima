@@ -1,25 +1,25 @@
 {
-    "id": "8BAB2727",
-    "path": "~/GitHub/CausalArima/R/plot_var.R",
-    "project_path": "R/plot_var.R",
+    "id": "B923DD2B",
+    "path": "~/GitHub/CausalArima/R/print_arima.R",
+    "project_path": "R/print_arima.R",
     "type": "r_source",
     "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1617024518997.0,
+    "created": 1628532120871.0,
     "source_on_save": false,
-    "relative_order": 5,
+    "relative_order": 7,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "156,1",
+        "cursorPosition": "70,5",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1617040992,
+    "lastKnownWriteTime": 1628701178,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1617040992531,
+    "last_content_update": 1628701178223,
     "read_only": false,
     "read_only_alternatives": []
 }

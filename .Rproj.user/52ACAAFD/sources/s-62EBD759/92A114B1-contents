@@ -13,4 +13,4 @@ LazyData: true
 Depends: 
     forecast,
     ggplot2
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

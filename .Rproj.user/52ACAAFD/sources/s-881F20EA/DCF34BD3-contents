@@ -90,6 +90,7 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   if(length(int.date) != 1 || !any(class(dates) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
     stop("`int.date` must be a Date of length 1")
   if(!missing(nboot) && (!is.numeric(nboot) | nboot <= 0)) stop("`nboot` must be a positive numeric value")
+  if(auto && sum(sum(order), sum(seasonal)) > 0){auto <- FALSE}
 
   ### STEP 1. Subsetting the data: before and after the intervention date
   ind<-dates>=int.date

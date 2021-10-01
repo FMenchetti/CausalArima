@@ -168,8 +168,8 @@ qqplot.data <- function (vec) # argument: vector of numbers
   # Acf and Pacf
   # tapered
   if(tapered){
-    ACF<-taperedacf(std.res, nsim=boot)
-    PACF<-taperedpacf(std.res, nsim=boot)
+    ACF<-taperedacf(std.res, nsim=boot)+ ggtitle("Autocorrelation Function")
+    PACF<-taperedpacf(std.res, nsim=boot)+ ggtitle("Partial Autocorrelation Function")
   }
   else{
     ACF<-ggAcf(std.res)+ ggtitle("Autocorrelation Function")

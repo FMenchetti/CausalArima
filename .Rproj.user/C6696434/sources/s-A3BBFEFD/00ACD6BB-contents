@@ -25,4 +25,6 @@ ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic =
 
 plot(ce, type="impact")
 # plot(ce, type="forecast")
-plot(ce, type="residuals")
+plot(ce, type="residuals")->gatto
+plot(ce, type="residuals", tapered=T)->cane
+

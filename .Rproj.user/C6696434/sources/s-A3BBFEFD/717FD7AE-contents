@@ -162,12 +162,20 @@ qqplot.data <- function (vec) # argument: vector of numbers
 
 }
 
-.residuals <- function(cArima){
+.residuals <- function(cArima, tapered=FALSE, boot=1000){
   # Standardized residuals
   std.res <- scale(cArima$model$residuals)
   # Acf and Pacf
-  ACF<-ggAcf(std.res)+ ggtitle("Autocorrelation Function")
-  PACF<-ggPacf(std.res)+ ggtitle("Partial Autocorrelation Function")
+  # tapered
+  if(tapered){
+    ACF<-taperedacf(std.res, nsim=boot)
+    PACF<-taperedpacf(std.res, nsim=boot)
+  }
+  else{
+    ACF<-ggAcf(std.res)+ ggtitle("Autocorrelation Function")
+    PACF<-ggPacf(std.res)+ ggtitle("Partial Autocorrelation Function")
+  }
+
   # Normal QQ plot
   QQ_plot<-qqplot.data(std.res)+ggtitle("Normal Q-Q Plot") +
     xlab("Theoretical Quantiles") + ylab("Sample Quantiles")

@@ -67,26 +67,25 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
   # Plot "Observed vs Forecast"
   if("forecast" %in% type){
-    .forecast(x, horizon = horizon, ...)
+    res<-.forecast(x, horizon = horizon, ...)
+    return(res)
   }
 
   # Plot "Causal effect"
   if("impact" %in% type){
-    .impact(x, horizon = horizon, ...)
+    res<-.impact(x, horizon = horizon, ...)
+    return(res)
   }
 
   # Residuals plots
   if("residuals" %in% type){
     .residuals(x)
   }
-
-  # return(invisible())
 }
 
 # -----------------------------------------------------------------------------------------
 
 .impact <- function(cArima, horizon = NULL, alpha = 0.05, ...){
-
   # Settings
   dates <- cArima$dates[!is.na(cArima$causal.effect)]
   int.date <- cArima$int.date
@@ -95,21 +94,37 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   y.upper <- y + cArima$norm$inf[, "sd.tau"]*qnorm(1-alpha/2)
   y.lower <- y - cArima$norm$inf[, "sd.tau"]*qnorm(1-alpha/2)
 
-  # Plot
-  main <- "Point effect"
+  # Plot effect
   dat <- data.frame(x = x, y = y, y.upper = y.upper, y.lower = y.lower)
   ylim <- c(min(dat[, "y.lower"]), max(dat[, "y.upper"]))
-  g <- ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = main, y = "", x = "") +
+
+  g <- ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = "Point effect", y = "", x = "") +
     geom_line(aes(y = y), color = "navy") +
     geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = "steelblue", alpha =.5)
 
-  if(is.null(horizon)){ print(g) } else {
-    gg <- list()
-    for(i in 1:length(horizon)){
-      gg[[i]] <- g + xlim(int.date, horizon[i]) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
+  # Cumulative plot
+  dat_cum<-dat
+  dat_cum$y<-cumsum(dat$y)
+  dat_cum$y.upper<-cumsum(dat$y.upper)
+  dat_cum$y.lower<-cumsum(dat$y.lower)
+
+  g_cum <- ggplot(data = dat_cum, aes(x = x))  + labs(title = "Cumulative effect", y = "", x = "") +
+    geom_line(aes(y = y), color = "navy") +
+    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = "steelblue", alpha =.5)
+
+  if(is.null(horizon)){
+    results<-list(plot=g, cumulative_plot=g_cum)
+    print(grid.arrange(grobs=results))
+    return(results)
+    } else {
+      # gg <- list()
+      # for(i in 1:length(horizon)){
+      #   gg[[i]] <- g + xlim(int.date, horizon[i]) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
+      # }
+      # do.call(grid.arrange, c(gg, ...))
     }
-    do.call(grid.arrange, c(gg, ...))
-  }
+
+
 }
 
 # -----------------------------------------------------------------------------------------
@@ -138,12 +153,15 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     labs(color="Time series", linetype="Intervention date") +
     guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))
 
-  if(is.null(horizon)){ print(g) } else {
-    gg <- list()
-    for(i in 1:length(horizon)){
-      gg[[i]] <- g + xlim(c(dates[start], horizon[i])) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
-    }
-    do.call(grid.arrange, c(gg, ...))
+  if(is.null(horizon)){
+    print(g)
+    return(g)
+    } else {
+    # gg <- list()
+    # for(i in 1:length(horizon)){
+    #   gg[[i]] <- g + xlim(c(dates[start], horizon[i])) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
+    # }
+    # do.call(grid.arrange, c(gg, ...))
   }
 }
 
@@ -179,5 +197,8 @@ qqplot.data <- function (vec) # argument: vector of numbers
   # Normal QQ plot
   QQ_plot<-qqplot.data(std.res)+ggtitle("Normal Q-Q Plot") +
     xlab("Theoretical Quantiles") + ylab("Sample Quantiles")
-  return(list(ACF=ACF,PACF=PACF, QQ_plot=QQ_plot))
+  # return plots
+  results<-list(ACF=ACF,PACF=PACF, QQ_plot=QQ_plot)
+  print(grid.arrange(grobs=results))
+  return(results)
 }

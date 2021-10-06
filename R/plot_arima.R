@@ -85,7 +85,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
 # -----------------------------------------------------------------------------------------
 
-.impact <- function(cArima, horizon = NULL, alpha = 0.05, ...){
+.impact <- function(cArima, horizon = NULL, alpha = 0.05, printing=TRUE, ...){
   # Settings
   dates <- cArima$dates[!is.na(cArima$causal.effect)]
   int.date <- cArima$int.date
@@ -118,14 +118,18 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   }
 
   results<-list(plot=g, cumulative_plot=g_cum)
-  print(grid.arrange(grobs=results))
+
+  if(printing){
+    print(grid.arrange(grobs=results))
+  }
+
   return(results)
 
 }
 
 # -----------------------------------------------------------------------------------------
 
-.forecast <- function(cArima, horizon = NULL, win = 0.4, ...){
+.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE, ...){
 
   # Settings
   dates <- cArima$dates[!is.na(cArima$y)]
@@ -160,7 +164,9 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   if(!is.null(horizon)){
     g<-g+ geom_vline(xintercept = horizon, linetype="dashed")
   }
-  print(g)
+  if(printing){
+    print(g)
+  }
   return(g)
 }
 
@@ -179,7 +185,7 @@ qqplot.data <- function (vec) # argument: vector of numbers
 
 }
 
-.residuals <- function(cArima, tapered=FALSE, boot=1000){
+.residuals <- function(cArima, tapered=FALSE, boot=1000, printing=TRUE){
   # Standardized residuals
   std.res <- scale(cArima$model$residuals)
   # Acf and Pacf
@@ -196,8 +202,13 @@ qqplot.data <- function (vec) # argument: vector of numbers
   # Normal QQ plot
   QQ_plot<-qqplot.data(std.res)+ggtitle("Normal Q-Q Plot") +
     xlab("Theoretical Quantiles") + ylab("Sample Quantiles")
+
   # return plots
   results<-list(ACF=ACF,PACF=PACF, QQ_plot=QQ_plot)
-  print(grid.arrange(grobs=results))
+
+  if(printing){
+    print(grid.arrange(grobs=results))
+  }
+
   return(results)
 }

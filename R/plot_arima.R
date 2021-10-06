@@ -112,18 +112,14 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     geom_line(aes(y = y), color = "navy") +
     geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = "steelblue", alpha =.5)
 
-  if(is.null(horizon)){
-    results<-list(plot=g, cumulative_plot=g_cum)
-    print(grid.arrange(grobs=results))
-    return(results)
-    } else {
-      # gg <- list()
-      # for(i in 1:length(horizon)){
-      #   gg[[i]] <- g + xlim(int.date, horizon[i]) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
-      # }
-      # do.call(grid.arrange, c(gg, ...))
-    }
+  if(!is.null(horizon)){
+    g<-g+ geom_vline(xintercept = horizon, linetype="dashed")
+    g_cum<-g_cum+ geom_vline(xintercept = horizon, linetype="dashed")
+  }
 
+  results<-list(plot=g, cumulative_plot=g_cum)
+  print(grid.arrange(grobs=results))
+  return(results)
 
 }
 
@@ -136,33 +132,36 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   int.date <- cArima$int.date
   observed <- na.omit(as.numeric(cArima$y))
   forecasted <- na.omit(c(cArima$model$fitted, cArima$forecast))
+
+  forecasted_up<-forecasted_inf<-rep(NA, length(na.omit(cArima$model$fitted)))
+  forecasted_up<-append(forecasted_up, cArima$forecast_upper)
+  forecasted_inf<-append(forecasted_inf, cArima$forecast_lower)
+
   start <- which(dates == int.date) - round(win * sum(dates < int.date))
   end <- length(forecasted)
   x <- dates[start:end]
 
   # Plot
-  dat <- data.frame(x = x, forecasted.cut = forecasted[start:end], observed.cut = observed[start:end])
-  ylim <- c(min(dat[, -1]), max(dat[, -1]))
-  main <- "Forecasted series"
-  g <- ggplot(data = dat, aes(x = x, colour = "Legend")) +  coord_cartesian(ylim = ylim) + labs(title = main, y = "", x = "") +
+  dat <- data.frame(x = x, forecasted.cut = forecasted[start:end], observed.cut = observed[start:end],
+                    forecasted_up=forecasted_up[start:end], forecasted_inf=forecasted_inf[start:end])
+  ylim <- c(min(dat[, -1], na.rm = T), max(dat[, -1], na.rm = T))
+
+  g <- ggplot(data = dat, aes(x = x, colour = "Legend")) +  coord_cartesian(ylim = ylim) +
+    labs(title = "Forecasted series", y = "", x = "") +
+     scale_colour_manual(values = c("navy", "gray40", "black")) +
+    geom_vline(aes(xintercept = int.date, linetype = paste(int.date))) +
+    scale_linetype_manual(values = "longdash") +
+    labs(color="Time series", linetype="Intervention date") +
+    guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))+
     geom_line(aes(y = forecasted.cut, color = "Forecast"))  +
     geom_line(aes(y = observed.cut, color = "Observed")) +
-    scale_colour_manual(values = c("deepskyblue", "gray40")) +
-    geom_vline(aes(xintercept = int.date, linetype = paste(int.date))) +
-    scale_linetype_manual(values = "dashed") +
-    labs(color="Time series", linetype="Intervention date") +
-    guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))
+    geom_ribbon(aes(ymin = forecasted_inf, ymax = forecasted_up, color="Intervals"), fill = "steelblue", alpha =.5)
 
-  if(is.null(horizon)){
-    print(g)
-    return(g)
-    } else {
-    # gg <- list()
-    # for(i in 1:length(horizon)){
-    #   gg[[i]] <- g + xlim(c(dates[start], horizon[i])) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
-    # }
-    # do.call(grid.arrange, c(gg, ...))
+  if(!is.null(horizon)){
+    g<-g+ geom_vline(xintercept = horizon, linetype="dashed")
   }
+  print(g)
+  return(g)
 }
 
 # -----------------------------------------------------------------------------------------

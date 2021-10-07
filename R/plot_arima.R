@@ -129,7 +129,8 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
 # -----------------------------------------------------------------------------------------
 
-.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE){
+.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE, colours=c("navy", "gray40", "black"),
+                      fill_colour="steelblue", alpha_fill=0.5, lines_size=0.5){
 
   # Settings
   dates <- cArima$dates[!is.na(cArima$y)]
@@ -152,14 +153,15 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
   g <- ggplot(data = dat, aes(x = x, colour = "Legend")) +  coord_cartesian(ylim = ylim) +
     labs(title = "Forecasted series", y = "", x = "") +
-     scale_colour_manual(values = c("navy", "gray40", "black")) +
+     scale_colour_manual(values =colours ) +
     geom_vline(aes(xintercept = int.date, linetype = paste(int.date))) +
     scale_linetype_manual(values = "longdash") +
     labs(color="Time series", linetype="Intervention date") +
-    guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))+
-    geom_line(aes(y = forecasted.cut, color = "Forecast"))  +
-    geom_line(aes(y = observed.cut, color = "Observed")) +
-    geom_ribbon(aes(ymin = forecasted_inf, ymax = forecasted_up, color="Intervals"), fill = "steelblue", alpha =.5)
+    # guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))+
+    guides(color=guide_legend(override.aes=list(fill=NA)))+
+    geom_ribbon(aes(ymin = forecasted_inf, ymax = forecasted_up, color="Intervals"), fill = fill_colour, alpha =alpha_fill)+
+    geom_line(aes(y = forecasted.cut, color = "Forecast"), size = lines_size)  +
+    geom_line(aes(y = observed.cut, color = "Observed"), size = lines_size)
 
   if(!is.null(horizon)){
     g<-g+ geom_vline(xintercept = horizon, linetype="dashed")

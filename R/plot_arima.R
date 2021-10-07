@@ -79,13 +79,13 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
   # Residuals plots
   if("residuals" %in% type){
-    .residuals(x)
+    .residuals(x, ...)
   }
 }
 
 # -----------------------------------------------------------------------------------------
 
-.impact <- function(cArima, horizon = NULL, alpha = 0.05, printing=TRUE, ...){
+.impact <- function(cArima, horizon = NULL, alpha = 0.05, printing=TRUE){
   # Settings
   dates <- cArima$dates[!is.na(cArima$causal.effect)]
   int.date <- cArima$int.date
@@ -129,7 +129,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
 # -----------------------------------------------------------------------------------------
 
-.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE, ...){
+.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE){
 
   # Settings
   dates <- cArima$dates[!is.na(cArima$y)]
@@ -185,19 +185,12 @@ qqplot.data <- function (vec) # argument: vector of numbers
 
 }
 
-.residuals <- function(cArima, tapered=FALSE, boot=1000, printing=TRUE){
+.residuals <- function(cArima, printing=TRUE){
   # Standardized residuals
   std.res <- scale(cArima$model$residuals)
   # Acf and Pacf
-  # tapered
-  if(tapered){
-    ACF<-taperedacf(std.res, nsim=boot)+ ggtitle("Autocorrelation Function")
-    PACF<-taperedpacf(std.res, nsim=boot)+ ggtitle("Partial Autocorrelation Function")
-  }
-  else{
     ACF<-ggAcf(std.res)+ ggtitle("Autocorrelation Function")
     PACF<-ggPacf(std.res)+ ggtitle("Partial Autocorrelation Function")
-  }
 
   # Normal QQ plot
   QQ_plot<-qqplot.data(std.res)+ggtitle("Normal Q-Q Plot") +

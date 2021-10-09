@@ -85,7 +85,8 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
 # -----------------------------------------------------------------------------------------
 
-.impact <- function(cArima, horizon = NULL, alpha = 0.05, printing=TRUE){
+.impact <- function(cArima, horizon = NULL, alpha = 0.05, printing=TRUE, color_line="navy", color_intervals="steelblue",
+                    transparency=0.5){
   # Settings
   dates <- cArima$dates[!is.na(cArima$causal.effect)]
   int.date <- cArima$int.date
@@ -99,8 +100,8 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   ylim <- c(min(dat[, "y.lower"]), max(dat[, "y.upper"]))
 
   g <- ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = "Point effect", y = "", x = "") +
-    geom_line(aes(y = y), color = "navy") +
-    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = "steelblue", alpha =.5)
+    geom_line(aes(y = y), color = color_line) +
+    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill =color_intervals , alpha =transparency)
 
   # Cumulative plot
   dat_cum<-dat
@@ -109,8 +110,8 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   dat_cum$y.lower<-cumsum(dat$y.lower)
 
   g_cum <- ggplot(data = dat_cum, aes(x = x))  + labs(title = "Cumulative effect", y = "", x = "") +
-    geom_line(aes(y = y), color = "navy") +
-    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = "steelblue", alpha =.5)
+    geom_line(aes(y = y), color =color_line) +
+    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = color_intervals, alpha =transparency)
 
   if(!is.null(horizon)){
     g<-g+ geom_vline(xintercept = horizon, linetype="dashed")
@@ -130,7 +131,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 # -----------------------------------------------------------------------------------------
 
 .forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE, colours=c("navy", "gray40", "black"),
-                      fill_colour="steelblue", alpha_fill=0.5, lines_size=0.5){
+                      fill_colour="steelblue", transparency=0.5, lines_size=0.5){
 
   # Settings
   dates <- cArima$dates[!is.na(cArima$y)]
@@ -159,16 +160,19 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     labs(color="Time series", linetype="Intervention date") +
     # guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))+
     guides(color=guide_legend(override.aes=list(fill=NA)))+
-    geom_ribbon(aes(ymin = forecasted_inf, ymax = forecasted_up, color="Intervals"), fill = fill_colour, alpha =alpha_fill)+
+    geom_ribbon(aes(ymin = forecasted_inf, ymax = forecasted_up, color="Intervals"), fill = fill_colour, alpha =transparency)+
     geom_line(aes(y = forecasted.cut, color = "Forecast"), size = lines_size)  +
     geom_line(aes(y = observed.cut, color = "Observed"), size = lines_size)
 
   if(!is.null(horizon)){
     g<-g+ geom_vline(xintercept = horizon, linetype="dashed")
   }
+
   if(printing){
     print(g)
   }
+
+
   return(g)
 }
 
@@ -187,12 +191,12 @@ qqplot.data <- function (vec) # argument: vector of numbers
 
 }
 
-.residuals <- function(cArima, printing=TRUE){
+.residuals <- function(cArima, printing=TRUE, max_lag=30){
   # Standardized residuals
   std.res <- scale(cArima$model$residuals)
   # Acf and Pacf
-    ACF<-ggAcf(std.res)+ ggtitle("Autocorrelation Function")
-    PACF<-ggPacf(std.res)+ ggtitle("Partial Autocorrelation Function")
+    ACF<-ggAcf(std.res, lag.max	=max_lag)+ ggtitle("Autocorrelation Function")
+    PACF<-ggPacf(std.res, lag.max	=max_lag)+ ggtitle("Partial Autocorrelation Function")
 
   # Normal QQ plot
   QQ_plot<-qqplot.data(std.res)+ggtitle("Normal Q-Q Plot") +
@@ -204,6 +208,7 @@ qqplot.data <- function (vec) # argument: vector of numbers
   if(printing){
     print(grid.arrange(grobs=results))
   }
+
 
   return(results)
 }

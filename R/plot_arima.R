@@ -102,7 +102,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     theme_bw(base_size = 15)+
     geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill =color_intervals)+
     geom_hline(yintercept=0, colour = "darkgrey", size = 0.8, linetype = "solid")+
-    geom_line(aes(y = y), color = color_line, linetype = "longdash")
+    geom_line(aes(y = y), color = color_line, linetype = "dashed")
 
 
   # Cumulative plot
@@ -115,7 +115,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     theme_bw(base_size = 15)+
     geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = color_intervals)+
     geom_hline(yintercept=0, colour = "darkgrey", size = 0.8, linetype = "solid")+
-    geom_line(aes(y = y), color =color_line, linetype = "longdash")
+    geom_line(aes(y = y), color =color_line, linetype = "dashed")
 
   if(!is.null(horizon)){
     g<-g+ geom_vline(xintercept = horizon, linetype="dashed")
@@ -134,7 +134,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
 # -----------------------------------------------------------------------------------------
 
-.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE, colours=c("darkblue", "slategray2", "black"),
+.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE, colours=c("darkblue", "black"),
                       fill_colour="slategray2", lines_size=0.8){
 
   # Settings
@@ -159,13 +159,13 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   g <- ggplot(data = dat, aes(x = x, colour = "Legend")) +  coord_cartesian(ylim = ylim) +  theme_bw(base_size = 15)+
     labs(title = "Forecasted series", y = "", x = "") +
      scale_colour_manual(values =colours ) +
-    geom_ribbon(aes(ymin = forecasted_inf, ymax = forecasted_up, color="Intervals"), fill = fill_colour)+
     geom_vline(aes(xintercept = int.date, linetype = paste(int.date)), colour = "darkgrey", size = lines_size) +
     scale_linetype_manual(values = "dashed") +
     labs(color="Time series", linetype="Intervention date") +
     guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))+
     guides(color=guide_legend(override.aes=list(fill=NA)))+
-    geom_line(aes(y = forecasted.cut, color = "Forecast"), size = lines_size, linetype ="longdash")  +
+    geom_lineribbon(aes(y = forecasted.cut, color = "Forecast", ymin = forecasted_inf, ymax = forecasted_up),
+                    size = lines_size, linetype ="dashed", fill = fill_colour)+
     geom_line(aes(y = observed.cut, color = "Observed"), size = lines_size)
 
   if(!is.null(horizon)){

@@ -74,7 +74,7 @@
 #' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
 #'
 CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0), ic = "aic", xreg = NULL, dates,
-                      int.date, arima.args = list(), auto.args = list(), nboot = NULL){
+                      int.date, arima.args = list(), auto.args = list(), nboot = NULL, alpha=0.05){
 
   ### param checks
   if(class(y) != "ts") stop("y must be an object of class ts")
@@ -120,8 +120,10 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
 
   ### STEP 3. Forecasting the counterfactual outcome in the absence of intervention
   h<-length(y.01)
-  fcast<-forecast(model, xreg = xreg1, h = h)
+  fcast<-forecast(model, xreg = xreg1, h = h, level=1-alpha)
   mean.fcast.0<-as.numeric(fcast$mean)
+  forecasted_low<-as.numeric(fcast$lower)
+  forecasted_up<-as.numeric(fcast$upper)
 
   # Check
   if(sum(y<0, na.rm = T)==0 & sum(mean.fcast.0<0, na.rm = T)>0){print("warning: negative forecasts for a positive variable")
@@ -172,7 +174,8 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
 
   ### STEP 6. Saving results
   my_list <- list(norm = norm, boot = boot, causal.effect = causal.effect.0, model = model,
-                  dates = dates, int.date = int.date, y = y, forecast = mean.fcast.0)
+                  dates = dates, int.date = int.date, y = y, forecast = mean.fcast.0, forecast_lower=forecasted_low,
+                  forecast_upper=forecasted_up)
   class(my_list) <- "cArima"
   return(my_list)
 

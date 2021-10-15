@@ -199,12 +199,12 @@ qqplot.data <- function (vec) # argument: vector of numbers
   # Standardized residuals
   std.res <- scale(cArima$model$residuals)
   # Acf and Pacf
-    ACF<-ggAcf(std.res, lag.max	=max_lag)+ ggtitle("Autocorrelation Function")
-    PACF<-ggPacf(std.res, lag.max	=max_lag)+ ggtitle("Partial Autocorrelation Function")
+    ACF<-ggAcf(std.res, lag.max	=max_lag)+ ggtitle("Autocorrelation Function") +theme_bw(base_size = 15)
+    PACF<-ggPacf(std.res, lag.max	=max_lag)+ ggtitle("Partial Autocorrelation Function") +  theme_bw(base_size = 15)
 
   # Normal QQ plot
   QQ_plot<-qqplot.data(std.res)+ggtitle("Normal Q-Q Plot") +
-    xlab("Theoretical Quantiles") + ylab("Sample Quantiles")
+    xlab("Theoretical Quantiles") + ylab("Sample Quantiles")+theme_bw(base_size = 15)
 
   # return plots
   results<-list(ACF=ACF,PACF=PACF, QQ_plot=QQ_plot)

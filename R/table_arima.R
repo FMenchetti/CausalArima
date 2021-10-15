@@ -54,7 +54,7 @@
 #'
 #' # Causal effect estimation
 #' start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
-#' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
+#' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
 #'
 #' # Table of the estimated temporal average effects
 #' ResultTable(ce, type = "norm", horizon = horizon)

@@ -120,3 +120,14 @@ grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+
+## Learn more
+
+You can read more on [Estimating the causal effect of an intervention in
+a time series setting: the C-ARIMA
+approach](https://arxiv.org/abs/2103.06740) (Fiammetta Menchetti,
+Fabrizio Cipollini, Fabrizia Mealli, 2021).
+
+It is also available on youtube a video of a webinar on the topic:
+![Fiammetta Menchetti: Estimating the causal effect of an intervention
+in a time series setting](https://www.youtube.com/watch?v=RjMEtv3C5S0)

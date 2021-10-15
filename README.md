@@ -65,7 +65,6 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 ```
 
 ``` r
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
 fore<-plot(ce, type="forecast")
 ```
 
@@ -81,19 +80,22 @@ impact<-plot(ce, type="impact")
     #>                 z     cells    name           grob
     #> plot            1 (1-1,1-1) arrange gtable[layout]
     #> cumulative_plot 2 (2-2,1-1) arrange gtable[layout]
-    residuals<-plot(ce, type="residuals")
+    table(ce)
+    #>     2014-04-14 
+    #> avg 10.36^{***}
+    #> sd  (0.22)
 
-<img src="man/figures/README-unnamed-chunk-2-3.png" width="100%" />
+``` r
+residuals<-plot(ce, type="residuals")
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
     #> TableGrob (3 x 1) "arrange": 3 grobs
     #>         z     cells    name           grob
     #> ACF     1 (1-1,1-1) arrange gtable[layout]
     #> PACF    2 (2-2,1-1) arrange gtable[layout]
     #> QQ_plot 3 (3-3,1-1) arrange gtable[layout]
-    table(ce)
-    #>     2014-04-14 
-    #> avg 10.36^{***}
-    #> sd  (0.22)
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
 up-to-date.

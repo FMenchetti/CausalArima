@@ -61,12 +61,15 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 
 
 
-```{r}
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+```{r, warning=FALSE, message=FALSE}
 fore<-plot(ce, type="forecast")
 impact<-plot(ce, type="impact")
-residuals<-plot(ce, type="residuals")
 table(ce)
+```
+
+
+```{r}
+residuals<-plot(ce, type="residuals")
 ```
 
 

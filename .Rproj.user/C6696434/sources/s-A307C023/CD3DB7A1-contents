@@ -62,13 +62,20 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 
 
 ```{r, warning=FALSE, message=FALSE}
-fore<-plot(ce, type="forecast")
-impact<-plot(ce, type="impact")
+forecasted<-plot(ce, type="forecast", printing=FALSE)
+impact<-plot(ce, type="impact", printing=FALSE)
+
+grid.arrange(forecasted, impact$plot, impact$cumulative_plot)
+```
+
+
+```{r}
 table(ce)
 ```
 
 
 ```{r}
-residuals<-plot(ce, type="residuals")
+residuals<-plot(ce, type="residuals", printing=FALSE)
+grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 

@@ -65,34 +65,24 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 ```
 
 ``` r
-fore<-plot(ce, type="forecast")
+forecasted<-plot(ce, type="forecast", printing=FALSE)
+impact<-plot(ce, type="impact", printing=FALSE)
+
+grid.arrange(forecasted, impact$plot, impact$cumulative_plot)
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ``` r
-impact<-plot(ce, type="impact")
+table(ce)
+#>     2014-04-14 
+#> avg 10.36^{***}
+#> sd  (0.22)
 ```
-
-<img src="man/figures/README-unnamed-chunk-2-2.png" width="100%" />
-
-    #> TableGrob (2 x 1) "arrange": 2 grobs
-    #>                 z     cells    name           grob
-    #> plot            1 (1-1,1-1) arrange gtable[layout]
-    #> cumulative_plot 2 (2-2,1-1) arrange gtable[layout]
-    table(ce)
-    #>     2014-04-14 
-    #> avg 10.36^{***}
-    #> sd  (0.22)
 
 ``` r
-residuals<-plot(ce, type="residuals")
+residuals<-plot(ce, type="residuals", printing=FALSE)
+grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
-
-    #> TableGrob (3 x 1) "arrange": 3 grobs
-    #>         z     cells    name           grob
-    #> ACF     1 (1-1,1-1) arrange gtable[layout]
-    #> PACF    2 (2-2,1-1) arrange gtable[layout]
-    #> QQ_plot 3 (3-3,1-1) arrange gtable[layout]
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />

@@ -3,7 +3,7 @@
     "path": "C:/Users/eugen/OneDrive/Desktop/gente/fiammetta/test_plot.R",
     "project_path": null,
     "type": "r_source",
-    "hash": "0",
+    "hash": "585286450",
     "contents": "",
     "dirty": false,
     "created": 1633095532272.0,
@@ -11,15 +11,15 @@
     "relative_order": 1,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "15,42",
-        "scrollLine": "0"
+        "cursorPosition": "24,35",
+        "scrollLine": "13"
     },
     "folds": "",
-    "lastKnownWriteTime": 1634223241,
+    "lastKnownWriteTime": 1634302231,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1634223241,
+    "last_content_update": 1634302231868,
     "read_only": false,
     "read_only_alternatives": []
 }

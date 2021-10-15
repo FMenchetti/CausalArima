@@ -3,22 +3,22 @@
     "path": "~/GitHub/CausalArima/README.Rmd",
     "project_path": "README.Rmd",
     "type": "r_markdown",
-    "hash": "3247125585",
+    "hash": "3466701989",
     "contents": "",
     "dirty": false,
     "created": 1634300937642.0,
     "source_on_save": false,
     "relative_order": 4,
     "properties": {
-        "cursorPosition": "95,46",
-        "scrollLine": "82"
+        "cursorPosition": "110,149",
+        "scrollLine": "109"
     },
     "folds": "",
-    "lastKnownWriteTime": 1634304639,
+    "lastKnownWriteTime": 1634306370,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1634304639029,
+    "last_content_update": 1634306373511,
     "read_only": false,
     "read_only_alternatives": []
 }

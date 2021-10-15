@@ -121,6 +121,46 @@ grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
+## Modify the plots
+
+The plotting functions have some graphical parameters that make easier
+to personalize the plots:
+
+``` r
+forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
+               colours=c("red", "blue"))
+forecasted_2
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+
+All plotting functions return a ggplot object or a list of ggplot
+objects, which makes easy to modify any ggplot parameters of the theme
+([here](https://ggplot2.tidyverse.org/reference/theme.html) a reference
+to the many ggplot parameters that can be modified):
+
+``` r
+forecasted+ theme(legend.text = element_text(size=10, colour = "red", family ="mono"),
+                legend.title = element_text(size=14, colour = "blue", family ="sans"),
+                title= element_text(size=20, colour = "green", family ="serif"),
+                axis.line=element_line(size=2, colour="yellow"),
+                legend.position = "bottom"
+                )
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+The ggthemes package can be useful to employ directly some
+pre-customized themes, for example we can use the Wall Street Journal
+theme simply typing:
+
+``` r
+library(ggthemes)
+forecasted+theme_wsj()
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+
 ## Learn more
 
 You can read more on [Estimating the causal effect of an intervention in

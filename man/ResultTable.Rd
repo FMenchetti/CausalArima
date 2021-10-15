@@ -2,7 +2,7 @@
 % Please edit documentation in R/table_arima.R
 \name{ResultTable}
 \alias{ResultTable}
-\title{Function to create ready-to-use tables from a call to CausalArima}
+\title{Function to create ready-to-use tables of the estimated causal effects from a call to CausalArima}
 \usage{
 ResultTable(
   x,
@@ -33,7 +33,7 @@ If \code{NULL}, the table refers to the last date of the analysis period.}
 \item{digits}{Number of decimal places, defaults to 2.}
 }
 \description{
-Function to create ready-to-use tables from a call to CausalArima
+Function to create ready-to-use tables of the estimated causal effects from a call to CausalArima
 }
 \examples{
 ## Example 2 (weekly data, with predictors)

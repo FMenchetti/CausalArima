@@ -7,7 +7,7 @@
 ####                                                                              ####
 ####  Content:          Table method for object of class cArima                   ####
 ####                                                                              ####
-####  Main function :   ResultTable                                                    ####
+####  Main function :   ResultTable, CoefficientsTable                                                    ####
 ####  Dependencies:     .star                                                     ####
 ####                                                                              ####
 ####                                                                              ####
@@ -18,7 +18,7 @@
 # TABULARE ANCHE LE ALTRE STATISTICHE TUTTE INSIEME?
 # LET THE USERS CHANGE PVALUES IN STAR?
 
-#' Function to create ready-to-use tables from a call to CausalArima
+#' Function to create ready-to-use tables of the estimated causal effects from a call to CausalArima
 #'
 #' @param x Object of class \code{cArima}.
 #' @param type Character, indicating whether to produce a table reporting
@@ -73,7 +73,7 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
   # Settings
   if(is.null(horizon)){ horizon <- tail(x$dates, 1)}
   sumry <- as.matrix(summary(x, type = type, horizon = horizon)[, paste("pvalue.", stat, ".", direction, sep = "")])
-  star. <- apply(sumry, 2, FUN = ".star") ## aggiungi tipo paste(^{..})
+  star. <- apply(sumry, 2, FUN = ".star")
 
   # Table
   effects <- round(summary(x, type = type, horizon = horizon)[, paste(stat)], digits = digits)
@@ -95,6 +95,50 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
   }
 
   noquote(tab)
+}
+
+# -----------------------------------------------------------------------------------------
+
+#' Function to create a table of the estimated model coefficients from a call to CausalArima
+#'
+#' @importFrom stargazer stargazer
+#' @param x Object of class \code{cArima}.
+#' @param ... Optional arguments to pass on \code{stargazer()}.
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples
+#' ## Example 2 (weekly data, with predictors)
+#' # Generating a time series of length 800 and a vector of dates
+#' y <- rnorm(800, sd = 1)
+#' dates <- seq.Date(from = as.Date("2005-01-01"), by = "week", length.out = 800)
+#'
+#' # Generating predictors
+#' x1 <- rnorm(800, mean = 2, sd = 0.5)
+#' x2 <- rnorm(800, mean = 3, sd = 0.5)
+#' y <- y -2*x1 + x2
+#'
+#' # Adding a fictional intervention
+#' int.date <- as.Date("2019-05-11")
+#' horizon <- c(as.Date("2019-12-07"), as.Date("2020-02-15"), as.Date("2020-04-25"))
+#' y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.40
+#'
+#' # Causal effect estimation
+#' start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
+#' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
+#'
+#' # Table of the estimated temporal average effects
+#' CoefficientsTable(ce)
+#'
+CoefficientsTable <- function(x, ...){
+
+  # param checks
+  if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
+
+  model <- x$model[1:14]
+  class(model) <- "Arima"
+  stargazer(model, dep.var.labels = "Y", ...)
 }
 
 # -----------------------------------------------------------------------------------------

@@ -64,25 +64,59 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
                   xreg =x1)
 ```
 
+How to obtain the plot of the forecast:
+
 ``` r
 forecasted<-plot(ce, type="forecast", printing=FALSE)
-impact<-plot(ce, type="impact", printing=FALSE)
-
-grid.arrange(forecasted, impact$plot, impact$cumulative_plot)
+forecasted
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
+How to obtain the plot of the estimated effects and cumulative effects:
+
 ``` r
+
+impact<-plot(ce, type="impact", printing=FALSE)
+grid.arrange(impact$plot, impact$cumulative_plot)
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+How to obtain the estimates of the effects:
+
+``` r
+print(ce)
+#>                                       
+#> Point causal effect            12.257 
+#> Standard error                 1.211  
+#> Left-sided p-value             1      
+#> Bidirectional p-value          0      
+#> Right-sided p-value            0      
+#>                                       
+#> Cumulative causal effect       310.709
+#> Standard error                 6.634  
+#> Left-sided p-value             1      
+#> Bidirectional p-value          0      
+#> Right-sided p-value            0      
+#>                                       
+#> Temporal average causal effect 10.357 
+#> Standard error                 0.221  
+#> Left-sided p-value             1      
+#> Bidirectional p-value          0      
+#> Right-sided p-value            0
 table(ce)
 #>     2014-04-14 
 #> avg 10.36^{***}
 #> sd  (0.22)
 ```
 
+How to inspect the residuals, with the plots of autocorrelation (ACF)
+and partial autocorrelation (PACF) functions and QQ-plots:
+
 ``` r
 residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />

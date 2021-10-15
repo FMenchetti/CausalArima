@@ -1,0 +1,3 @@
+"0",""
+"0","impact<-plot(ce, type=""impact"", printing=FALSE)"
+"0","grid.arrange(impact$plot, impact$cumulative_plot)"

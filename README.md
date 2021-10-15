@@ -96,13 +96,3 @@ residuals<-plot(ce, type="residuals")
     #> ACF     1 (1-1,1-1) arrange gtable[layout]
     #> PACF    2 (2-2,1-1) arrange gtable[layout]
     #> QQ_plot 3 (3-3,1-1) arrange gtable[layout]
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub\!

@@ -7,7 +7,7 @@
 ####                                                                              ####
 ####  Content:          Table method for object of class cArima                   ####
 ####                                                                              ####
-####  Main function :   table                                                     ####
+####  Main function :   ResultTable                                                    ####
 ####  Dependencies:     .star                                                     ####
 ####                                                                              ####
 ####                                                                              ####
@@ -57,9 +57,9 @@
 #' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
 #'
 #' # Table of the estimated temporal average effects
-#' table(ce, type = "norm", stat = "avg", horizon = horizon)
+#' ResultTable(ce, type = "norm", horizon = horizon)
 
-table <- function(x, type = "norm", stat = "avg", direction = "b", horizon = NULL, digits = 2){
+ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), direction = "b", horizon = NULL, digits = 2){
 
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
@@ -67,23 +67,31 @@ table <- function(x, type = "norm", stat = "avg", direction = "b", horizon = NUL
     stop("`horizon` must be a Date object")
   if(!(type %in% c("norm", "boot"))) stop("allowed 'type' values are 'norm' or 'boot'")
   if(length(x$boot) ==0 & type == "boot") stop("no bootstrap estimates to table, please check CausalArima 'nboot' parameter")
-  if(!stat %in% c("tau", "sum", "avg")) stop("allowed 'stat' values are 'tau', 'sum', 'avg'")
+  if(!all(stat %in% c("tau", "sum", "avg"))) stop("allowed 'stat' values are 'tau', 'sum', 'avg'")
   if(!direction %in% c("l", "b", "r")) stop("allowed 'direction' values are 'l', 'b', 'r'")
 
   # Settings
   if(is.null(horizon)){ horizon <- tail(x$dates, 1)}
-
-  tab <- matrix(NA, nrow = 1, ncol = length(horizon))
-  colnames(tab) <- paste(horizon)
-  rownames(tab) <- paste(stat)
-  star. <- .star(summary(x, type = type, horizon = horizon)[, paste("pvalue.", stat, ".", direction, sep = "")])
+  sumry <- as.matrix(summary(x, type = type, horizon = horizon)[, paste("pvalue.", stat, ".", direction, sep = "")])
+  star. <- apply(sumry, 2, FUN = ".star") ## aggiungi tipo paste(^{..})
 
   # Table
-  tab[1,] <- paste(round(summary(x, type = type, horizon = horizon)[, paste(stat)], digits = digits), "^{", star., "}", sep="" )
-  tab[1,] <- gsub(tab[1,], pattern = "\\^\\{ \\}", replacement = "")
+  effects <- round(summary(x, type = type, horizon = horizon)[, paste(stat)], digits = digits)
+  tab <- matrix(paste0(unlist(effects), c(unlist(star.))), nrow = length(stat), ncol = length(horizon), byrow = T)
+  rownames(tab) <- stat
+  colnames(tab) <- paste(horizon)
 
   if(type == "norm"){
-    tab <- rbind(tab, sd = paste("(",round(summary(x, type = type, horizon = horizon)[, paste("sd.", stat, sep = "")], digits = digits),")", sep = ""))
+    sd <- as.matrix(round(summary(x, type = type, horizon = horizon)[, paste("sd.", stat, sep = "")], digits = digits))
+    sd <- t(apply(sd, 2, FUN = function(x)(paste0("(", x, ")"))))
+    tab_norm <- matrix(NA, nrow = 2*length(stat), ncol = length(horizon))
+    even <- as.logical(seq_len(nrow(tab_norm))%%2)
+    tab_norm[even, ] <- tab
+    tab_norm[!even, ] <- sd
+    tab <- tab_norm
+    colnames(tab) <- paste(horizon)
+    names <- c(stat, paste0(stat, ".sd"))
+    rownames(tab) <- names[order(names, decreasing = F)]
   }
 
   noquote(tab)

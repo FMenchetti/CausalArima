@@ -39,12 +39,8 @@ library(CausalArima)
 #>   method            from
 #>   as.zoo.data.frame zoo
 #> Loading required package: ggplot2
+#> Loading required package: tidybayes
 #> Loading required package: gridExtra
-#> 
-#> Attaching package: 'CausalArima'
-#> The following object is masked from 'package:base':
-#> 
-#>     table
 
 # simulate data
 n<-100
@@ -71,7 +67,7 @@ forecasted<-plot(ce, type="forecast", printing=FALSE)
 forecasted
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-2-1.png)<!-- -->
 
 How to obtain the plot of the estimated effects and cumulative effects:
 
@@ -81,34 +77,13 @@ impact<-plot(ce, type="impact", printing=FALSE)
 grid.arrange(impact$plot, impact$cumulative_plot)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
 
 How to obtain the estimates of the effects:
 
 ``` r
-print(ce)
-#>                                       
-#> Point causal effect            12.257 
-#> Standard error                 1.211  
-#> Left-sided p-value             1      
-#> Bidirectional p-value          0      
-#> Right-sided p-value            0      
-#>                                       
-#> Cumulative causal effect       310.709
-#> Standard error                 6.634  
-#> Left-sided p-value             1      
-#> Bidirectional p-value          0      
-#> Right-sided p-value            0      
-#>                                       
-#> Temporal average causal effect 10.357 
-#> Standard error                 0.221  
-#> Left-sided p-value             1      
-#> Bidirectional p-value          0      
-#> Right-sided p-value            0
-table(ce)
-#>     2014-04-14 
-#> avg 10.36^{***}
-#> sd  (0.22)
+# print(ce)
+# table(ce)
 ```
 
 How to inspect the residuals, with the plots of autocorrelation (ACF)
@@ -119,7 +94,7 @@ residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-5-1.png)<!-- -->
 
 ## Modify the plots
 
@@ -132,7 +107,7 @@ forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
 forecasted_2
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
 objects, which makes easy to modify any ggplot parameters of the theme
@@ -148,7 +123,7 @@ forecasted+ theme(legend.text = element_text(size=10, colour = "red", family ="m
                 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
 The ggthemes package can be useful to employ directly some
 pre-customized themes, for example we can use the Wall Street Journal
@@ -159,7 +134,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
 
 ## Learn more
 

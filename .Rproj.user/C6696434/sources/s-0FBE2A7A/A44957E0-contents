@@ -4,8 +4,7 @@ Title: Causal effect of an intervention using ARIMA models
 Version: 0.1.0
 Authors@R: c(
     person("Fabrizio", "Cipollini", email = "fabrizio.cipollini@unifi.it", role = c("aut")),
-    person("Fiammetta", "Menchetti", email = "fiammetta.menchetti@gmail.com", role = c("aut", "cre")),
-    person("Eugenio", "Palmieri", email = "eugeniopalmieri@hotmail.it", role = c("aut")))
+    person("Fiammetta", "Menchetti", email = "fiammetta.menchetti@gmail.com", role = c("aut", "cre")))
 Description: Estimates the causal effect of an intervention on a univariate time series
     using ARIMA models.
 License: GPL (>= 3)
@@ -14,5 +13,6 @@ LazyData: true
 Depends: 
     forecast,
     ggplot2,
+    tidybayes,
     gridExtra
 RoxygenNote: 7.1.2

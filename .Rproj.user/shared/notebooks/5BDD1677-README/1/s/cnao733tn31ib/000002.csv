@@ -1,6 +1,0 @@
-"0","forecasted+ theme(legend.text = element_text(size=10, colour = ""red"", family =""mono""),"
-"0","                legend.title = element_text(size=14, colour = ""blue"", family =""sans""),"
-"0","                title= element_text(size=20, colour = ""green"", family =""serif""),"
-"0","                axis.line=element_line(size=2, colour=""yellow""),"
-"0","                legend.position = ""bottom"""
-"0","                )"

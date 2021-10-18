@@ -131,17 +131,40 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 #' # Table of the estimated temporal average effects
 #' CoefficientsTable(ce)
 #'
-CoefficientsTable <- function(x, ...){
+CoefficientsTable <- function(x, printing=TRUE, format, ...){
 
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
 
-  # model <- x$model[1:14]
-  # class(model) <- "Arima"
-  coef<-ce$model$coef
-  se<-sqrt(ce$model$var.coef)
+  arima_order<-arimaorder(x$model)
+  coef<-x$model$coef
+  se<-sqrt(x$model$var.coef)
 
-  stargazer(model, dep.var.labels = "Y", ...)
+  param<-data.frame(coef, se)
+  rownames(param)<- names(x$model$coef)
+  colnames(param)<-c("coef", "se")
+
+  loglik<- x$model$loglik
+  aic<- x$model$aic
+  aicc<- x$model$aicc
+  bic<- x$model$bic
+
+
+  log_stats<-c(loglik=loglik,aic=aic, bic=bic, aicc=aicc)
+  accuracies<-accuracy(x$model)
+
+  results<-list(param=param, accuracy=accuracies, log_stats=log_stats, arima_order=arima_order)
+  if(printing){
+    cat("Arima Order:\n")
+    print(arima_order)
+    print(param)
+    cat("\n")
+    print(log_stats)
+    cat("\n")
+    print(accuracies)
+  }
+
+  return(results)
 }
 
 # -----------------------------------------------------------------------------------------

@@ -79,11 +79,51 @@ grid.arrange(impact$plot, impact$cumulative_plot)
 
 ![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
 
-How to obtain the estimates of the effects:
+How to obtain a summary of the model:
 
 ``` r
-# print(ce)
-# table(ce)
+CoefficientsTable(ce)
+#> Arima Order:
+#> p d q 
+#> 0 0 0 
+#>          coef          se
+#> xreg 1.199333 0.001658076
+#> 
+#>    loglik       aic       bic      aicc 
+#> -112.2340  228.4681  232.9651  228.6472 
+#> 
+#>                       ME     RMSE       MAE          MPE      MAPE      MASE
+#> Training set 0.004322758 1.202502 0.9464393 -0.005170545 0.9072633 0.5734012
+#>                   ACF1
+#> Training set 0.1407503
+#> $param
+#>          coef          se
+#> xreg 1.199333 0.001658076
+#> 
+#> $accuracy
+#>                       ME     RMSE       MAE          MPE      MAPE      MASE
+#> Training set 0.004322758 1.202502 0.9464393 -0.005170545 0.9072633 0.5734012
+#>                   ACF1
+#> Training set 0.1407503
+#> 
+#> $log_stats
+#>    loglik       aic       bic      aicc 
+#> -112.2340  228.4681  232.9651  228.6472 
+#> 
+#> $arima_order
+#> p d q 
+#> 0 0 0
+```
+
+``` r
+ResultTable(ce)
+#>        2014-04-14
+#> avg    12.26***  
+#> avg.sd (1.21)    
+#> sum    10.36***  
+#> sum.sd (0.22)    
+#> tau    310.71*** 
+#> tau.sd (6.63)
 ```
 
 How to inspect the residuals, with the plots of autocorrelation (ACF)
@@ -94,7 +134,7 @@ residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-![](man/figures/README-unnamed-chunk-5-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
 
 ## Modify the plots
 
@@ -107,7 +147,7 @@ forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
 forecasted_2
 ```
 
-![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
 objects, which makes easy to modify any ggplot parameters of the theme
@@ -123,7 +163,7 @@ forecasted+ theme(legend.text = element_text(size=8, colour = "red", family ="mo
                 )
 ```
 
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
 
 The ggthemes package can be useful to employ directly some
 pre-customized themes, for example we can use the Wall Street Journal
@@ -134,7 +174,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
 
 ## Learn more
 

@@ -136,7 +136,7 @@ CoefficientsTable <- function(x, printing=TRUE, format, ...){
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
 
-  arima_order<-arimaorder(ce$model)
+  arima_order<-arimaorder(x$model)
   coef<-x$model$coef
   se<-sqrt(x$model$var.coef)
 

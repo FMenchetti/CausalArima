@@ -74,11 +74,15 @@ impact<-plot(ce, type="impact", printing=FALSE)
 grid.arrange(impact$plot, impact$cumulative_plot)
 ```
 
-How to obtain the estimates of the effects:
+How to obtain a summary of the model:
 ```{r}
-# print(ce)
-# table(ce)
+CoefficientsTable(ce)
 ```
+
+```{r}
+ResultTable(ce)
+```
+
 
 How to inspect the residuals, with the plots of autocorrelation (ACF) and partial autocorrelation (PACF) functions and QQ-plots:
 ```{r, fig.height=6}

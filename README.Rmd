@@ -68,7 +68,7 @@ forecasted
 ```
 
 How to obtain the plot of the estimated effects and cumulative effects:
-```{r, fig.height=7}
+```{r, fig.height=6}
 
 impact<-plot(ce, type="impact", printing=FALSE)
 grid.arrange(impact$plot, impact$cumulative_plot)
@@ -81,7 +81,7 @@ How to obtain the estimates of the effects:
 ```
 
 How to inspect the residuals, with the plots of autocorrelation (ACF) and partial autocorrelation (PACF) functions and QQ-plots:
-```{r, fig.height=7}
+```{r, fig.height=6}
 residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```

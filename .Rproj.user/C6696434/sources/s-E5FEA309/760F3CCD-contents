@@ -136,7 +136,7 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
 
-  arima_order<-arimaorder(x$model)
+  arima_order<-data.frame(arima_order=arimaorder(x$model))
   coef<-x$model$coef
   se<-sqrt(x$model$var.coef)
 
@@ -150,18 +150,18 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   bic<- x$model$bic
 
 
-  log_stats<-c(loglik=loglik,aic=aic, bic=bic, aicc=aicc)
+  log_stats<-data.frame(metrics=c(loglik=loglik,aic=aic, bic=bic, aicc=aicc))
   accuracies<-accuracy(x$model)
 
-  results<-list(param=param, accuracy=accuracies, log_stats=log_stats, arima_order=arima_order)
+  results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
   if(printing){
     cat("Arima Order:\n")
     print(arima_order)
     print(param)
     cat("\n")
-    print(log_stats)
-    cat("\n")
     print(accuracies)
+    cat("\n")
+    print(log_stats)
   }
 
   if(format=="html"){

@@ -106,6 +106,84 @@ summary_model
 
 <th style="text-align:right;">
 
+arima\_order
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+p
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+d
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+q
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+<td>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
 coef
 
 </th>
@@ -282,7 +360,7 @@ Training set
 
 <th style="text-align:right;">
 
-x
+metrics
 
 </th>
 
@@ -351,84 +429,6 @@ aicc
 <td style="text-align:right;">
 
 228.6472
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</td>
-
-<td>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-</th>
-
-<th style="text-align:right;">
-
-x
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-p
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-d
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-q
-
-</td>
-
-<td style="text-align:right;">
-
-0
 
 </td>
 

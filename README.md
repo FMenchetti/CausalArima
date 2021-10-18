@@ -115,9 +115,9 @@ objects, which makes easy to modify any ggplot parameters of the theme
 to the many ggplot parameters that can be modified):
 
 ``` r
-forecasted+ theme(legend.text = element_text(size=10, colour = "red", family ="mono"),
-                legend.title = element_text(size=14, colour = "blue", family ="sans"),
-                title= element_text(size=20, colour = "green", family ="serif"),
+forecasted+ theme(legend.text = element_text(size=8, colour = "red", family ="mono"),
+                legend.title = element_text(size=9, colour = "blue", family ="sans"),
+                title= element_text(size=15, colour = "green", family ="serif"),
                 axis.line=element_line(size=2, colour="yellow"),
                 legend.position = "bottom"
                 )

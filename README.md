@@ -82,21 +82,369 @@ grid.arrange(impact$plot, impact$cumulative_plot)
 How to obtain a summary of the model:
 
 ``` r
-summary_model<-CoefficientsTable(ce, printing=TRUE)
-#> Arima Order:
-#> p d q 
-#> 0 0 0 
-#>          coef          se
-#> xreg 1.199333 0.001658076
-#> 
-#>    loglik       aic       bic      aicc 
-#> -112.2340  228.4681  232.9651  228.6472 
-#> 
-#>                       ME     RMSE       MAE          MPE      MAPE      MASE
-#> Training set 0.004322758 1.202502 0.9464393 -0.005170545 0.9072633 0.5734012
-#>                   ACF1
-#> Training set 0.1407503
+summary_model<-CoefficientsTable(ce, printing=FALSE, format="html")
+summary_model
 ```
+
+<table class="kable_wrapper">
+
+<tbody>
+
+<tr>
+
+<td>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+coef
+
+</th>
+
+<th style="text-align:right;">
+
+se
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+xreg
+
+</td>
+
+<td style="text-align:right;">
+
+1.199333
+
+</td>
+
+<td style="text-align:right;">
+
+0.0016581
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+<td>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+ME
+
+</th>
+
+<th style="text-align:right;">
+
+RMSE
+
+</th>
+
+<th style="text-align:right;">
+
+MAE
+
+</th>
+
+<th style="text-align:right;">
+
+MPE
+
+</th>
+
+<th style="text-align:right;">
+
+MAPE
+
+</th>
+
+<th style="text-align:right;">
+
+MASE
+
+</th>
+
+<th style="text-align:right;">
+
+ACF1
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+Training set
+
+</td>
+
+<td style="text-align:right;">
+
+0.0043228
+
+</td>
+
+<td style="text-align:right;">
+
+1.202503
+
+</td>
+
+<td style="text-align:right;">
+
+0.9464393
+
+</td>
+
+<td style="text-align:right;">
+
+\-0.0051705
+
+</td>
+
+<td style="text-align:right;">
+
+0.9072633
+
+</td>
+
+<td style="text-align:right;">
+
+0.5734012
+
+</td>
+
+<td style="text-align:right;">
+
+0.1407503
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+<td>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+loglik
+
+</td>
+
+<td style="text-align:right;">
+
+\-112.2340
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+aic
+
+</td>
+
+<td style="text-align:right;">
+
+228.4681
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+bic
+
+</td>
+
+<td style="text-align:right;">
+
+232.9651
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+aicc
+
+</td>
+
+<td style="text-align:right;">
+
+228.6472
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+<td>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+p
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+d
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+q
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
 
 How to obtain extimates of the average and cunulative effects:
 

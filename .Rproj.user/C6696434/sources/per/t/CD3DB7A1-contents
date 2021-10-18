@@ -76,7 +76,8 @@ grid.arrange(impact$plot, impact$cumulative_plot)
 
 How to obtain a summary of the model:
 ```{r}
-summary_model<-CoefficientsTable(ce, printing=TRUE)
+summary_model<-CoefficientsTable(ce, printing=FALSE, format="html")
+summary_model
 ```
 
 How to obtain extimates of the average and cunulative effects:

@@ -3,7 +3,7 @@
     "path": "~/GitHub/CausalArima/NAMESPACE",
     "project_path": "NAMESPACE",
     "type": "r_namespace",
-    "hash": "0",
+    "hash": "3638400923",
     "contents": "",
     "dirty": false,
     "created": 1634555019216.0,
@@ -19,6 +19,6 @@
     "collab_server": "",
     "source_window": "",
     "last_content_update": 1634555041639,
-    "read_only": false,
+    "read_only": true,
     "read_only_alternatives": []
 }

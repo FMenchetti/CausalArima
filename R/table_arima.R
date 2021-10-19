@@ -165,10 +165,11 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   }
 
   if(format=="html"){
-    results<-knitr::kable(results, format = "html")
+   # results<-knitr::kable(results, format = "html")
+    results<-lapply(results, knitr::kable, format = "html")
   }
   if(format=="latex"){
-    results<-knitr::kable(results, format = "html")
+    results<-lapply(results, knitr::kable, format = "latex")
   }
   return(results)
 }

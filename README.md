@@ -86,13 +86,7 @@ summary_model<-CoefficientsTable(ce, printing=FALSE, format="html")
 summary_model
 ```
 
-<table class="kable_wrapper">
-
-<tbody>
-
-<tr>
-
-<td>
+$arima\_order
 
 <table>
 
@@ -168,9 +162,7 @@ q
 
 </table>
 
-</td>
-
-<td>
+$param
 
 <table>
 
@@ -226,9 +218,7 @@ xreg
 
 </table>
 
-</td>
-
-<td>
+$accuracy
 
 <table>
 
@@ -344,9 +334,7 @@ Training set
 
 </table>
 
-</td>
-
-<td>
+$log\_stats
 
 <table>
 
@@ -429,14 +417,6 @@ aicc
 <td style="text-align:right;">
 
 228.6472
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
 
 </td>
 

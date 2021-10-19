@@ -10,7 +10,8 @@ ResultTable(
   stat = c("tau", "avg", "sum"),
   direction = "b",
   horizon = NULL,
-  digits = 2
+  digits = 2,
+  printing = FALSE
 )
 }
 \arguments{

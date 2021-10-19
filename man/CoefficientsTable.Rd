@@ -4,7 +4,7 @@
 \alias{CoefficientsTable}
 \title{Function to create a table of the estimated model coefficients from a call to CausalArima}
 \usage{
-CoefficientsTable(x, ...)
+CoefficientsTable(x, printing = FALSE, format = "text", ...)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}

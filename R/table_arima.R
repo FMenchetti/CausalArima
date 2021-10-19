@@ -59,7 +59,7 @@
 #' # Table of the estimated temporal average effects
 #' ResultTable(ce, type = "norm", horizon = horizon)
 
-ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), direction = "b", horizon = NULL, digits = 2){
+ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), direction = "b", horizon = NULL, digits = 2, printing=FALSE){
 
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
@@ -93,8 +93,10 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
     names <- c(stat, paste0(stat, ".sd"))
     rownames(tab) <- names[order(names, decreasing = F)]
   }
-
-  noquote(tab)
+  if(printing){
+  cat(tab, sep="\n")
+  }
+  return(tab)
 }
 
 # -----------------------------------------------------------------------------------------
@@ -136,7 +138,7 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
 
-  arima_order<-data.frame(arima_order=arimaorder(x$model))
+  arima_order<-t(data.frame(arima_order=arimaorder(x$model)))
   coef<-x$model$coef
   se<-sqrt(x$model$var.coef)
 
@@ -150,7 +152,7 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   bic<- x$model$bic
 
 
-  log_stats<-data.frame(metrics=c(loglik=loglik,aic=aic, bic=bic, aicc=aicc))
+  log_stats<-t(data.frame(metrics=c(loglik=loglik,aic=aic, bic=bic, aicc=aicc)))
   accuracies<-accuracy(x$model)
 
   results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)

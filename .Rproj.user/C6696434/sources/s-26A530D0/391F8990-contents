@@ -52,3 +52,14 @@ ResultTable(ce)
 #
 # forecasta$fitted
 
+# ([here](https://ggplot2.tidyverse.org/reference/theme.html) a reference to the many ggplot parameters that can be modified):
+#
+#
+#   ```{r}
+# forecasted+ theme(legend.text = element_text(size=8, colour = "red", family ="mono"),
+#                   legend.title = element_text(size=9, colour = "blue", family ="sans"),
+#                   title= element_text(size=15, colour = "green", family ="serif"),
+#                   axis.line=element_line(size=2, colour="yellow"),
+#                   legend.position = "bottom"
+# )
+# ```

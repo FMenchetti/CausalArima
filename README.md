@@ -431,21 +431,7 @@ forecasted_2
 ![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
-objects, which makes easy to modify any ggplot parameters of the theme
-([here](https://ggplot2.tidyverse.org/reference/theme.html) a reference
-to the many ggplot parameters that can be modified):
-
-``` r
-forecasted+ theme(legend.text = element_text(size=8, colour = "red", family ="mono"),
-                legend.title = element_text(size=9, colour = "blue", family ="sans"),
-                title= element_text(size=15, colour = "green", family ="serif"),
-                axis.line=element_line(size=2, colour="yellow"),
-                legend.position = "bottom"
-                )
-```
-
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
-
+objects, which makes easy to modify any ggplot parameters of the theme.
 The ggthemes package can be useful to employ directly some
 pre-customized themes, for example we can use the Wall Street Journal
 theme simply typing:
@@ -455,7 +441,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
 ## Learn more
 

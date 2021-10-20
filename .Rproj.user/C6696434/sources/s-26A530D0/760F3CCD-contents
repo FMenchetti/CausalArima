@@ -81,6 +81,7 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
   rownames(tab) <- stat
   colnames(tab) <- paste(horizon)
 
+
   if(type == "norm"){
     sd <- as.matrix(round(summary(x, type = type, horizon = horizon)[, paste("sd.", stat, sep = "")], digits = digits))
     sd <- t(apply(sd, 2, FUN = function(x)(paste0("(", x, ")"))))

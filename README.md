@@ -79,7 +79,8 @@ grid.arrange(impact$plot, impact$cumulative_plot)
 
 ![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
 
-How to obtain a summary of the model:
+How to obtain a summary of the model, and the average and cumulative
+effects:
 
 ``` r
 summary_model<-CoefficientsTable(ce, printing=FALSE, format="html")
@@ -100,7 +101,19 @@ $arima\_order
 
 <th style="text-align:right;">
 
-arima\_order
+p
+
+</th>
+
+<th style="text-align:right;">
+
+d
+
+</th>
+
+<th style="text-align:right;">
+
+q
 
 </th>
 
@@ -114,7 +127,7 @@ arima\_order
 
 <td style="text-align:left;">
 
-p
+arima\_order
 
 </td>
 
@@ -124,29 +137,9 @@ p
 
 </td>
 
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-d
-
-</td>
-
 <td style="text-align:right;">
 
 0
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-q
 
 </td>
 
@@ -348,7 +341,25 @@ $log\_stats
 
 <th style="text-align:right;">
 
-metrics
+loglik
+
+</th>
+
+<th style="text-align:right;">
+
+aic
+
+</th>
+
+<th style="text-align:right;">
+
+bic
+
+</th>
+
+<th style="text-align:right;">
+
+aicc
 
 </th>
 
@@ -362,23 +373,13 @@ metrics
 
 <td style="text-align:left;">
 
-loglik
+metrics
 
 </td>
 
 <td style="text-align:right;">
 
-\-112.2340
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-aic
+\-112.234
 
 </td>
 
@@ -388,29 +389,9 @@ aic
 
 </td>
 
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-bic
-
-</td>
-
 <td style="text-align:right;">
 
 232.9651
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-aicc
 
 </td>
 
@@ -426,19 +407,6 @@ aicc
 
 </table>
 
-How to obtain extimates of the average and cunulative effects:
-
-``` r
-ResultTable(ce)
-#>        2014-04-14
-#> avg    12.26***  
-#> avg.sd (1.21)    
-#> sum    10.36***  
-#> sum.sd (0.22)    
-#> tau    310.71*** 
-#> tau.sd (6.63)
-```
-
 How to inspect the residuals, with the plots of autocorrelation (ACF)
 and partial autocorrelation (PACF) functions and QQ-plots:
 
@@ -447,7 +415,7 @@ residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-5-1.png)<!-- -->
 
 ## Modify the plots
 
@@ -460,7 +428,7 @@ forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
 forecasted_2
 ```
 
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
 objects, which makes easy to modify any ggplot parameters of the theme
@@ -476,7 +444,7 @@ forecasted+ theme(legend.text = element_text(size=8, colour = "red", family ="mo
                 )
 ```
 
-![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
 The ggthemes package can be useful to employ directly some
 pre-customized themes, for example we can use the Wall Street Journal
@@ -487,7 +455,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
 
 ## Learn more
 

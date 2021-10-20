@@ -41,13 +41,14 @@ par(mfrow=c(2,1))
 plot(estimate, type="l")
 plot(real, type="l")
 
+ResultTable(ce)
 
 # pre<-dates<int.date
 # fit<-auto.arima(y[pre], xreg=x1[pre])
 # forecasta<-forecast(fit, h=sum(!pre), xreg=x1[!pre])
-# 
+#
 # grid.arrange(autoplot(forecasta), fore)
-# 
-# 
+#
+#
 # forecasta$fitted
 

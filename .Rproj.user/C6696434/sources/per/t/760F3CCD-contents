@@ -95,7 +95,7 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
     rownames(tab) <- names[order(names, decreasing = F)]
   }
   if(printing){
-  cat(tab, sep="\n")
+    cat(tab, sep="\n")
   }
   return(tab)
 }
@@ -168,7 +168,7 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   }
 
   if(format=="html"){
-   # results<-knitr::kable(results, format = "html")
+    # results<-knitr::kable(results, format = "html")
     results<-lapply(results, knitr::kable, format = "html")
   }
   if(format=="latex"){
@@ -188,4 +188,130 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   star[ind] <- "***" ; star[ind2] <- "**" ; star[ind3]<- "*"
   star[ind4] <- "." ; star[!ind & !ind2 & !ind3 & !ind4] <- " "
   star
+}
+
+
+# -----------------------------------------------------------------------------------------
+
+impact_summary<-function(x, xreg, boot=10, alpha = 0.05){
+  post_index<-x$dates>=x$int.date # select variable in the post period
+  prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
+  prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
+
+
+  if(is.null(dim(x1))){  xreg<-xreg[post_index ]  }
+  else{ xreg<-xreg[post_index, ] }
+
+  simulated<-matrix(NA, sum(post_index), boot)
+  for(i in 1:boot){
+    sim<-simulate(x$model,  future=TRUE, nsim=sum(post_index), xreg=xreg)
+    simulated[,i]<-sim
+  }
+
+  # ↓return(simulated)
+  effects <- apply(simulated, 2, function(x) {y[post_index]-x} )
+  # return(list(y.repmat.post=y.repmat.post, simulated=simulated))
+  observed<- c(mean(x$y[post_index]), sum(x$y[post_index]))
+  forecasted <- c(mean(x$forecast), sum(x$forecast))
+  forecasted_low<-c(quantile(colMeans(simulated), prob.lower), quantile(colSums(simulated), prob.lower))
+  forecasted_up<-c(quantile(colMeans(simulated), prob.upper), quantile(colSums(simulated), prob.upper))
+  forecasted.sd <- c(sd(colMeans(simulated)), sd(colSums(simulated)))
+  abs_effect <- c(mean(x$y[post_index]) - mean(x$forecast), sum(x$y[post_index]) - sum(x$forecast))
+
+  abs_effect_lower <- c(quantile(colMeans(effects ),prob.lower), quantile(colSums(effects), prob.lower))
+
+  abs_effect_upper <- c(quantile(colMeans(effects), prob.upper), quantile(colSums(effects), prob.upper))
+
+  abs_effect_sd <- c(sd(colMeans( effects)), sd(colSums(effects)))
+
+
+
+  results <-data.frame(observed=observed, forecasted=forecasted, forecasted_low=forecasted_low, forecasted_up=forecasted_up,
+              forecasted.sd=forecasted.sd, abs_effect=abs_effect, abs_effect_lower=abs_effect_lower, abs_effect_upper=abs_effect_upper,
+              abs_effect_sd=abs_effect_sd)
+
+
+
+  results <- dplyr::mutate(results,
+                           relative_effect = abs_effect /forecasted,
+                           relative_effect_lower =abs_effect_lower /  forecasted,
+                           relative_effect_upper =abs_effect_upper / forecasted,
+                           relative_effect_sd = abs_effect_sd /  forecasted)
+
+  rownames(results) <- c("Average", "Cumulative")
+
+  # Add interval coverage, defined by alpha
+  results$alpha <- alpha
+
+  # Add one-sided tail-area probability of overall impact, p
+  y.samples.post.sum <- rowSums(simulated)
+  y.post.sum <- sum(x$y[post_index])
+  p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
+           sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
+    (length(y.samples.post.sum) + 1)
+  results$p <- p
+
+  return(results)
+}
+
+pretty_summary<-function(y, x= x1, n=10, beta=0.05, digits=2L){
+  impact<-impact_summary(x=y, xreg=x, boot=n, alpha = beta)
+
+  # Define formatting helper functions
+  FormatNumber <- function(x) format(x, digits = digits, trim = TRUE)
+  FormatPercent <- function(x) {
+    paste0(format(x * 100, digits = digits, trim = TRUE), "%")
+  }
+  FormatCI <- function(a, b) {
+    paste0("[", format(a, digits = min(digits, 2), trim = TRUE),
+           ", ", format(b, digits = min(digits, 2), trim = TRUE),
+           "]")
+  }
+  FormatPercentCI <- function(a, b) {
+    paste0("[", format(a * 100, digits = min(digits, 2), trim = TRUE),
+           "%, ", format(b * 100, digits = min(digits, 2), trim = TRUE),
+           "%]")
+  }
+
+  # Compile data frame with formatted numbers
+  fsummary <- data.frame(
+    Actual = FormatNumber(impact$observed ),
+    Pred = paste0(FormatNumber(impact$forecasted),
+                  " (", FormatNumber(impact$forecasted.sd), ")"),
+    Pred.ci = FormatCI(impact$forecasted_low , impact$forecasted_up ),
+    Separator1 = c("", ""),
+    AbsEffect = paste0(FormatNumber(impact$abs_effect ),
+                       " (", FormatNumber(impact$abs_effect_sd), ")"),
+    AbsEffect.ci = FormatCI(impact$abs_effect_lower , impact$abs_effect_upper),
+    Separator2 = c("", ""),
+    RelEffect = paste0(FormatPercent(impact$relative_effect ),
+                       " (", FormatPercent(impact$relative_effect_sd ), ")"),
+    RelEffect.ci = FormatPercentCI(impact$relative_effect_lower ,
+                                   impact$relative_effect_upper ))
+
+  # Invert and format as table
+  tsummary <- t(fsummary)
+  colnames(tsummary) <- c("Average", "Cumulative")
+  ci.label <- paste0(round((1 - beta) * 100), "% CI")
+  row.names(tsummary) <- c("Actual", "Prediction (s.d.)", ci.label,
+                           " ",
+                           "Absolute effect (s.d.)", paste(ci.label, ""),
+                           "  ",
+                           "Relative effect (s.d.)", paste(ci.label, " "))
+
+  # Print formatted table
+  cat("\n")
+  print.default(tsummary, print.gap = 3L, quote = FALSE)
+  cat("\n")
+
+  # Print overall tail-area probability
+  p <- impact$p[1]
+  cat(paste0("Posterior tail-area probability p:   ", round(p, 5), "\n"))
+  cat(paste0("Posterior prob. of a causal effect:  ",
+             round((1 - p) * 100, ifelse(p < 0.01, 5, ifelse(p < 0.05, 3, 0))),
+             "%\n"))
+  cat("\n")
+  cat(paste0("For more details, type: summary(impact, \"report\")\n"))
+  cat("\n")
+
 }

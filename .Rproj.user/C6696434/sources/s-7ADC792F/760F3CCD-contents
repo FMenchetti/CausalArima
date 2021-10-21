@@ -134,7 +134,7 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 #' # Table of the estimated temporal average effects
 #' CoefficientsTable(ce)
 #'
-CoefficientsTable <- function(x, printing=FALSE, format="text", n=10, alfa = 0.05, bootstraping=FALSE, cov, ...){
+CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, cov, ...){
 
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")

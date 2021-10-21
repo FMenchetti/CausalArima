@@ -4,7 +4,15 @@
 \alias{pretty_summary}
 \title{Title}
 \usage{
-pretty_summary(y, x = x1, n = 10, beta = 0.05, digits = 2L, boot = FALSE)
+pretty_summary(
+  y,
+  x = x1,
+  n = 10,
+  beta = 0.05,
+  digits = 2L,
+  boot = FALSE,
+  printing = FALSE
+)
 }
 \arguments{
 \item{boot}{}

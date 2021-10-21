@@ -5,7 +5,6 @@ Version: 0.1.0
 Authors@R: c(
     person("Fabrizio", "Cipollini", email = "fabrizio.cipollini@unifi.it", role = c("aut")),
     person("Fiammetta", "Menchetti", email = "fiammetta.menchetti@gmail.com", role = c("aut", "cre")))
-    person("Eugenio", "Palmieri", email = "eugeniopalmieri92@gmail.com", role = c("aut", "cre")))
 Description: Estimates the causal effect of an intervention on a univariate time series
     using ARIMA models.
 License: GPL (>= 3)

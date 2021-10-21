@@ -134,7 +134,7 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 #' # Table of the estimated temporal average effects
 #' CoefficientsTable(ce)
 #'
-CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
+CoefficientsTable <- function(x, printing=FALSE, format="text", n=10, alfa = 0.05, bootstraping=FALSE, cov, ...){
 
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
@@ -156,8 +156,12 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
   log_stats<-t(data.frame(metrics=c(loglik=loglik,aic=aic, bic=bic, aicc=aicc)))
   accuracies<-accuracy(x$model)
 
-  results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
-  if(printing){
+  impact<-impact_summary(x, xreg=cov, boot=n, alpha = alfa, bootstrap=bootstraping) # da modificare i parametri, giusto un test!
+  impact<-format_impact(impact)
+
+  # return(impact)
+  results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats, effect=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
+  if(isTRUE(printing)){
     cat("Arima Order:\n")
     print(arima_order)
     print(param)
@@ -165,13 +169,15 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
     print(accuracies)
     cat("\n")
     print(log_stats)
+    cat("\n")
+    print(t(impact))
   }
 
-  if(format=="html"){
+  if(isTRUE(format=="html")){
     # results<-knitr::kable(results, format = "html")
     results<-lapply(results, knitr::kable, format = "html")
   }
-  if(format=="latex"){
+  if(isTRUE(format=="latex")){
     results<-lapply(results, knitr::kable, format = "latex")
   }
   return(results)
@@ -193,13 +199,25 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", ...){
 
 # -----------------------------------------------------------------------------------------
 
+#' Title
+#'
+#' @param x
+#' @param xreg
+#' @param boot
+#' @param alpha
+#' @param bootstrap
+#'
+#' @return
+#' @export
+#'
+#' @examples
 impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   post_index<-x$dates>=x$int.date # select variable in the post period
   prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
   prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
 
 
-  if(is.null(dim(x1))){  xreg<-xreg[post_index ]  }
+  if(is.null(dim(xreg))){  xreg<-xreg[post_index ]  }
   else{ xreg<-xreg[post_index, ] }
 
   simulated<-matrix(NA, sum(post_index), boot)
@@ -209,7 +227,7 @@ impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   }
 
 
-  effects <- apply(simulated, 2, function(x) {y[post_index]-x} )
+  effects <- apply(simulated, 2, function(z) {x$y[post_index]-z} )
 
   observed<- c(mean(x$y[post_index]), sum(x$y[post_index]))
   forecasted <- c(mean(x$forecast), sum(x$forecast))
@@ -254,7 +272,46 @@ impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   return(results)
 }
 
-pretty_summary<-function(y, x= x1, n=10, beta=0.05, digits=2L, boot=FALSE){
+
+# -----------------------------------------------------------------------------------------
+
+format_impact<-function(tab_imp){
+  tab_imp<-t(tab_imp)
+
+  effect<-tab_imp[1:(nrow(tab_imp)-2) ,"Average"]
+
+  cum_effect<-tab_imp[1:(nrow(tab_imp)-2) ,"Cumulative"]
+  p_values<-tab_imp[(nrow(tab_imp)-1):nrow(tab_imp) ,"Average"]
+
+  effect_format<-data.frame(estimates=effect[c("observed", "forecasted", "abs_effect", "relative_effect")])
+  effect_format$inf<-c(NA, effect[c("forecasted_low", "abs_effect_lower", "relative_effect_lower")])
+  effect_format$sup<-c(NA, effect[c("forecasted_up", "abs_effect_upper", "relative_effect_upper")])
+  effect_format$sd<-c(NA, effect[c("forecasted.sd", "abs_effect_sd", "relative_effect_sd")])
+
+  effect_cum_format<-data.frame(estimates=cum_effect[c("observed", "forecasted", "abs_effect", "relative_effect")])
+  effect_cum_format$inf<-c(NA, cum_effect[c("forecasted_low", "abs_effect_lower", "relative_effect_lower")])
+  effect_cum_format$sup<-c(NA, cum_effect[c("forecasted_up", "abs_effect_upper", "relative_effect_upper")])
+  effect_cum_format$sd<-c(NA, cum_effect[c("forecasted.sd", "abs_effect_sd", "relative_effect_sd")])
+
+  res<-list(effect=effect_format, effect_cum=effect_cum_format, p_values=p_values)
+  res
+}
+
+# -----------------------------------------------------------------------------------------
+#' Title
+#'
+#' @param y
+#' @param x
+#' @param n
+#' @param beta
+#' @param digits
+#' @param boot
+#'
+#' @return
+#' @export
+#'
+#' @examples
+pretty_summary<-function(y, x= x1, n=10, beta=0.05, digits=2L, boot=FALSE, printing=FALSE){
   impact<-impact_summary(x=y, xreg=x, boot=n, alpha = beta, bootstrap=boot)
 
   # Define formatting helper functions
@@ -300,6 +357,7 @@ pretty_summary<-function(y, x= x1, n=10, beta=0.05, digits=2L, boot=FALSE){
                            "Relative effect (s.d.)", paste(ci.label, " "))
 
   # Print formatted table
+  if(isTRUE(printing)){
   cat("\n")
   print.default(tsummary, print.gap = 3L, quote = FALSE)
   cat("\n")
@@ -313,5 +371,7 @@ pretty_summary<-function(y, x= x1, n=10, beta=0.05, digits=2L, boot=FALSE){
   cat("\n")
   cat(paste0("For more details, type: summary(impact, \"report\")\n"))
   cat("\n")
+  }
+  return(t(tsummary))
 
 }

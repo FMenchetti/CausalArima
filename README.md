@@ -83,7 +83,7 @@ How to obtain a summary of the model, and the average and cumulative
 effects:
 
 ``` r
-summary_model<-CoefficientsTable(ce, printing=FALSE, format="html")
+summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=1000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
 summary_model
 ```
 
@@ -398,6 +398,430 @@ metrics
 <td style="text-align:right;">
 
 228.6472
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$effect
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+estimates
+
+</th>
+
+<th style="text-align:right;">
+
+inf
+
+</th>
+
+<th style="text-align:right;">
+
+sup
+
+</th>
+
+<th style="text-align:right;">
+
+sd
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+observed
+
+</td>
+
+<td style="text-align:right;">
+
+117.0485168
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+forecasted
+
+</td>
+
+<td style="text-align:right;">
+
+106.6915345
+
+</td>
+
+<td style="text-align:right;">
+
+106.3420568
+
+</td>
+
+<td style="text-align:right;">
+
+106.9277643
+
+</td>
+
+<td style="text-align:right;">
+
+0.1861650
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+abs\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+10.3569824
+
+</td>
+
+<td style="text-align:right;">
+
+10.1207525
+
+</td>
+
+<td style="text-align:right;">
+
+10.7064600
+
+</td>
+
+<td style="text-align:right;">
+
+0.1861650
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+relative\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+0.0970741
+
+</td>
+
+<td style="text-align:right;">
+
+0.0948599
+
+</td>
+
+<td style="text-align:right;">
+
+0.1003497
+
+</td>
+
+<td style="text-align:right;">
+
+0.0017449
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$effect\_cum
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+estimates
+
+</th>
+
+<th style="text-align:right;">
+
+inf
+
+</th>
+
+<th style="text-align:right;">
+
+sup
+
+</th>
+
+<th style="text-align:right;">
+
+sd
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+observed
+
+</td>
+
+<td style="text-align:right;">
+
+3511.4555050
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+forecasted
+
+</td>
+
+<td style="text-align:right;">
+
+3200.7460337
+
+</td>
+
+<td style="text-align:right;">
+
+3190.2617046
+
+</td>
+
+<td style="text-align:right;">
+
+3207.8329294
+
+</td>
+
+<td style="text-align:right;">
+
+5.5849514
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+abs\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+310.7094713
+
+</td>
+
+<td style="text-align:right;">
+
+303.6225756
+
+</td>
+
+<td style="text-align:right;">
+
+321.1938004
+
+</td>
+
+<td style="text-align:right;">
+
+5.5849514
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+relative\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+0.0970741
+
+</td>
+
+<td style="text-align:right;">
+
+0.0948599
+
+</td>
+
+<td style="text-align:right;">
+
+0.1003497
+
+</td>
+
+<td style="text-align:right;">
+
+0.0017449
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$p\_values
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+alpha
+
+</td>
+
+<td style="text-align:right;">
+
+0.0500000
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+p
+
+</td>
+
+<td style="text-align:right;">
+
+0.0322581
 
 </td>
 

@@ -74,14 +74,14 @@ impact<-plot(ce, type="impact", printing=FALSE)
 grid.arrange(impact$plot, impact$cumulative_plot)
 ```
 
-How to obtain a summary of the model
+How to obtain a summary of the model (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'. Other possible format include "text" and "latex".)
 ```{r, results='asis'}
 summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
 summary_model$arima
 ```
 
 and of the summary of the casual impact:
-```{r}
+```{r, results='asis'}
 summary_model$impact
 ```
 

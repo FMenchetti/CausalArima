@@ -521,7 +521,7 @@ forecasted
 
 <td style="text-align:left;">
 
-abs\_effect
+absolute\_effect
 
 </td>
 
@@ -703,7 +703,7 @@ forecasted
 
 <td style="text-align:left;">
 
-abs\_effect
+absolute\_effect
 
 </td>
 

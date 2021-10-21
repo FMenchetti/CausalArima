@@ -79,15 +79,20 @@ grid.arrange(impact$plot, impact$cumulative_plot)
 
 ![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
 
-How to obtain a summary of the model, and the average and cumulative
-effects:
+How to obtain a summary of the model
 
 ``` r
 summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
-summary_model
+summary_model$arima
 ```
 
-$arima\_order
+<table class="kable_wrapper">
+
+<tbody>
+
+<tr>
+
+<td>
 
 <table>
 
@@ -155,7 +160,9 @@ arima\_order
 
 </table>
 
-$param
+</td>
+
+<td>
 
 <table>
 
@@ -211,7 +218,9 @@ xreg
 
 </table>
 
-$accuracy
+</td>
+
+<td>
 
 <table>
 
@@ -327,7 +336,9 @@ Training set
 
 </table>
 
-$log\_stats
+</td>
+
+<td>
 
 <table>
 
@@ -407,7 +418,27 @@ metrics
 
 </table>
 
-$effect
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+and of the summary of the casual impact:
+
+``` r
+summary_model$impact
+```
+
+<table class="kable_wrapper">
+
+<tbody>
+
+<tr>
+
+<td>
 
 <table>
 
@@ -589,7 +620,9 @@ relative\_effect
 
 </table>
 
-$effect\_cum
+</td>
+
+<td>
 
 <table>
 
@@ -771,7 +804,9 @@ relative\_effect
 
 </table>
 
-$p\_values
+</td>
+
+<td>
 
 <table>
 
@@ -831,6 +866,14 @@ p
 
 </table>
 
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
 How to inspect the residuals, with the plots of autocorrelation (ACF)
 and partial autocorrelation (PACF) functions and QQ-plots:
 
@@ -839,7 +882,7 @@ residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-![](man/figures/README-unnamed-chunk-5-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
 
 ## Modify the plots
 
@@ -852,7 +895,7 @@ forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
 forecasted_2
 ```
 
-![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
 objects, which makes easy to modify any ggplot parameters of the theme.
@@ -865,7 +908,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
 
 ## Learn more
 

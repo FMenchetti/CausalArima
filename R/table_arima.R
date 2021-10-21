@@ -159,8 +159,11 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", n=10, alfa = 0.0
   impact<-impact_summary(x, xreg=cov, boot=n, alpha = alfa, bootstrap=bootstraping) # da modificare i parametri, giusto un test!
   impact<-format_impact(impact)
 
-  # return(impact)
-  results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats, effect=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
+  results_arima<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
+  results_effect<-list(  average=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
+  # results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats, effect=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
+  results<-list(impact=results_effect, arima=results_arima)
+
   if(isTRUE(printing)){
     cat("Arima Order:\n")
     print(arima_order)

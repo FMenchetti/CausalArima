@@ -178,10 +178,10 @@ CoefficientsTable <- function(x, printing=FALSE, format="text", n=10, alfa = 0.0
 
   if(isTRUE(format=="html")){
     # results<-knitr::kable(results, format = "html")
-    results<-lapply(results, knitr::kable, format = "html")
+    results<-lapply(results, function(z) lapply(z, knitr::kable, format = "html"))
   }
   if(isTRUE(format=="latex")){
-    results<-lapply(results, knitr::kable, format = "latex")
+    results<-lapply(results, function(z) lapply(z, knitr::kable, format = "latex"))
   }
   return(results)
 }

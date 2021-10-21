@@ -86,13 +86,7 @@ summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, 
 summary_model$arima
 ```
 
-<table class="kable_wrapper">
-
-<tbody>
-
-<tr>
-
-<td>
+$arima\_order
 
 <table>
 
@@ -160,9 +154,7 @@ arima\_order
 
 </table>
 
-</td>
-
-<td>
+$param
 
 <table>
 
@@ -218,9 +210,7 @@ xreg
 
 </table>
 
-</td>
-
-<td>
+$accuracy
 
 <table>
 
@@ -336,9 +326,7 @@ Training set
 
 </table>
 
-</td>
-
-<td>
+$log\_stats
 
 <table>
 
@@ -418,461 +406,116 @@ metrics
 
 </table>
 
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
 and of the summary of the casual impact:
 
 ``` r
 summary_model$impact
+#> $average
+#> <table>
+#>  <thead>
+#>   <tr>
+#>    <th style="text-align:left;">   </th>
+#>    <th style="text-align:right;"> estimates </th>
+#>    <th style="text-align:right;"> inf </th>
+#>    <th style="text-align:right;"> sup </th>
+#>    <th style="text-align:right;"> sd </th>
+#>   </tr>
+#>  </thead>
+#> <tbody>
+#>   <tr>
+#>    <td style="text-align:left;"> observed </td>
+#>    <td style="text-align:right;"> 117.0485168 </td>
+#>    <td style="text-align:right;"> NA </td>
+#>    <td style="text-align:right;"> NA </td>
+#>    <td style="text-align:right;"> NA </td>
+#>   </tr>
+#>   <tr>
+#>    <td style="text-align:left;"> forecasted </td>
+#>    <td style="text-align:right;"> 106.6915345 </td>
+#>    <td style="text-align:right;"> 106.3420568 </td>
+#>    <td style="text-align:right;"> 106.9277643 </td>
+#>    <td style="text-align:right;"> 0.1861650 </td>
+#>   </tr>
+#>   <tr>
+#>    <td style="text-align:left;"> absolute_effect </td>
+#>    <td style="text-align:right;"> 10.3569824 </td>
+#>    <td style="text-align:right;"> 10.1207525 </td>
+#>    <td style="text-align:right;"> 10.7064600 </td>
+#>    <td style="text-align:right;"> 0.1861650 </td>
+#>   </tr>
+#>   <tr>
+#>    <td style="text-align:left;"> relative_effect </td>
+#>    <td style="text-align:right;"> 0.0970741 </td>
+#>    <td style="text-align:right;"> 0.0948599 </td>
+#>    <td style="text-align:right;"> 0.1003497 </td>
+#>    <td style="text-align:right;"> 0.0017449 </td>
+#>   </tr>
+#> </tbody>
+#> </table>
+#> 
+#> $effect_cum
+#> <table>
+#>  <thead>
+#>   <tr>
+#>    <th style="text-align:left;">   </th>
+#>    <th style="text-align:right;"> estimates </th>
+#>    <th style="text-align:right;"> inf </th>
+#>    <th style="text-align:right;"> sup </th>
+#>    <th style="text-align:right;"> sd </th>
+#>   </tr>
+#>  </thead>
+#> <tbody>
+#>   <tr>
+#>    <td style="text-align:left;"> observed </td>
+#>    <td style="text-align:right;"> 3511.4555050 </td>
+#>    <td style="text-align:right;"> NA </td>
+#>    <td style="text-align:right;"> NA </td>
+#>    <td style="text-align:right;"> NA </td>
+#>   </tr>
+#>   <tr>
+#>    <td style="text-align:left;"> forecasted </td>
+#>    <td style="text-align:right;"> 3200.7460337 </td>
+#>    <td style="text-align:right;"> 3190.2617046 </td>
+#>    <td style="text-align:right;"> 3207.8329294 </td>
+#>    <td style="text-align:right;"> 5.5849514 </td>
+#>   </tr>
+#>   <tr>
+#>    <td style="text-align:left;"> absolute_effect </td>
+#>    <td style="text-align:right;"> 310.7094713 </td>
+#>    <td style="text-align:right;"> 303.6225756 </td>
+#>    <td style="text-align:right;"> 321.1938004 </td>
+#>    <td style="text-align:right;"> 5.5849514 </td>
+#>   </tr>
+#>   <tr>
+#>    <td style="text-align:left;"> relative_effect </td>
+#>    <td style="text-align:right;"> 0.0970741 </td>
+#>    <td style="text-align:right;"> 0.0948599 </td>
+#>    <td style="text-align:right;"> 0.1003497 </td>
+#>    <td style="text-align:right;"> 0.0017449 </td>
+#>   </tr>
+#> </tbody>
+#> </table>
+#> 
+#> $p_values
+#> <table>
+#>  <thead>
+#>   <tr>
+#>    <th style="text-align:left;">   </th>
+#>    <th style="text-align:right;"> x </th>
+#>   </tr>
+#>  </thead>
+#> <tbody>
+#>   <tr>
+#>    <td style="text-align:left;"> alpha </td>
+#>    <td style="text-align:right;"> 0.0500000 </td>
+#>   </tr>
+#>   <tr>
+#>    <td style="text-align:left;"> p </td>
+#>    <td style="text-align:right;"> 0.0322581 </td>
+#>   </tr>
+#> </tbody>
+#> </table>
 ```
-
-<table class="kable_wrapper">
-
-<tbody>
-
-<tr>
-
-<td>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-</th>
-
-<th style="text-align:right;">
-
-estimates
-
-</th>
-
-<th style="text-align:right;">
-
-inf
-
-</th>
-
-<th style="text-align:right;">
-
-sup
-
-</th>
-
-<th style="text-align:right;">
-
-sd
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-observed
-
-</td>
-
-<td style="text-align:right;">
-
-117.0485168
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-forecasted
-
-</td>
-
-<td style="text-align:right;">
-
-106.6915345
-
-</td>
-
-<td style="text-align:right;">
-
-106.3420568
-
-</td>
-
-<td style="text-align:right;">
-
-106.9277643
-
-</td>
-
-<td style="text-align:right;">
-
-0.1861650
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-absolute\_effect
-
-</td>
-
-<td style="text-align:right;">
-
-10.3569824
-
-</td>
-
-<td style="text-align:right;">
-
-10.1207525
-
-</td>
-
-<td style="text-align:right;">
-
-10.7064600
-
-</td>
-
-<td style="text-align:right;">
-
-0.1861650
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-relative\_effect
-
-</td>
-
-<td style="text-align:right;">
-
-0.0970741
-
-</td>
-
-<td style="text-align:right;">
-
-0.0948599
-
-</td>
-
-<td style="text-align:right;">
-
-0.1003497
-
-</td>
-
-<td style="text-align:right;">
-
-0.0017449
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</td>
-
-<td>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-</th>
-
-<th style="text-align:right;">
-
-estimates
-
-</th>
-
-<th style="text-align:right;">
-
-inf
-
-</th>
-
-<th style="text-align:right;">
-
-sup
-
-</th>
-
-<th style="text-align:right;">
-
-sd
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-observed
-
-</td>
-
-<td style="text-align:right;">
-
-3511.4555050
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-forecasted
-
-</td>
-
-<td style="text-align:right;">
-
-3200.7460337
-
-</td>
-
-<td style="text-align:right;">
-
-3190.2617046
-
-</td>
-
-<td style="text-align:right;">
-
-3207.8329294
-
-</td>
-
-<td style="text-align:right;">
-
-5.5849514
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-absolute\_effect
-
-</td>
-
-<td style="text-align:right;">
-
-310.7094713
-
-</td>
-
-<td style="text-align:right;">
-
-303.6225756
-
-</td>
-
-<td style="text-align:right;">
-
-321.1938004
-
-</td>
-
-<td style="text-align:right;">
-
-5.5849514
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-relative\_effect
-
-</td>
-
-<td style="text-align:right;">
-
-0.0970741
-
-</td>
-
-<td style="text-align:right;">
-
-0.0948599
-
-</td>
-
-<td style="text-align:right;">
-
-0.1003497
-
-</td>
-
-<td style="text-align:right;">
-
-0.0017449
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</td>
-
-<td>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-</th>
-
-<th style="text-align:right;">
-
-x
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-alpha
-
-</td>
-
-<td style="text-align:right;">
-
-0.0500000
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-p
-
-</td>
-
-<td style="text-align:right;">
-
-0.0322581
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
 
 How to inspect the residuals, with the plots of autocorrelation (ACF)
 and partial autocorrelation (PACF) functions and QQ-plots:

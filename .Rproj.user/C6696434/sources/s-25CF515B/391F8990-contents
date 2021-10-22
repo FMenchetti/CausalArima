@@ -29,8 +29,8 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
                   xreg =x1)
 
 
-ResultTable(ce)
-summary_model<-CoefficientsTable(ce, printing=FALSE, boot=10000, alfa = 0.05, bootstrapping=TRUE, cov=x1)
+ResultTable(ce, horizon = horizon)
+summary_model<-CoefficientsTable(ce, printing=FALSE, boot=10000, alfa = 0.05, bootstrapping=TRUE, cov=x1, horizon=horizon)
 summary_model$impact
 summary_model$impact_boot
 

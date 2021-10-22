@@ -12,35 +12,36 @@
 ######################################################################################
 ######################################################################################
 
-# Summary method for object of class 'cArima'
-#
-# @param x Object of class \code{cArima}.
-# @param type Character string indicating the summary to be produced. Possible values
-#             in \code{c("norm", "boot")}. Defaults to \code{"norm"}.
-# @param horizon Optional vector with elements of class \code{Date}. If provided, the function
-#                summarizes the point, cumulative and temporal average effects at the given
-#                time horizon(s).
-#
-# @return A data frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
-#         a single row corresponding to the last date of the post-intervention period) with the
-#         following columns:
-#         \item{tau}{The estimated causal effect at the given time horizon or at the end of analysis
-#                    period if \code{is.null(horizon)}.}
-#         \item{pvalue.tau}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
-#                           p-values for \code{tau}.}
-#         \item{sum.tau}{The estimated cumulative causal effect up to the given time horizon or at the end of analysis
-#                        period if \code{is.null(horizon)}.}
-#         \item{pvalue.sum}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
-#                           p-values for \code{sum.tau}.}
-#         \item{avg.tau}{The estimated temporal average causal effect up to the given time horizon or at the end of analysis
-#                        period if \code{is.null(horizon)}.}
-#         \item{pvalue.avg}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
-#                           p-values for \code{avg.tau}.}
-#         When \code{type = "norm"} additional columns are provided with the estimated standard deviations
-#         for the point, cumulative and temporal average effects under the assumption of Normally distributed residuals.
-
+#' Summary method for object of class 'cArima'
+#'
+#' @param x Object of class \code{cArima}.
+#' @param type Character string indicating the summary to be produced. Possible values
+#'             in \code{c("norm", "boot")}. Defaults to \code{"norm"}.
+#' @param horizon Optional vector with elements of class \code{Date}. If provided, the function
+#'                summarizes the point, cumulative and temporal average effects at the given
+#'                time horizon(s).
+#'
+#' @return A data frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
+#'         a single row corresponding to the last date of the post-intervention period) with the
+#'         following columns:
+#'         \item{tau}{The estimated causal effect at the given time horizon or at the end of analysis
+#'                    period if \code{is.null(horizon)}.}
+#'         \item{pvalue.tau}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
+#'                           p-values for \code{tau}.}
+#'         \item{sum.tau}{The estimated cumulative causal effect up to the given time horizon or at the end of analysis
+#'                        period if \code{is.null(horizon)}.}
+#'         \item{pvalue.sum}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
+#'                           p-values for \code{sum.tau}.}
+#'         \item{avg.tau}{The estimated temporal average causal effect up to the given time horizon or at the end of analysis
+#'                        period if \code{is.null(horizon)}.}
+#'         \item{pvalue.avg}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
+#'                           p-values for \code{avg.tau}.}
+#'         When \code{type = "norm"} additional columns are provided with the estimated standard deviations
+#'         for the point, cumulative and temporal average effects under the assumption of Normally distributed residuals.
+#' @export
+#'
 print.cArima<- function(x, type = "norm", horizon = NULL){
-
+  browser()
   if(!is.null(horizon)){
 
     # param checks
@@ -55,17 +56,17 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
     dates <- x$dates
     ind <- which(dates[dates >= int.date][!is.na(x$causal.effect)] %in% horizon)
     ncol <- 1 + dim(x[[type]]$inf)[2]
-    summary <- data.frame(matrix(nrow = length(horizon), ncol = ncol))
-    colnames(summary) <- c("Time horizon", colnames(x[[type]]$inf))
-    summary[, 1] <- horizon
-    summary[, 2:ncol] <- x[[type]]$inf[ind, ]
+    results <- data.frame(matrix(nrow = length(horizon), ncol = ncol))
+    colnames(results) <- c("Time horizon", colnames(x[[type]]$inf))
+    results[, 1] <- horizon
+    results[, 2:ncol] <- x[[type]]$inf[ind, ]
 
   } else {
     h <- dim(x[[type]]$inf)[1]
-    summary <- x[[type]]$inf[h, ]
+    results <- x[[type]]$inf[h, ]
   }
 
-  summary
+  results
 }
 
 # ------------------------------------------------------------------------------
@@ -107,7 +108,6 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
 #' summary(ce, type = "boot", horizon = horizon)
 #'
 summary.cArima<- function(x, type = "norm", horizon = NULL, digits = 3){
-
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
 

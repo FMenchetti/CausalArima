@@ -41,7 +41,7 @@
 #' @export
 #'
 print.cArima<- function(x, type = "norm", horizon = NULL){
-  browser()
+
   if(!is.null(horizon)){
 
     # param checks
@@ -108,28 +108,38 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
 #' summary(ce, type = "boot", horizon = horizon)
 #'
 summary.cArima<- function(x, type = "norm", horizon = NULL, digits = 3){
+
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
 
   # summary
   sumryy <- print(x, type = type, horizon = horizon)
+  ind1 <- which(names(sumryy) == "tau"):which(names(sumryy) == "pvalue.tau.r")
+  ind2 <- which(names(sumryy) == "sum"):which(names(sumryy) == "pvalue.sum.r")
+  ind3 <- which(names(sumryy) == "avg"):which(names(sumryy) == "pvalue.avg.r")
 
   # printing
   if(is.numeric(sumryy)){
     sumry <- as.matrix(round(sumryy, digits = digits))
-    obj <- rbind(as.matrix(sumry[1:5,]), "", as.matrix(sumry[6:10,]), "", as.matrix(sumry[11:15,]))
+    obj <- rbind(as.matrix(sumry[ind1,]), "", as.matrix(sumry[ind2,]), "", as.matrix(sumry[ind3,]))
     colnames(obj) <- ""
 
   } else {
-    # debug here (i boot non hanno standard error perciò è da uno a 4 i norm da 1 a 5)
     sumry <- round(t(sumryy[,-1]), digits = digits)
-    obj <- rbind(sumry[1:4,], "", sumry[5:9,], "", sumry[10:14,])
+    obj <- rbind(sumry[ind1-1,], "", sumry[ind2-1,], "", sumry[ind3-1,])
     colnames(obj) <- paste(sumryy[,1])
   }
 
-  rownames(obj) <- c("Point causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
-                     "Cumulative causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
-                     "Temporal average causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value")
+  # setting rownames
+  nnames <- c("Point causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
+              "Cumulative causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
+              "Temporal average causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value")
+
+  if(type == "boot"){
+    nnames <- nnames[- grep(nnames, pattern = "Standard error")]
+  }
+
+  rownames(obj) <- nnames
   noquote(obj)
 }
 

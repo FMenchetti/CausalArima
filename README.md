@@ -81,7 +81,8 @@ grid.arrange(impact$plot, impact$cumulative_plot)
 
 How to obtain a summary of the model (notice that to proper display the
 results as html on a Rmarkdown chunk you have to set result as ‘asis’.
-Other possible format include “text” and “latex”.)
+Other possible format include “numeric”, useful to retrieve the
+statistics and use them in calculations, and “latex”.)
 
 ``` r
 summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
@@ -828,7 +829,7 @@ p
 
 <td style="text-align:right;">
 
-0.0322581
+0.0909091
 
 </td>
 

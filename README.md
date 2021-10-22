@@ -415,6 +415,522 @@ and of the summary of the casual impact:
 summary_model$impact
 ```
 
+$tau
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+12.25715
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$sd.tau
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+1.211185
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.tau.l
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.tau.b
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.tau.r
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$sum
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+310.7095
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$sd.sum
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+6.633933
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.sum.l
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.sum.b
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.sum.r
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$avg
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+10.35698
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$sd.avg
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+0.2211311
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.avg.l
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.avg.b
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$pvalue.avg.r
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+and of the summary of the casual impact based on boostrap:
+
+``` r
+summary_model$impact_boot
+```
+
 $average
 
 <table>
@@ -813,7 +1329,7 @@ alpha
 
 <td style="text-align:right;">
 
-0.0500000
+0.05
 
 </td>
 
@@ -829,7 +1345,7 @@ p
 
 <td style="text-align:right;">
 
-0.0909091
+0.00
 
 </td>
 
@@ -847,7 +1363,7 @@ residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
 ## Modify the plots
 
@@ -860,7 +1376,7 @@ forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
 forecasted_2
 ```
 
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
 objects, which makes easy to modify any ggplot parameters of the theme.
@@ -873,7 +1389,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
 
 ## Learn more
 

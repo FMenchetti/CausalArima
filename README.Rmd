@@ -85,6 +85,10 @@ and of the summary of the casual impact:
 summary_model$impact
 ```
 
+and of the summary of the casual impact based on boostrap:
+```{r, results='asis'}
+summary_model$impact_boot
+```
 
 How to inspect the residuals, with the plots of autocorrelation (ACF) and partial autocorrelation (PACF) functions and QQ-plots:
 ```{r, fig.height=6}

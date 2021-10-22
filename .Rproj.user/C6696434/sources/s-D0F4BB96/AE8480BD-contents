@@ -96,6 +96,8 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
   return(tab)
 }
 
+
+
 # -----------------------------------------------------------------------------------------
 
 #' Function to create a table of the estimated model coefficients from a call to CausalArima
@@ -157,8 +159,8 @@ CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 
 
   results_arima<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
   results_effect<-list(  average=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
-  # results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats, effect=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
-  results<-list(impact=results_effect, arima=results_arima)
+  c_arima_res<-print(x)
+  results<-list(impact= c_arima_res, impact_boot =results_effect, arima=results_arima)
 
   if(isTRUE(printing)){
     cat("Arima Order:\n")

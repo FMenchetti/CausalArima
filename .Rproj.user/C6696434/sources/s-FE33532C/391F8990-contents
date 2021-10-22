@@ -43,6 +43,8 @@ plot(real, type="l")
 
 ResultTable(ce)
 
+summary_model<-CoefficientsTable(ce, printing=FALSE, boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
+summary_model$impact
 # pre<-dates<int.date
 # fit<-auto.arima(y[pre], xreg=x1[pre])
 # forecasta<-forecast(fit, h=sum(!pre), xreg=x1[!pre])

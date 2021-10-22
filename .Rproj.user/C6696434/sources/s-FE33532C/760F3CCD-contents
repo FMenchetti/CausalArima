@@ -14,10 +14,6 @@
 ######################################################################################
 ######################################################################################
 
-# INCLUDERE FUNZIONE PER TABULARE TANTI MODELLI INSIEME?
-# TABULARE ANCHE LE ALTRE STATISTICHE TUTTE INSIEME?
-# LET THE USERS CHANGE PVALUES IN STAR?
-
 #' Function to create ready-to-use tables of the estimated causal effects from a call to CausalArima
 #'
 #' @param x Object of class \code{cArima}.
@@ -72,18 +68,18 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 
   # Settings
   if(is.null(horizon)){ horizon <- tail(x$dates, 1)}
-  sumry <- as.matrix(summary(x, type = type, horizon = horizon)[, paste("pvalue.", stat, ".", direction, sep = "")])
+  sumry <- as.matrix(print(x, type = type, horizon = horizon)[, paste("pvalue.", stat, ".", direction, sep = "")])
   star. <- apply(sumry, 2, FUN = ".star")
 
   # Table
-  effects <- round(summary(x, type = type, horizon = horizon)[, paste(stat)], digits = digits)
+  effects <- round(print(x, type = type, horizon = horizon)[, paste(stat)], digits = digits)
   tab <- matrix(paste0(unlist(effects), c(unlist(star.))), nrow = length(stat), ncol = length(horizon), byrow = T)
   rownames(tab) <- stat
   colnames(tab) <- paste(horizon)
 
 
   if(type == "norm"){
-    sd <- as.matrix(round(summary(x, type = type, horizon = horizon)[, paste("sd.", stat, sep = "")], digits = digits))
+    sd <- as.matrix(round(print(x, type = type, horizon = horizon)[, paste("sd.", stat, sep = "")], digits = digits))
     sd <- t(apply(sd, 2, FUN = function(x)(paste0("(", x, ")"))))
     tab_norm <- matrix(NA, nrow = 2*length(stat), ncol = length(horizon))
     even <- as.logical(seq_len(nrow(tab_norm))%%2)
@@ -202,18 +198,7 @@ CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 
 
 # -----------------------------------------------------------------------------------------
 
-#' Title
-#'
-#' @param x
-#' @param xreg
-#' @param boot
-#' @param alpha
-#' @param bootstrap
-#'
-#' @return
-#' @export
-#'
-#' @examples
+
 impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   post_index<-x$dates>=x$int.date # select variable in the post period
   prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
@@ -267,9 +252,12 @@ impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   # Add one-sided tail-area probability of overall impact, p
   y.samples.post.sum <- colSums(simulated)
   y.post.sum <- sum(x$y[post_index])
-  p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
-           sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
-    (length(y.samples.post.sum) + 1)
+  # return(list(y.samples.post.sum=y.samples.post.sum, y.post.sum=y.post.sum))
+  # p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
+  #          sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
+  #   (length(y.samples.post.sum) + 1)
+
+  p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))
   results$p <- p
 
   return(results)
@@ -303,19 +291,7 @@ format_impact<-function(tab_imp){
 }
 
 # -----------------------------------------------------------------------------------------
-#' Title
-#'
-#' @param y
-#' @param x
-#' @param n
-#' @param beta
-#' @param digits
-#' @param boot
-#'
-#' @return
-#' @export
-#'
-#' @examples
+
 pretty_summary<-function(y, x= x1, n=10, beta=0.05, digits=2L, boot=FALSE, printing=FALSE){
   impact<-impact_summary(x=y, xreg=x, boot=n, alpha = beta, bootstrap=boot)
 

@@ -252,9 +252,12 @@ impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   # Add one-sided tail-area probability of overall impact, p
   y.samples.post.sum <- colSums(simulated)
   y.post.sum <- sum(x$y[post_index])
-  p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
-           sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
-    (length(y.samples.post.sum) + 1)
+  # return(list(y.samples.post.sum=y.samples.post.sum, y.post.sum=y.post.sum))
+  # p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
+  #          sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
+  #   (length(y.samples.post.sum) + 1)
+
+  p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))
   results$p <- p
 
   return(results)

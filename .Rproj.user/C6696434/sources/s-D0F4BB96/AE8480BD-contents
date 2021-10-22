@@ -160,6 +160,10 @@ CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 
   results_arima<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
   results_effect<-list(  average=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
   c_arima_res<-print(x)
+  c_arima_res_tau<-c_arima_res[grepl("tau", names(c_arima_res) )]
+  c_arima_res_sum<-c_arima_res[grepl("sum", names(c_arima_res) )]
+  c_arima_res_avg<-c_arima_res[grepl("avg", names(c_arima_res) )]
+  c_arima_res<-list(avg=c_arima_res_avg, sum=c_arima_res_sum, tau=c_arima_res_tau)
   results<-list(impact= c_arima_res, impact_boot =results_effect, arima=results_arima)
 
   if(isTRUE(printing)){

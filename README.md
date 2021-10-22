@@ -415,13 +415,17 @@ and of the summary of the casual impact:
 summary_model$impact
 ```
 
-$tau
+$avg
 
 <table>
 
 <thead>
 
 <tr>
+
+<th style="text-align:left;">
+
+</th>
 
 <th style="text-align:right;">
 
@@ -437,145 +441,79 @@ x
 
 <tr>
 
+<td style="text-align:left;">
+
+avg
+
+</td>
+
 <td style="text-align:right;">
 
-12.25715
+10.3569824
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$sd.tau
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+sd.avg
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-1.211185
+0.2211311
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$pvalue.tau.l
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+pvalue.avg.l
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-1
+1.0000000
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$pvalue.tau.b
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+pvalue.avg.b
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-0
+0.0000000
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$pvalue.tau.r
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+pvalue.avg.r
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-0
+0.0000000
 
 </td>
 
@@ -593,6 +531,10 @@ $sum
 
 <tr>
 
+<th style="text-align:left;">
+
+</th>
+
 <th style="text-align:right;">
 
 x
@@ -607,39 +549,27 @@ x
 
 <tr>
 
+<td style="text-align:left;">
+
+sum
+
+</td>
+
 <td style="text-align:right;">
 
-310.7095
+310.709471
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$sd.sum
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+sd.sum
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
@@ -649,35 +579,49 @@ x
 
 </tr>
 
-</tbody>
-
-</table>
-
-$pvalue.sum.l
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+pvalue.sum.l
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-1
+1.000000
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+pvalue.sum.b
+
+</td>
+
+<td style="text-align:right;">
+
+0.000000
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+pvalue.sum.r
+
+</td>
+
+<td style="text-align:right;">
+
+0.000000
 
 </td>
 
@@ -687,13 +631,17 @@ x
 
 </table>
 
-$pvalue.sum.b
+$tau
 
 <table>
 
 <thead>
 
 <tr>
+
+<th style="text-align:left;">
+
+</th>
 
 <th style="text-align:right;">
 
@@ -709,213 +657,79 @@ x
 
 <tr>
 
+<td style="text-align:left;">
+
+tau
+
+</td>
+
 <td style="text-align:right;">
 
-0
+12.257154
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$pvalue.sum.r
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+sd.tau
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-0
+1.211185
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$avg
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+pvalue.tau.l
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-10.35698
+1.000000
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$sd.avg
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
+pvalue.tau.b
 
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
+</td>
 
 <td style="text-align:right;">
 
-0.2211311
+0.000000
 
 </td>
 
 </tr>
 
-</tbody>
-
-</table>
-
-$pvalue.avg.l
-
-<table>
-
-<thead>
-
 <tr>
 
-<th style="text-align:right;">
+<td style="text-align:left;">
 
-x
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:right;">
-
-1
+pvalue.tau.r
 
 </td>
 
-</tr>
-
-</tbody>
-
-</table>
-
-$pvalue.avg.b
-
-<table>
-
-<thead>
-
-<tr>
-
-<th style="text-align:right;">
-
-x
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
 <td style="text-align:right;">
 
-0
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-$pvalue.avg.r
-
-<table>
-
-<thead>
-
-<tr>
-
-<th style="text-align:right;">
-
-x
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:right;">
-
-0
+0.000000
 
 </td>
 

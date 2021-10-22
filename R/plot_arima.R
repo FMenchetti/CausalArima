@@ -17,6 +17,7 @@
 #' Plotting method for object of class 'cArima'
 #'
 #' @importFrom gridExtra grid.arrange
+#' @importFrom tidybayes geom_lineribbon
 #' @param x Object of class \code{cArima}.
 #' @param type Character string indicating the plot to be produced. Possible values
 #'             in c("forecast", "impact", "residuals").

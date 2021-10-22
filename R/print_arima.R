@@ -121,9 +121,9 @@ summary.cArima<- function(x, type = "norm", horizon = NULL, digits = 3){
     colnames(obj) <- ""
 
   } else {
-
+    # debug here (i boot non hanno standard error perciò è da uno a 4 i norm da 1 a 5)
     sumry <- round(t(sumryy[,-1]), digits = digits)
-    obj <- rbind(sumry[1:5,], "", sumry[6:10,], "", sumry[11:15,])
+    obj <- rbind(sumry[1:4,], "", sumry[5:9,], "", sumry[10:14,])
     colnames(obj) <- paste(sumryy[,1])
   }
 

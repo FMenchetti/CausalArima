@@ -20,8 +20,8 @@ data <- cbind(y, x1)
 dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = n)
 
 # Adding a fictional intervention
-int.date <- as.Date("2014-03-161")
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+int.date <- dates[floor(n*.71)] # as.Date("2014-03-16")
+horizon <- c(dates[floor(n*.8)], dates[floor(n*.9)])# c(as.Date("2015-04-10"), as.Date("2015-04-20"))
 
 # Causal effect estimation
 start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))

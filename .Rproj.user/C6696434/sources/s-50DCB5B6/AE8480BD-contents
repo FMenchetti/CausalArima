@@ -132,7 +132,7 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 #' # Table of the estimated temporal average effects
 #' CoefficientsTable(ce)
 #'
-CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, cov, ...){
+CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, cov, horizon=NULL, ...){
 
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
@@ -159,11 +159,23 @@ CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 
 
   results_arima<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
   results_effect<-list(  average=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
+
+  if(is.null(horizon)){
   c_arima_res<-print(x)
   c_arima_res_tau<-c_arima_res[grepl("tau", names(c_arima_res) )]
   c_arima_res_sum<-c_arima_res[grepl("sum", names(c_arima_res) )]
   c_arima_res_avg<-c_arima_res[grepl("avg", names(c_arima_res) )]
   c_arima_res<-list(avg=c_arima_res_avg, sum=c_arima_res_sum, tau=c_arima_res_tau)
+  }
+  else{
+    c_arima_res<-print(x, horizon=horizon)
+    c_arima_res_tau<-c_arima_res[,grepl("tau", colnames(c_arima_res) )]
+    c_arima_res_sum<-c_arima_res[,grepl("sum", colnames(c_arima_res) )]
+    c_arima_res_avg<-c_arima_res[,grepl("avg", colnames(c_arima_res) )]
+    c_arima_res<-list(avg=c_arima_res_avg, sum=c_arima_res_sum, tau=c_arima_res_tau)
+    c_arima_res<-lapply(c_arima_res, function(z){ data.frame(horizon=horizon, z)})
+  }
+
   results<-list(impact= c_arima_res, impact_boot =results_effect, arima=results_arima)
 
   if(isTRUE(printing)){

@@ -41,7 +41,6 @@
 #' @export
 #'
 print.cArima<- function(x, type = "norm", horizon = NULL){
-
   if(!is.null(horizon)){
 
     # param checks

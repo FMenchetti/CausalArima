@@ -53,7 +53,7 @@ dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = n)
 start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 
 # Adding a fictional intervention
-int.date <- as.Date("2014-03-161")
+int.date <- as.Date("2014-03-16")
 
 # fit the model - Causal effect estimation
 ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
@@ -1179,6 +1179,1206 @@ grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 
 ![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
+## Example with more horizons
+
+``` r
+# simulate data
+n<-100
+set.seed(1)
+x1 <- 100 + arima.sim(model = list(ar = 0.999), n = n)
+y <- 1.2 * x1 + rnorm(n)
+y[ floor(n*.71):n] <- y[ floor(n*.71):n] + 10
+data <- cbind(y, x1)
+dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = n)
+start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
+
+# Adding a fictional intervention
+int.date <- as.Date("2014-03-16")
+horizon<-as.Date(c("2014-03-25", "2014-04-05")) # add horizons
+
+# fit the model - Causal effect estimation
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
+                  xreg =x1)
+```
+
+How to obtain the plot of the estimated effects and cumulative effects:
+
+``` r
+
+impact<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
+grid.arrange(impact$plot, impact$cumulative_plot)
+```
+
+![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
+
+How to obtain a summary of the model (notice that to proper display the
+results as html on a Rmarkdown chunk you have to set result as ‘asis’.
+Other possible format include “numeric”, useful to retrieve the
+statistics and use them in calculations, and “latex”.)
+
+``` r
+summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1, horizon = horizon)
+summary_model$arima
+```
+
+$arima\_order
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+p
+
+</th>
+
+<th style="text-align:right;">
+
+d
+
+</th>
+
+<th style="text-align:right;">
+
+q
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+arima\_order
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$param
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+coef
+
+</th>
+
+<th style="text-align:right;">
+
+se
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+xreg
+
+</td>
+
+<td style="text-align:right;">
+
+1.199333
+
+</td>
+
+<td style="text-align:right;">
+
+0.0016581
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$accuracy
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+ME
+
+</th>
+
+<th style="text-align:right;">
+
+RMSE
+
+</th>
+
+<th style="text-align:right;">
+
+MAE
+
+</th>
+
+<th style="text-align:right;">
+
+MPE
+
+</th>
+
+<th style="text-align:right;">
+
+MAPE
+
+</th>
+
+<th style="text-align:right;">
+
+MASE
+
+</th>
+
+<th style="text-align:right;">
+
+ACF1
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+Training set
+
+</td>
+
+<td style="text-align:right;">
+
+0.0043228
+
+</td>
+
+<td style="text-align:right;">
+
+1.202503
+
+</td>
+
+<td style="text-align:right;">
+
+0.9464393
+
+</td>
+
+<td style="text-align:right;">
+
+\-0.0051705
+
+</td>
+
+<td style="text-align:right;">
+
+0.9072633
+
+</td>
+
+<td style="text-align:right;">
+
+0.5734012
+
+</td>
+
+<td style="text-align:right;">
+
+0.1407503
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$log\_stats
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+loglik
+
+</th>
+
+<th style="text-align:right;">
+
+aic
+
+</th>
+
+<th style="text-align:right;">
+
+bic
+
+</th>
+
+<th style="text-align:right;">
+
+aicc
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+metrics
+
+</td>
+
+<td style="text-align:right;">
+
+\-112.234
+
+</td>
+
+<td style="text-align:right;">
+
+228.4681
+
+</td>
+
+<td style="text-align:right;">
+
+232.9651
+
+</td>
+
+<td style="text-align:right;">
+
+228.6472
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+and of the summary of the casual impact:
+
+``` r
+summary_model$impact
+```
+
+$avg
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+horizon
+
+</th>
+
+<th style="text-align:right;">
+
+avg
+
+</th>
+
+<th style="text-align:right;">
+
+sd.avg
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.avg.l
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.avg.b
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.avg.r
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+2014-03-25
+
+</td>
+
+<td style="text-align:right;">
+
+10.43560
+
+</td>
+
+<td style="text-align:right;">
+
+0.3830103
+
+</td>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+2014-04-05
+
+</td>
+
+<td style="text-align:right;">
+
+10.30127
+
+</td>
+
+<td style="text-align:right;">
+
+0.2643022
+
+</td>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$sum
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+horizon
+
+</th>
+
+<th style="text-align:right;">
+
+sum
+
+</th>
+
+<th style="text-align:right;">
+
+sd.sum
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.sum.l
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.sum.b
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.sum.r
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+2014-03-25
+
+</td>
+
+<td style="text-align:right;">
+
+104.3560
+
+</td>
+
+<td style="text-align:right;">
+
+3.830103
+
+</td>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+2014-04-05
+
+</td>
+
+<td style="text-align:right;">
+
+216.3267
+
+</td>
+
+<td style="text-align:right;">
+
+5.550346
+
+</td>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$tau
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+horizon
+
+</th>
+
+<th style="text-align:right;">
+
+tau
+
+</th>
+
+<th style="text-align:right;">
+
+sd.tau
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.tau.l
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.tau.b
+
+</th>
+
+<th style="text-align:right;">
+
+pvalue.tau.r
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+2014-03-25
+
+</td>
+
+<td style="text-align:right;">
+
+9.961521
+
+</td>
+
+<td style="text-align:right;">
+
+1.211185
+
+</td>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+2014-04-05
+
+</td>
+
+<td style="text-align:right;">
+
+9.673077
+
+</td>
+
+<td style="text-align:right;">
+
+1.211185
+
+</td>
+
+<td style="text-align:right;">
+
+1
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+<td style="text-align:right;">
+
+0
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+and of the summary of the casual impact based on boostrap:
+
+``` r
+summary_model$impact_boot
+```
+
+$average
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+estimates
+
+</th>
+
+<th style="text-align:right;">
+
+inf
+
+</th>
+
+<th style="text-align:right;">
+
+sup
+
+</th>
+
+<th style="text-align:right;">
+
+sd
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+observed
+
+</td>
+
+<td style="text-align:right;">
+
+117.0485168
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+forecasted
+
+</td>
+
+<td style="text-align:right;">
+
+106.6915345
+
+</td>
+
+<td style="text-align:right;">
+
+106.3420568
+
+</td>
+
+<td style="text-align:right;">
+
+106.9277643
+
+</td>
+
+<td style="text-align:right;">
+
+0.1861650
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+absolute\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+10.3569824
+
+</td>
+
+<td style="text-align:right;">
+
+10.1207525
+
+</td>
+
+<td style="text-align:right;">
+
+10.7064600
+
+</td>
+
+<td style="text-align:right;">
+
+0.1861650
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+relative\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+0.0970741
+
+</td>
+
+<td style="text-align:right;">
+
+0.0948599
+
+</td>
+
+<td style="text-align:right;">
+
+0.1003497
+
+</td>
+
+<td style="text-align:right;">
+
+0.0017449
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$effect\_cum
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+estimates
+
+</th>
+
+<th style="text-align:right;">
+
+inf
+
+</th>
+
+<th style="text-align:right;">
+
+sup
+
+</th>
+
+<th style="text-align:right;">
+
+sd
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+observed
+
+</td>
+
+<td style="text-align:right;">
+
+3511.4555050
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+<td style="text-align:right;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+forecasted
+
+</td>
+
+<td style="text-align:right;">
+
+3200.7460337
+
+</td>
+
+<td style="text-align:right;">
+
+3190.2617046
+
+</td>
+
+<td style="text-align:right;">
+
+3207.8329294
+
+</td>
+
+<td style="text-align:right;">
+
+5.5849514
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+absolute\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+310.7094713
+
+</td>
+
+<td style="text-align:right;">
+
+303.6225756
+
+</td>
+
+<td style="text-align:right;">
+
+321.1938004
+
+</td>
+
+<td style="text-align:right;">
+
+5.5849514
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+relative\_effect
+
+</td>
+
+<td style="text-align:right;">
+
+0.0970741
+
+</td>
+
+<td style="text-align:right;">
+
+0.0948599
+
+</td>
+
+<td style="text-align:right;">
+
+0.1003497
+
+</td>
+
+<td style="text-align:right;">
+
+0.0017449
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+$p\_values
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+x
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+alpha
+
+</td>
+
+<td style="text-align:right;">
+
+0.05
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+p
+
+</td>
+
+<td style="text-align:right;">
+
+0.00
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
 ## Modify the plots
 
 The plotting functions have some graphical parameters that make easier
@@ -1190,7 +2390,7 @@ forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
 forecasted_2
 ```
 
-![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-13-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
 objects, which makes easy to modify any ggplot parameters of the theme.
@@ -1203,7 +2403,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-14-1.png)<!-- -->
 
 ## Learn more
 

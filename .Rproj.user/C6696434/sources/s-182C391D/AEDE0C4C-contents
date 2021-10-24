@@ -53,7 +53,7 @@ dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = n)
 start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 
 # Adding a fictional intervention
-int.date <- as.Date("2014-03-161")
+int.date <- as.Date("2014-03-16")
 
 # fit the model - Causal effect estimation
 ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
@@ -96,7 +96,50 @@ residuals<-plot(ce, type="residuals", printing=FALSE)
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
+## Example with more horizons
 
+```{r}
+# simulate data
+n<-100
+set.seed(1)
+x1 <- 100 + arima.sim(model = list(ar = 0.999), n = n)
+y <- 1.2 * x1 + rnorm(n)
+y[ floor(n*.71):n] <- y[ floor(n*.71):n] + 10
+data <- cbind(y, x1)
+dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = n)
+start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
+
+# Adding a fictional intervention
+int.date <- as.Date("2014-03-16")
+horizon<-as.Date(c("2014-03-25", "2014-04-05")) # add horizons
+
+# fit the model - Causal effect estimation
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
+                  xreg =x1)
+```
+
+How to obtain the plot of the estimated effects and cumulative effects:
+```{r, fig.height=6}
+
+impact<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
+grid.arrange(impact$plot, impact$cumulative_plot)
+```
+
+How to obtain a summary of the model (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'. Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex".)
+```{r, results='asis'}
+summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1, horizon = horizon)
+summary_model$arima
+```
+
+and of the summary of the casual impact:
+```{r, results='asis'}
+summary_model$impact
+```
+
+and of the summary of the casual impact based on boostrap:
+```{r, results='asis'}
+summary_model$impact_boot
+```
 
 ## Modify the plots
 

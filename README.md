@@ -85,7 +85,7 @@ Other possible format include “numeric”, useful to retrieve the
 statistics and use them in calculations, and “latex”.)
 
 ``` r
-summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
+summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, cov=x1)
 summary_model$arima
 ```
 
@@ -837,13 +837,13 @@ forecasted
 
 <td style="text-align:right;">
 
-106.3420568
+106.2871286
 
 </td>
 
 <td style="text-align:right;">
 
-106.9277643
+106.9529264
 
 </td>
 
@@ -871,13 +871,13 @@ absolute\_effect
 
 <td style="text-align:right;">
 
-10.1207525
+10.0955905
 
 </td>
 
 <td style="text-align:right;">
 
-10.7064600
+10.7613882
 
 </td>
 
@@ -905,13 +905,13 @@ relative\_effect
 
 <td style="text-align:right;">
 
-0.0948599
+0.0946241
 
 </td>
 
 <td style="text-align:right;">
 
-0.1003497
+0.1008645
 
 </td>
 
@@ -1019,13 +1019,13 @@ forecasted
 
 <td style="text-align:right;">
 
-3190.2617046
+3188.6138578
 
 </td>
 
 <td style="text-align:right;">
 
-3207.8329294
+3208.5877913
 
 </td>
 
@@ -1053,13 +1053,13 @@ absolute\_effect
 
 <td style="text-align:right;">
 
-303.6225756
+302.8677137
 
 </td>
 
 <td style="text-align:right;">
 
-321.1938004
+322.8416472
 
 </td>
 
@@ -1087,13 +1087,13 @@ relative\_effect
 
 <td style="text-align:right;">
 
-0.0948599
+0.0946241
 
 </td>
 
 <td style="text-align:right;">
 
-0.1003497
+0.1008645
 
 </td>
 
@@ -1143,7 +1143,7 @@ alpha
 
 <td style="text-align:right;">
 
-0.05
+0.01
 
 </td>
 
@@ -1217,7 +1217,7 @@ Other possible format include “numeric”, useful to retrieve the
 statistics and use them in calculations, and “latex”.)
 
 ``` r
-summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1, horizon = horizon)
+summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, cov=x1, horizon = horizon)
 summary_model$arima
 ```
 
@@ -2047,13 +2047,13 @@ forecasted
 
 <td style="text-align:right;">
 
-106.3420568
+106.2871286
 
 </td>
 
 <td style="text-align:right;">
 
-106.9277643
+106.9529264
 
 </td>
 
@@ -2081,13 +2081,13 @@ absolute\_effect
 
 <td style="text-align:right;">
 
-10.1207525
+10.0955905
 
 </td>
 
 <td style="text-align:right;">
 
-10.7064600
+10.7613882
 
 </td>
 
@@ -2115,13 +2115,13 @@ relative\_effect
 
 <td style="text-align:right;">
 
-0.0948599
+0.0946241
 
 </td>
 
 <td style="text-align:right;">
 
-0.1003497
+0.1008645
 
 </td>
 
@@ -2229,13 +2229,13 @@ forecasted
 
 <td style="text-align:right;">
 
-3190.2617046
+3188.6138578
 
 </td>
 
 <td style="text-align:right;">
 
-3207.8329294
+3208.5877913
 
 </td>
 
@@ -2263,13 +2263,13 @@ absolute\_effect
 
 <td style="text-align:right;">
 
-303.6225756
+302.8677137
 
 </td>
 
 <td style="text-align:right;">
 
-321.1938004
+322.8416472
 
 </td>
 
@@ -2297,13 +2297,13 @@ relative\_effect
 
 <td style="text-align:right;">
 
-0.0948599
+0.0946241
 
 </td>
 
 <td style="text-align:right;">
 
-0.1003497
+0.1008645
 
 </td>
 
@@ -2353,7 +2353,7 @@ alpha
 
 <td style="text-align:right;">
 
-0.05
+0.01
 
 </td>
 

@@ -85,7 +85,7 @@ Other possible format include “numeric”, useful to retrieve the
 statistics and use them in calculations, and “latex”.)
 
 ``` r
-summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, cov=x1)
+summary_model<-impact(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE)
 summary_model$arima
 ```
 
@@ -1217,7 +1217,7 @@ Other possible format include “numeric”, useful to retrieve the
 statistics and use them in calculations, and “latex”.)
 
 ``` r
-summary_model<-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, cov=x1, horizon = horizon)
+summary_model<-impact(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, horizon = horizon)
 summary_model$arima
 ```
 

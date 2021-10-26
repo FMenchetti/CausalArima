@@ -130,9 +130,9 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 #' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
 #'
 #' # Table of the estimated temporal average effects
-#' CoefficientsTable(ce)
+#' impact(ce)
 #'
-CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, horizon=NULL, ...){
+impact <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, horizon=NULL, ...){
 
   cov<-x$xreg
   # param checks

@@ -11,7 +11,7 @@ CoefficientsTable(
   n = 10,
   alfa = 0.05,
   bootstraping = FALSE,
-  cov,
+  horizon = NULL,
   ...
 )
 }

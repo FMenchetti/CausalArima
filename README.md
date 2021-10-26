@@ -73,8 +73,8 @@ How to obtain the plot of the estimated effects and cumulative effects:
 
 ``` r
 
-impact<-plot(ce, type="impact", printing=FALSE)
-grid.arrange(impact$plot, impact$cumulative_plot)
+impact_p<-plot(ce, type="impact", printing=FALSE)
+grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
 ![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
@@ -1205,8 +1205,8 @@ How to obtain the plot of the estimated effects and cumulative effects:
 
 ``` r
 
-impact<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
-grid.arrange(impact$plot, impact$cumulative_plot)
+impact_p<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
+grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
 ![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->

@@ -70,8 +70,8 @@ forecasted
 How to obtain the plot of the estimated effects and cumulative effects:
 ```{r, fig.height=6}
 
-impact<-plot(ce, type="impact", printing=FALSE)
-grid.arrange(impact$plot, impact$cumulative_plot)
+impact_p<-plot(ce, type="impact", printing=FALSE)
+grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
 How to obtain a summary of the model (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'. Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex".)
@@ -121,8 +121,8 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 How to obtain the plot of the estimated effects and cumulative effects:
 ```{r, fig.height=6}
 
-impact<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
-grid.arrange(impact$plot, impact$cumulative_plot)
+impact_p<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
+grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
 How to obtain a summary of the model (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'. Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex".)

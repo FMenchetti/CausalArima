@@ -74,7 +74,7 @@
 #' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
 #'
 CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0), ic = "aic", xreg = NULL, dates,
-                      int.date, arima.args = list(), auto.args = list(), nboot = NULL, alpha=0.05){
+                      int.date, arima.args = list(), auto.args = list(), nboot = NULL, alpha=0.01){
 
   ### param checks
   if(class(y) != "ts") stop("y must be an object of class ts")
@@ -164,8 +164,9 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   boot <- if ( NROW(nboot) > 0 && is.finite(nboot) && nboot >= 1)
   {
     nboot <- round(nboot[1])
-    .boot.inf(stat1 = tau, stat2 = sum.tau, stat3 = avg.tau, psi = psi, res = residuals(model),
-              nrep = nboot)
+
+    .format_impact(.sim_inf(x=model, y=y, forecast=mean.fcast.0, xreg=xreg, dates=dates, int.date=int.date,
+                           boot=nboot, alpha=alpha))
   }
   else
   {
@@ -262,61 +263,91 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   list(type = "norm", inf = inf)
 }
 
-# ------------------------------------------------------------------------------
-.boot.inf <- function(stat1, stat2, stat3, psi, res, nrep)
-{
-  #### Settings
-  np <- NROW(psi)
-  psi1 <- psi
-  psi2 <- cumsum(psi)
-  fun <- function(eps, psi)
-  {
-    convolve(eps, psi, conj = FALSE, type = "open")[NROW(eps):(2*NROW(eps)-1)]
+
+.sim_inf<-function(x, y, forecast, xreg, dates, int.date,  boot=1000, alpha, bootstrap=TRUE){
+  post_index<-dates>=int.date # select variable in the post period
+  prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
+  prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
+
+
+  if(is.null(dim(xreg))){  xreg<-xreg[post_index ]  }
+  else{ xreg<-xreg[post_index, ] }
+
+  simulated<-matrix(NA, sum(post_index), boot)
+  for(i in 1:boot){
+    sim<-simulate(x,  future=TRUE, nsim=sum(post_index), xreg=xreg, boostrap=bootstrap)
+    simulated[,i]<-sim
   }
 
-  #### Remove NA from res
-  res <- na.omit(as.numeric(res))
-  #### Bootstrap residuals
-  bootm <- as.data.frame(
-    matrix( sample(x = res, size = np * nrep, replace = TRUE), np, nrep ) )
 
-  #### stat1 (arrange by row, replications by col)
-  boot1 <- mapply(FUN = fun, eps = bootm, MoreArgs = list(psi = psi1))
-  #### stat2 (arrange by row, replications by col)
-  boot2 <- mapply(FUN = fun, eps = bootm, MoreArgs = list(psi = psi2))
-  #### stat3
-  boot3 <- boot2 / seq(1, np, 1)
+  effects <- apply(simulated, 2, function(z) {y[post_index]-z} )
 
-  #### p-values
-  pv1.l <- pv1.b <- pv1.r <- pv2.l <- pv2.b <- pv2.r <- pv3.l <- pv3.b <- pv3.r <- rep.int(NA, np)
-  for (i in 1 : np)
-  {
-    stat <- stat1[i]
-    boot <- boot1[i, ]
-    pv1.l[i] <- mean(boot < stat)
-    pv1.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
-    pv1.r[i] <- mean(stat < boot)
-    stat <- stat2[i]
-    boot <- boot2[i, ]
-    pv2.l[i] <- mean(boot < stat)
-    pv2.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
-    pv2.r[i] <- mean(stat < boot)
-    stat <- stat3[i]
-    boot <- boot3[i, ]
-    pv3.l[i] <- mean(boot < stat)
-    pv3.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
-    pv3.r[i] <- mean(stat < boot)
-  }
+  observed<- c(mean(y[post_index]), sum(y[post_index]))
+  forecasted <- c(mean(forecast), sum(forecast))
+  forecasted_low<-c(quantile(colMeans(simulated), prob.lower), quantile(colSums(simulated), prob.lower))
+  forecasted_up<-c(quantile(colMeans(simulated), prob.upper), quantile(colSums(simulated), prob.upper))
+  forecasted.sd <- c(sd(colMeans(simulated)), sd(colSums(simulated)))
+  abs_effect <- c(mean(y[post_index]) - mean(forecast), sum(y[post_index]) - sum(forecast))
 
-  #### Inference
-  inf <- cbind(
-    tau = stat1,
-    pvalue.tau.l = pv1.l, pvalue.tau.b = pv1.b, pvalue.tau.r = pv1.r,
-    sum = stat2,
-    pvalue.sum.l = pv2.l, pvalue.sum.b = pv2.b, pvalue.sum.r = pv2.r,
-    avg = stat3,
-    pvalue.avg.l = pv3.l, pvalue.avg.b = pv3.b, pvalue.avg.r = pv3.r)
+  abs_effect_lower <- c(quantile(colMeans(effects ),prob.lower), quantile(colSums(effects), prob.lower))
 
-  #### Answer
-  list(type = "bootstrap", nrep = nrep, inf = inf)
+  abs_effect_upper <- c(quantile(colMeans(effects), prob.upper), quantile(colSums(effects), prob.upper))
+
+  abs_effect_sd <- c(sd(colMeans( effects)), sd(colSums(effects)))
+
+
+
+  results <-data.frame(observed=observed, forecasted=forecasted, forecasted_low=forecasted_low, forecasted_up=forecasted_up,
+                       forecasted.sd=forecasted.sd, abs_effect=abs_effect, abs_effect_lower=abs_effect_lower, abs_effect_upper=abs_effect_upper,
+                       abs_effect_sd=abs_effect_sd)
+
+
+
+  results <- dplyr::mutate(results,
+                           relative_effect = abs_effect /forecasted,
+                           relative_effect_lower =abs_effect_lower /  forecasted,
+                           relative_effect_upper =abs_effect_upper / forecasted,
+                           relative_effect_sd = abs_effect_sd /  forecasted)
+
+  rownames(results) <- c("Average", "Cumulative")
+
+  # Add interval coverage, defined by alpha
+  results$alpha <- alpha
+
+  # Add one-sided tail-area probability of overall impact, p
+  y.samples.post.sum <- colSums(simulated)
+  y.post.sum <- sum(x$y[post_index])
+  # return(list(y.samples.post.sum=y.samples.post.sum, y.post.sum=y.post.sum))
+  # p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
+  #          sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
+  #   (length(y.samples.post.sum) + 1)
+
+  p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))
+  results$p <- p
+
+  return(results)
+}
+
+.format_impact<-function(tab_imp){
+  tab_imp<-t(tab_imp)
+
+  effect<-tab_imp[1:(nrow(tab_imp)-2) ,"Average"]
+
+  cum_effect<-tab_imp[1:(nrow(tab_imp)-2) ,"Cumulative"]
+  p_values<-tab_imp[(nrow(tab_imp)-1):nrow(tab_imp) ,"Average"]
+
+  effect_format<-data.frame(estimates=effect[c("observed", "forecasted", "abs_effect", "relative_effect")])
+  effect_format$inf<-c(NA, effect[c("forecasted_low", "abs_effect_lower", "relative_effect_lower")])
+  effect_format$sup<-c(NA, effect[c("forecasted_up", "abs_effect_upper", "relative_effect_upper")])
+  effect_format$sd<-c(NA, effect[c("forecasted.sd", "abs_effect_sd", "relative_effect_sd")])
+  rownames(effect_format)<-c("observed", "forecasted", "absolute_effect", "relative_effect")
+
+  effect_cum_format<-data.frame(estimates=cum_effect[c("observed", "forecasted", "abs_effect", "relative_effect")])
+  effect_cum_format$inf<-c(NA, cum_effect[c("forecasted_low", "abs_effect_lower", "relative_effect_lower")])
+  effect_cum_format$sup<-c(NA, cum_effect[c("forecasted_up", "abs_effect_upper", "relative_effect_upper")])
+  effect_cum_format$sd<-c(NA, cum_effect[c("forecasted.sd", "abs_effect_sd", "relative_effect_sd")])
+  rownames(effect_cum_format)<-rownames(effect_format)
+
+  res<-list(effect=effect_format, effect_cum=effect_cum_format, p_values=p_values)
+  res
 }

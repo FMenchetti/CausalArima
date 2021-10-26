@@ -16,7 +16,7 @@ CausalArima(
   arima.args = list(),
   auto.args = list(),
   nboot = NULL,
-  alpha = 0.05
+  alpha = 0.01
 )
 }
 \arguments{

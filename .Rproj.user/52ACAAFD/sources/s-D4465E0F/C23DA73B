@@ -3,7 +3,7 @@
     "path": "~/GitHub/CausalArima/R/table_arima.R",
     "project_path": "R/table_arima.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "3448189343",
     "contents": "",
     "dirty": false,
     "created": 1632816398348.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "195,1",
-        "scrollLine": "0"
+        "cursorPosition": "31,90",
+        "scrollLine": "23"
     },
     "folds": "",
-    "lastKnownWriteTime": 1635323746,
+    "lastKnownWriteTime": 1635355643,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1635323746,
+    "last_content_update": 1635355643738,
     "read_only": false,
     "read_only_alternatives": []
 }

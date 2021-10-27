@@ -6,10 +6,9 @@
 \usage{
 impact(
   x,
-  printing = FALSE,
   format = "numeric",
-  n = 10,
-  alfa = 0.05,
+  nboot = 10,
+  alpha = 0.05,
   bootstraping = FALSE,
   horizon = NULL,
   ...
@@ -18,7 +17,26 @@ impact(
 \arguments{
 \item{x}{Object of class \code{cArima}.}
 
-\item{...}{Optional arguments to pass on \code{stargazer()}.}
+\item{format}{Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.}
+
+\item{alpha}{?}
+
+\item{bootstraping}{?}
+
+\item{horizon}{Optional vector with elements of class Date. If provided, the function returns
+the estimated effects at the given time horizons.}
+
+\item{...}{Optional arguments passed to other methods.}
+
+\item{n}{Number of bootstrap simulations.#'}
+}
+\value{
+A list with the following components:
+\item{impact}{Estimated point, cumulative and temporal average effect assuming Normality
+             of the error terms.}
+\item{impact_boot}{Estimated point, cumulative and temporal average effect by bootstrap.}
+\item{arima}{Arima order, coefficient estimates and accuracy measures for the estimated model
+             in the pre-intervention period.}
 }
 \description{
 Function to create a table of the estimated model coefficients from a call to CausalArima

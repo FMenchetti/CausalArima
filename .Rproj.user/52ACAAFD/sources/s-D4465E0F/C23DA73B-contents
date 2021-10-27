@@ -7,106 +7,31 @@
 ####                                                                              ####
 ####  Content:          Table method for object of class cArima                   ####
 ####                                                                              ####
-####  Main function :   ResultTable, CoefficientsTable                                                    ####
-####  Dependencies:     .star                                                     ####
-####                                                                              ####
+####  Main function :   impact                                                    ####
+####  Dependencies:     .impact_summary                                            ####
+####                    .format_impact                                             ####
 ####                                                                              ####
 ######################################################################################
 ######################################################################################
-
-#' Function to create ready-to-use tables of the estimated causal effects from a call to CausalArima
-#'
-#' @param x Object of class \code{cArima}.
-#' @param type Character, indicating whether to produce a table reporting
-#'             the estimated standard errors under the Normality assumption
-#'             (\code{type = "norm"}) or bootstrapped errors (\code{type = "boot"}).
-#' @param stat Character, indicating the test statistic to include in the table.
-#'             Possible values in \code{c("tau", "sum", "avg")}.
-#' @param direction Character, for the two-sided test set \code{direction = "b"} (default),
-#'                  for one-sided tests set \code{direction = "l"} or \code{direction = "r"}.
-#' @param horizon Optional vector with elements of class \code{Date}. If provided, the function
-#'                outputs a table for the required \code{stat} at every given time horizon.
-#'                If \code{NULL}, the table refers to the last date of the analysis period.
-#' @param digits  Number of decimal places, defaults to 2.
-#'
-#' @return NULL
-#' @export
-#'
-#' @examples
-#' ## Example 2 (weekly data, with predictors)
-#' # Generating a time series of length 800 and a vector of dates
-#' y <- rnorm(800, sd = 1)
-#' dates <- seq.Date(from = as.Date("2005-01-01"), by = "week", length.out = 800)
-#'
-#' # Generating predictors
-#' x1 <- rnorm(800, mean = 2, sd = 0.5)
-#' x2 <- rnorm(800, mean = 3, sd = 0.5)
-#' y <- y -2*x1 + x2
-#'
-#' # Adding a fictional intervention
-#' int.date <- as.Date("2019-05-11")
-#' horizon <- c(as.Date("2019-12-07"), as.Date("2020-02-15"), as.Date("2020-04-25"))
-#' y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.40
-#'
-#' # Causal effect estimation
-#' start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
-#' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
-#'
-#' # Table of the estimated temporal average effects
-#' ResultTable(ce, type = "norm", horizon = horizon)
-
-ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), direction = "b", horizon = NULL, digits = 2, printing=FALSE){
-
-  # param checks
-  if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
-  if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
-    stop("`horizon` must be a Date object")
-  if(!(type %in% c("norm", "boot"))) stop("allowed 'type' values are 'norm' or 'boot'")
-  if(length(x$boot) ==0 & type == "boot") stop("no bootstrap estimates to table, please check CausalArima 'nboot' parameter")
-  if(!all(stat %in% c("tau", "sum", "avg"))) stop("allowed 'stat' values are 'tau', 'sum', 'avg'")
-  if(!direction %in% c("l", "b", "r")) stop("allowed 'direction' values are 'l', 'b', 'r'")
-
-  # Settings
-  if(is.null(horizon)){ horizon <- tail(x$dates, 1)}
-  sumry <- as.matrix(print(x, type = type, horizon = horizon)[, paste("pvalue.", stat, ".", direction, sep = "")])
-  star. <- apply(sumry, 2, FUN = ".star")
-
-  # Table
-  effects <- round(print(x, type = type, horizon = horizon)[, paste(stat)], digits = digits)
-  tab <- matrix(paste0(unlist(effects), c(unlist(star.))), nrow = length(stat), ncol = length(horizon), byrow = T)
-  rownames(tab) <- stat
-  colnames(tab) <- paste(horizon)
-
-
-  if(type == "norm"){
-    sd <- as.matrix(round(print(x, type = type, horizon = horizon)[, paste("sd.", stat, sep = "")], digits = digits))
-    sd <- t(apply(sd, 2, FUN = function(x)(paste0("(", x, ")"))))
-    tab_norm <- matrix(NA, nrow = 2*length(stat), ncol = length(horizon))
-    even <- as.logical(seq_len(nrow(tab_norm))%%2)
-    tab_norm[even, ] <- tab
-    tab_norm[!even, ] <- sd
-    tab <- tab_norm
-    colnames(tab) <- paste(horizon)
-    names <- c(stat, paste0(stat, ".sd"))
-    rownames(tab) <- names[order(names, decreasing = F)]
-  }
-  if(printing){
-    cat(tab, sep="\n")
-  }
-  return(tab)
-}
-
-
-
-# -----------------------------------------------------------------------------------------
 
 #' Function to create a table of the estimated model coefficients from a call to CausalArima
 #'
-#' @importFrom stargazer stargazer
 #' @param x Object of class \code{cArima}.
-#' @param ... Optional arguments to pass on \code{stargazer()}.
+#' @param format Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.
+#' @param n Number of bootstrap simulations.#'
+#' @param alpha ?
+#' @param bootstraping ?
+#' @param horizon Optional vector with elements of class Date. If provided, the function returns
+#'                the estimated effects at the given time horizons.
+#' @param ... Optional arguments passed to other methods.
 #'
-#' @return NULL
+#'
+#' @return A list with the following components:
+#' \item{impact}{Estimated point, cumulative and temporal average effect assuming Normality
+#'              of the error terms.}
+#' \item{impact_boot}{Estimated point, cumulative and temporal average effect by bootstrap.}
+#' \item{arima}{Arima order, coefficient estimates and accuracy measures for the estimated model
+#'              in the pre-intervention period.}
 #' @export
 #'
 #' @examples
@@ -132,64 +57,75 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 #' # Table of the estimated temporal average effects
 #' impact(ce)
 #'
-impact <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, horizon=NULL, ...){
+impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FALSE, horizon=NULL, ...){
 
-  cov<-x$xreg
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
+  if(!all(format %in% c("numeric", "html", "latex")))
+    stop("allowed 'format' values are 'numeric', 'html' and 'latex'")
+  if(!is.numeric(nboot) | nboot <= 0) stop("`nboot` must be a positive numeric value")
+  if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+    stop("`horizon` must be a Date object")
+  if(any(horizon <= x$int.date)) stop("Dates in `horizon` must follow `int.date`")
 
+  # settings
+  cov<-x$xreg
+
+  ### 1. arima
+
+  # 1.1. arima order
   arima_order<-t(data.frame(arima_order=arimaorder(x$model)))
+
+  # 1.2. coefficient estimates
   coef<-x$model$coef
   se<-sqrt(x$model$var.coef)
-
   param<-data.frame(coef, se)
   rownames(param)<- names(x$model$coef)
   colnames(param)<-c("coef", "se")
 
+  # 1.3. accuracy measures
+  accuracies<-accuracy(x$model)
+
+  # 1.4. stats
   loglik<- x$model$loglik
   aic<- x$model$aic
   aicc<- x$model$aicc
   bic<- x$model$bic
-
-
   log_stats<-t(data.frame(metrics=c(loglik=loglik,aic=aic, bic=bic, aicc=aicc)))
-  accuracies<-accuracy(x$model)
 
-  impact<-impact_summary(x, xreg=cov, boot=n, alpha = alfa, bootstrap=bootstraping) # da modificare i parametri, giusto un test!
-  impact<-format_impact(impact)
-
+  # Saving a list of results
   results_arima<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
-  results_effect<-list(  average=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
 
-  if(is.null(horizon)){
-  c_arima_res<-print(x)
-  c_arima_res_tau<-c_arima_res[grepl("tau", names(c_arima_res) )]
-  c_arima_res_sum<-c_arima_res[grepl("sum", names(c_arima_res) )]
-  c_arima_res_avg<-c_arima_res[grepl("avg", names(c_arima_res) )]
-  c_arima_res<-list(avg=c_arima_res_avg, sum=c_arima_res_sum, tau=c_arima_res_tau)
-  }
-  else{
-    c_arima_res<-print(x, horizon=horizon)
-    c_arima_res_tau<-c_arima_res[,grepl("tau", colnames(c_arima_res) )]
-    c_arima_res_sum<-c_arima_res[,grepl("sum", colnames(c_arima_res) )]
-    c_arima_res_avg<-c_arima_res[,grepl("avg", colnames(c_arima_res) )]
-    c_arima_res<-list(avg=c_arima_res_avg, sum=c_arima_res_sum, tau=c_arima_res_tau)
-    c_arima_res<-lapply(c_arima_res, function(z){ data.frame(horizon=horizon, z)})
-  }
+  ### 2. impact
 
-  results<-list(impact= c_arima_res, impact_boot =results_effect, arima=results_arima)
+  # Estimated point, cumulative and temporal average effect assuming Normality of the errors
+  impact_norm<-print(x, horizon=horizon)
 
-  if(isTRUE(printing)){
-    cat("Arima Order:\n")
-    print(arima_order)
-    print(param)
-    cat("\n")
-    print(accuracies)
-    cat("\n")
-    print(log_stats)
-    cat("\n")
-    print(t(impact))
+  if(is.numeric(impact_norm)){
+    names <- names(impact_norm)
+    impact_norm <- matrix(as.matrix(impact_norm), nrow = 1, ncol = length(impact_norm))
+    colnames(impact_norm) <- names
   }
+  impact_norm_tau<-impact_norm[,grepl("tau", colnames(impact_norm) )]
+  impact_norm_sum<-impact_norm[,grepl("sum", colnames(impact_norm) )]
+  impact_norm_avg<-impact_norm[,grepl("avg", colnames(impact_norm) )]
+
+  # saving a list of results
+  impact_norm<-list(avg=impact_norm_avg, sum=impact_norm_sum, tau=impact_norm_tau)
+  if(!is.null(horizon)){impact_norm<-lapply(impact_norm, function(z){ data.frame(horizon=horizon, z)})}
+
+  ### 3. impact_boot
+
+  # Estimated point, cumulative and temporal average effect by bootstrap
+  impact_boot<-.impact_summary(x, xreg=cov, boot=nboot, alpha = alpha, bootstrap=bootstraping) # da modificare i parametri, giusto un test!
+  impact_boot<-.format_impact(impact_boot)
+
+  # saving a list of results
+  impact_boot <- list(average=impact_boot$effect, effect_cum=impact_boot$effect_cum, p_values=impact_boot$p_values)
+
+
+  ### Global savings
+  results<-list(impact_norm = impact_norm, impact_boot = impact_boot, arima=results_arima)
 
   if(isTRUE(format=="html")){
     # results<-knitr::kable(results, format = "html")
@@ -201,24 +137,11 @@ impact <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, boots
   return(results)
 }
 
-# -----------------------------------------------------------------------------------------
-
-.star <- function(pvalue){
-  star <- rep(NA, times = length(pvalue))
-  ind  <- abs(pvalue) < 0.001
-  ind2 <- abs(pvalue) < 0.01 & abs(pvalue) >= 0.001
-  ind3 <- abs(pvalue) < 0.05 & abs(pvalue) >= 0.01
-  ind4 <- abs(pvalue) < 0.1 &  abs(pvalue) >= 0.05
-  star[ind] <- "***" ; star[ind2] <- "**" ; star[ind3]<- "*"
-  star[ind4] <- "." ; star[!ind & !ind2 & !ind3 & !ind4] <- " "
-  star
-}
-
 
 # -----------------------------------------------------------------------------------------
 
 
-impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
+.impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   post_index<-x$dates>=x$int.date # select variable in the post period
   prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
   prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
@@ -285,7 +208,7 @@ impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
 
 # -----------------------------------------------------------------------------------------
 
-format_impact<-function(tab_imp){
+.format_impact<-function(tab_imp){
   tab_imp<-t(tab_imp)
 
   effect<-tab_imp[1:(nrow(tab_imp)-2) ,"Average"]
@@ -312,7 +235,7 @@ format_impact<-function(tab_imp){
 # -----------------------------------------------------------------------------------------
 
 pretty_summary<-function(y, x= x1, n=10, beta=0.05, digits=2L, boot=FALSE, printing=FALSE){
-  impact<-impact_summary(x=y, xreg=x, boot=n, alpha = beta, bootstrap=boot)
+  impact<-.impact_summary(x=y, xreg=x, boot=n, alpha = beta, bootstrap=boot)
 
   # Define formatting helper functions
   FormatNumber <- function(x) format(x, digits = digits, trim = TRUE)

@@ -1,0 +1,24 @@
+{
+    "id": "392BCCDE",
+    "path": "~/GitHub/CausalArima/R/CausalARIMA.R",
+    "project_path": "R/CausalARIMA.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1634638111603.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "cursorPosition": "75,97",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1635247778,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1635247778925,
+    "read_only": false,
+    "read_only_alternatives": []
+}

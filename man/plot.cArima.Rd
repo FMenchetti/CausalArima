@@ -16,7 +16,7 @@ in c("forecast", "impact", "residuals").}
 plots the pointwise causal effect (for \code{type = "impact"}) or the forecasted
 time series (for \code{type = "forecast"}) up to the required time horizon(s).}
 
-\item{...}{Optional arguments passed to \code{grid.arrange}, to be used if \code{!is.null(horizon)}.}
+\item{...}{Optional arguments passed to other methods.}
 }
 \description{
 Plotting method for object of class 'cArima'
@@ -46,7 +46,7 @@ ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic =
 
 # Plot
 plot(ce, type = "forecast")
-plot(ce, type = "impact", horizon = horizon, nrow = 2, ncol = 1)
+plot(ce, type = "impact", horizon = horizon)
 plot(ce, type = "residuals")
 
 }

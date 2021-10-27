@@ -4,7 +4,7 @@
 \alias{summary.cArima}
 \title{Summary method for object of class 'cArima'}
 \usage{
-\method{summary}{cArima}(x, type = "norm", horizon = NULL)
+\method{summary}{cArima}(x, type = "norm", horizon = NULL, digits = 3)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}
@@ -15,28 +15,15 @@ in \code{c("norm", "boot")}. Defaults to \code{"norm"}.}
 \item{horizon}{Optional vector with elements of class \code{Date}. If provided, the function
 summarizes the point, cumulative and temporal average effects at the given
 time horizon(s).}
+
+\item{digits}{Integer, indicating the number of decimal places to show in the output.}
 }
 \value{
-A data frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
-        a single row corresponding to the last date of the post-intervention period) with the
-        following columns:
-        \item{tau}{The estimated causal effect at the given time horizon or at the end of analysis
-                   period if \code{is.null(horizon)}.}
-        \item{pvalue.tau}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
-                          p-values for \code{tau}.}
-        \item{sum.tau}{The estimated cumulative causal effect up to the given time horizon or at the end of analysis
-                       period if \code{is.null(horizon)}.}
-        \item{pvalue.sum}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
-                          p-values for \code{sum.tau}.}
-        \item{avg.tau}{The estimated temporal average causal effect up to the given time horizon or at the end of analysis
-                       period if \code{is.null(horizon)}.}
-        \item{pvalue.avg}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
-                          p-values for \code{avg.tau}.}
-        When \code{type = "norm"} additional columns are provided with the estimated standard deviations
-        for the point, cumulative and temporal average effects under the assumption of Normally distributed residuals.
+
 }
 \description{
-Summary method for object of class 'cArima'
+Format and prints the point, cumulative and temporal average effects (standard errors
+and critical values) in a nice and clean output.
 }
 \examples{
 ## Example 1

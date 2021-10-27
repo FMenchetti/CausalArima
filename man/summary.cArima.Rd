@@ -2,7 +2,7 @@
 % Please edit documentation in R/print_arima.R
 \name{summary.cArima}
 \alias{summary.cArima}
-\title{Print method for object of class 'cArima'}
+\title{Summary method for object of class 'cArima'}
 \usage{
 \method{summary}{cArima}(x, type = "norm", horizon = NULL, digits = 3)
 }

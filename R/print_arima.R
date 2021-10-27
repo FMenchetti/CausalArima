@@ -12,7 +12,7 @@
 ######################################################################################
 ######################################################################################
 
-#' Summary method for object of class 'cArima'
+#' Print method for object of class 'cArima'
 #'
 #' @param x Object of class \code{cArima}.
 #' @param type Character string indicating the summary to be produced. Possible values
@@ -39,6 +39,25 @@
 #'         When \code{type = "norm"} additional columns are provided with the estimated standard deviations
 #'         for the point, cumulative and temporal average effects under the assumption of Normally distributed residuals.
 #' @export
+#' @examples
+#' ## Example 1
+#' # Generating a time series of length 1000 and a vector of dates
+#' y <- 0.5*seq(0.5, 250, by = 0.5) + rnorm(500, sd = 6)
+#' dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
+#'
+#' # Adding a fictional intervention
+#' int.date <- as.Date("2015-04-01")
+#' horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+#' y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
+#'
+#' # Causal effect estimation
+#' start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
+#' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic",
+#'                   dates = dates, int.date = int.date, nboot = 1000)
+#'
+#' # Print
+#' print(ce, type = "norm")
+#' print(ce, type = "boot", horizon = horizon)
 #'
 print.cArima<- function(x, type = "norm", horizon = NULL){
   if(!is.null(horizon)){
@@ -70,7 +89,7 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
 
 # ------------------------------------------------------------------------------
 
-#' Print method for object of class 'cArima'
+#' Summary method for object of class 'cArima'
 #'
 #' Format and prints the point, cumulative and temporal average effects (standard errors
 #' and critical values) in a nice and clean output.

@@ -4,23 +4,19 @@
 # CausalArima
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
-The goal of CausalArima is to estimates the causal effect of an
+The goal of CausalArima is to estimate the causal effect of an
 intervention on a univariate time series using ARIMA models.
 
 ## Installation
 
 <!-- You can install the released version of CausalArima from [CRAN](https://CRAN.R-project.org) with: -->
-
 <!-- ``` r -->
-
 <!-- install.packages("CausalArima") -->
-
 <!-- ``` -->
 
-You can install the development version of CausalArima from from
+You can install the development version of CausalArima from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -39,9 +35,7 @@ library(CausalArima)
 #>   method            from
 #>   as.zoo.data.frame zoo
 #> Loading required package: ggplot2
-#> Loading required package: tidybayes
 #> Loading required package: gridExtra
-
 # simulate data
 n<-100
 set.seed(1)
@@ -63,7 +57,7 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 How to obtain the plot of the forecast:
 
 ``` r
-forecasted<-plot(ce, type="forecast", printing=FALSE)
+forecasted<-plot(ce, type="forecast")
 forecasted
 ```
 
@@ -72,1112 +66,605 @@ forecasted
 How to obtain the plot of the estimated effects and cumulative effects:
 
 ``` r
-
-impact_p<-plot(ce, type="impact", printing=FALSE)
+impact_p<-plot(ce, type="impact")
 grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
 ![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
 
-How to obtain a summary of the model (notice that to proper display the
-results as html on a Rmarkdown chunk you have to set result as ‘asis’.
-Other possible format include “numeric”, useful to retrieve the
-statistics and use them in calculations, and “latex”.)
+How to obtain a quick summary of the estimated effect:
 
 ``` r
-summary_model<-impact(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE)
+summary(ce)
+#>                                       
+#> Point causal effect            12.257 
+#> Standard error                 1.211  
+#> Left-sided p-value             1      
+#> Bidirectional p-value          0      
+#> Right-sided p-value            0      
+#>                                       
+#> Cumulative causal effect       310.709
+#> Standard error                 6.634  
+#> Left-sided p-value             1      
+#> Bidirectional p-value          0      
+#> Right-sided p-value            0      
+#>                                       
+#> Temporal average causal effect 10.357 
+#> Standard error                 0.221  
+#> Left-sided p-value             1      
+#> Bidirectional p-value          0      
+#> Right-sided p-value            0
+```
+
+How to obtain a detailed summary of the results, with an option to
+produce tables in html format (notice that to proper display the results
+as html on a Rmarkdown chunk you have to set result as ‘asis’). Other
+possible format include “numeric”, useful to retrieve the statistics and
+use them in calculations, and “latex”. Estimated model:
+
+``` r
+summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE)
 summary_model$arima
 ```
 
 $arima\_order
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 p
-
 </th>
-
 <th style="text-align:right;">
-
 d
-
 </th>
-
 <th style="text-align:right;">
-
 q
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 arima\_order
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $param
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 coef
-
 </th>
-
 <th style="text-align:right;">
-
 se
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 xreg
-
 </td>
-
 <td style="text-align:right;">
-
 1.199333
-
 </td>
-
 <td style="text-align:right;">
-
 0.0016581
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $accuracy
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 ME
-
 </th>
-
 <th style="text-align:right;">
-
 RMSE
-
 </th>
-
 <th style="text-align:right;">
-
 MAE
-
 </th>
-
 <th style="text-align:right;">
-
 MPE
-
 </th>
-
 <th style="text-align:right;">
-
 MAPE
-
 </th>
-
 <th style="text-align:right;">
-
 MASE
-
 </th>
-
 <th style="text-align:right;">
-
 ACF1
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 Training set
-
 </td>
-
 <td style="text-align:right;">
-
 0.0043228
-
 </td>
-
 <td style="text-align:right;">
-
 1.202503
-
 </td>
-
 <td style="text-align:right;">
-
 0.9464393
-
 </td>
-
 <td style="text-align:right;">
-
-\-0.0051705
-
+-0.0051705
 </td>
-
 <td style="text-align:right;">
-
 0.9072633
-
 </td>
-
 <td style="text-align:right;">
-
 0.5734012
-
 </td>
-
 <td style="text-align:right;">
-
 0.1407503
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $log\_stats
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 loglik
-
 </th>
-
 <th style="text-align:right;">
-
 aic
-
 </th>
-
 <th style="text-align:right;">
-
 bic
-
 </th>
-
 <th style="text-align:right;">
-
 aicc
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 metrics
-
 </td>
-
 <td style="text-align:right;">
-
-\-112.234
-
+-112.234
 </td>
-
 <td style="text-align:right;">
-
 228.4681
-
 </td>
-
 <td style="text-align:right;">
-
 232.9651
-
 </td>
-
 <td style="text-align:right;">
-
 228.6472
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
-and of the summary of the casual impact:
+Causal impact:
 
 ``` r
-summary_model$impact
+summary_model$impact_norm
 ```
 
 $avg
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 x
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 avg
-
 </td>
-
 <td style="text-align:right;">
-
 10.3569824
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 sd.avg
-
 </td>
-
 <td style="text-align:right;">
-
 0.2211311
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.avg.l
-
 </td>
-
 <td style="text-align:right;">
-
 1.0000000
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.avg.b
-
 </td>
-
 <td style="text-align:right;">
-
 0.0000000
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.avg.r
-
 </td>
-
 <td style="text-align:right;">
-
 0.0000000
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $sum
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 x
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 sum
-
 </td>
-
 <td style="text-align:right;">
-
 310.709471
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 sd.sum
-
 </td>
-
 <td style="text-align:right;">
-
 6.633933
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.sum.l
-
 </td>
-
 <td style="text-align:right;">
-
 1.000000
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.sum.b
-
 </td>
-
 <td style="text-align:right;">
-
 0.000000
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.sum.r
-
 </td>
-
 <td style="text-align:right;">
-
 0.000000
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $tau
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 x
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 tau
-
 </td>
-
 <td style="text-align:right;">
-
 12.257154
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 sd.tau
-
 </td>
-
 <td style="text-align:right;">
-
 1.211185
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.tau.l
-
 </td>
-
 <td style="text-align:right;">
-
 1.000000
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.tau.b
-
 </td>
-
 <td style="text-align:right;">
-
 0.000000
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 pvalue.tau.r
-
 </td>
-
 <td style="text-align:right;">
-
 0.000000
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
-and of the summary of the casual impact based on boostrap:
+Causal impact based on boostrap:
 
 ``` r
 summary_model$impact_boot
 ```
 
 $average
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 estimates
-
 </th>
-
 <th style="text-align:right;">
-
 inf
-
 </th>
-
 <th style="text-align:right;">
-
 sup
-
 </th>
-
 <th style="text-align:right;">
-
 sd
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 observed
-
 </td>
-
 <td style="text-align:right;">
-
 117.0485168
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 forecasted
-
 </td>
-
 <td style="text-align:right;">
-
 106.6915345
-
 </td>
-
 <td style="text-align:right;">
-
-106.2871286
-
+106.3420568
 </td>
-
 <td style="text-align:right;">
-
-106.9529264
-
+106.9277643
 </td>
-
 <td style="text-align:right;">
-
 0.1861650
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 absolute\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 10.3569824
-
 </td>
-
 <td style="text-align:right;">
-
-10.0955905
-
+10.1207525
 </td>
-
 <td style="text-align:right;">
-
-10.7613882
-
+10.7064600
 </td>
-
 <td style="text-align:right;">
-
 0.1861650
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 relative\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 0.0970741
-
 </td>
-
 <td style="text-align:right;">
-
-0.0946241
-
+0.0948599
 </td>
-
 <td style="text-align:right;">
-
-0.1008645
-
+0.1003497
 </td>
-
 <td style="text-align:right;">
-
 0.0017449
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $effect\_cum
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 estimates
-
 </th>
-
 <th style="text-align:right;">
-
 inf
-
 </th>
-
 <th style="text-align:right;">
-
 sup
-
 </th>
-
 <th style="text-align:right;">
-
 sd
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 observed
-
 </td>
-
 <td style="text-align:right;">
-
 3511.4555050
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 forecasted
-
 </td>
-
 <td style="text-align:right;">
-
 3200.7460337
-
 </td>
-
 <td style="text-align:right;">
-
-3188.6138578
-
+3190.2617046
 </td>
-
 <td style="text-align:right;">
-
-3208.5877913
-
+3207.8329294
 </td>
-
 <td style="text-align:right;">
-
 5.5849514
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 absolute\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 310.7094713
-
 </td>
-
 <td style="text-align:right;">
-
-302.8677137
-
+303.6225756
 </td>
-
 <td style="text-align:right;">
-
-322.8416472
-
+321.1938004
 </td>
-
 <td style="text-align:right;">
-
 5.5849514
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 relative\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 0.0970741
-
 </td>
-
 <td style="text-align:right;">
-
-0.0946241
-
+0.0948599
 </td>
-
 <td style="text-align:right;">
-
-0.1008645
-
+0.1003497
 </td>
-
 <td style="text-align:right;">
-
 0.0017449
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $p\_values
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 x
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 alpha
-
 </td>
-
 <td style="text-align:right;">
-
-0.01
-
+0.05
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 p
-
 </td>
-
 <td style="text-align:right;">
-
 0.00
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
 How to inspect the residuals, with the plots of autocorrelation (ACF)
 and partial autocorrelation (PACF) functions and QQ-plots:
 
 ``` r
-residuals<-plot(ce, type="residuals", printing=FALSE)
+residuals<-plot(ce, type="residuals")
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
 
 ## Example with more horizons
 
@@ -1204,1179 +691,633 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 How to obtain the plot of the estimated effects and cumulative effects:
 
 ``` r
-
-impact_p<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
+impact_p<-plot(ce, type="impact", horizon = horizon)
 grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
-![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-10-1.png)<!-- -->
 
-How to obtain a summary of the model (notice that to proper display the
-results as html on a Rmarkdown chunk you have to set result as ‘asis’.
-Other possible format include “numeric”, useful to retrieve the
-statistics and use them in calculations, and “latex”.)
+How to obtain a quick summary of the estimated effect:
 
 ``` r
-summary_model<-impact(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, horizon = horizon)
+summary(ce, horizon = horizon)
+#>                                2014-03-25 2014-04-05
+#> Point causal effect            9.962      9.673     
+#> Standard error                 1.211      1.211     
+#> Left-sided p-value             1          1         
+#> Bidirectional p-value          0          0         
+#> Right-sided p-value            0          0         
+#>                                                     
+#> Cumulative causal effect       104.356    216.327   
+#> Standard error                 3.83       5.55      
+#> Left-sided p-value             1          1         
+#> Bidirectional p-value          0          0         
+#> Right-sided p-value            0          0         
+#>                                                     
+#> Temporal average causal effect 10.436     10.301    
+#> Standard error                 0.383      0.264     
+#> Left-sided p-value             1          1         
+#> Bidirectional p-value          0          0         
+#> Right-sided p-value            0          0
+```
+
+How to obtain a detailed summary of the results, with an option to
+produce tables in html format (notice that to proper display the results
+as html on a Rmarkdown chunk you have to set result as ‘asis’). Other
+possible format include “numeric”, useful to retrieve the statistics and
+use them in calculations, and “latex”. Estimated model:
+
+``` r
+summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, horizon = horizon)
 summary_model$arima
 ```
 
 $arima\_order
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 p
-
 </th>
-
 <th style="text-align:right;">
-
 d
-
 </th>
-
 <th style="text-align:right;">
-
 q
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 arima\_order
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $param
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 coef
-
 </th>
-
 <th style="text-align:right;">
-
 se
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 xreg
-
 </td>
-
 <td style="text-align:right;">
-
 1.199333
-
 </td>
-
 <td style="text-align:right;">
-
 0.0016581
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $accuracy
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 ME
-
 </th>
-
 <th style="text-align:right;">
-
 RMSE
-
 </th>
-
 <th style="text-align:right;">
-
 MAE
-
 </th>
-
 <th style="text-align:right;">
-
 MPE
-
 </th>
-
 <th style="text-align:right;">
-
 MAPE
-
 </th>
-
 <th style="text-align:right;">
-
 MASE
-
 </th>
-
 <th style="text-align:right;">
-
 ACF1
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 Training set
-
 </td>
-
 <td style="text-align:right;">
-
 0.0043228
-
 </td>
-
 <td style="text-align:right;">
-
 1.202503
-
 </td>
-
 <td style="text-align:right;">
-
 0.9464393
-
 </td>
-
 <td style="text-align:right;">
-
-\-0.0051705
-
+-0.0051705
 </td>
-
 <td style="text-align:right;">
-
 0.9072633
-
 </td>
-
 <td style="text-align:right;">
-
 0.5734012
-
 </td>
-
 <td style="text-align:right;">
-
 0.1407503
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $log\_stats
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 loglik
-
 </th>
-
 <th style="text-align:right;">
-
 aic
-
 </th>
-
 <th style="text-align:right;">
-
 bic
-
 </th>
-
 <th style="text-align:right;">
-
 aicc
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 metrics
-
 </td>
-
 <td style="text-align:right;">
-
-\-112.234
-
+-112.234
 </td>
-
 <td style="text-align:right;">
-
 228.4681
-
 </td>
-
 <td style="text-align:right;">
-
 232.9651
-
 </td>
-
 <td style="text-align:right;">
-
 228.6472
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
-and of the summary of the casual impact:
+Causal impact:
 
 ``` r
-summary_model$impact
+summary_model$impact_norm
 ```
 
 $avg
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 horizon
-
 </th>
-
 <th style="text-align:right;">
-
 avg
-
 </th>
-
 <th style="text-align:right;">
-
 sd.avg
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.avg.l
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.avg.b
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.avg.r
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 2014-03-25
-
 </td>
-
 <td style="text-align:right;">
-
 10.43560
-
 </td>
-
 <td style="text-align:right;">
-
 0.3830103
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 2014-04-05
-
 </td>
-
 <td style="text-align:right;">
-
 10.30127
-
 </td>
-
 <td style="text-align:right;">
-
 0.2643022
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $sum
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 horizon
-
 </th>
-
 <th style="text-align:right;">
-
 sum
-
 </th>
-
 <th style="text-align:right;">
-
 sd.sum
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.sum.l
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.sum.b
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.sum.r
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 2014-03-25
-
 </td>
-
 <td style="text-align:right;">
-
 104.3560
-
 </td>
-
 <td style="text-align:right;">
-
 3.830103
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 2014-04-05
-
 </td>
-
 <td style="text-align:right;">
-
 216.3267
-
 </td>
-
 <td style="text-align:right;">
-
 5.550346
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $tau
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 horizon
-
 </th>
-
 <th style="text-align:right;">
-
 tau
-
 </th>
-
 <th style="text-align:right;">
-
 sd.tau
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.tau.l
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.tau.b
-
 </th>
-
 <th style="text-align:right;">
-
 pvalue.tau.r
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 2014-03-25
-
 </td>
-
 <td style="text-align:right;">
-
 9.961521
-
 </td>
-
 <td style="text-align:right;">
-
 1.211185
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 2014-04-05
-
 </td>
-
 <td style="text-align:right;">
-
 9.673077
-
 </td>
-
 <td style="text-align:right;">
-
 1.211185
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
-and of the summary of the casual impact based on boostrap:
+Causal impact based on boostrap:
 
 ``` r
 summary_model$impact_boot
 ```
 
 $average
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 estimates
-
 </th>
-
 <th style="text-align:right;">
-
 inf
-
 </th>
-
 <th style="text-align:right;">
-
 sup
-
 </th>
-
 <th style="text-align:right;">
-
 sd
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 observed
-
 </td>
-
 <td style="text-align:right;">
-
 117.0485168
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 forecasted
-
 </td>
-
 <td style="text-align:right;">
-
 106.6915345
-
 </td>
-
 <td style="text-align:right;">
-
-106.2871286
-
+106.3420568
 </td>
-
 <td style="text-align:right;">
-
-106.9529264
-
+106.9277643
 </td>
-
 <td style="text-align:right;">
-
 0.1861650
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 absolute\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 10.3569824
-
 </td>
-
 <td style="text-align:right;">
-
-10.0955905
-
+10.1207525
 </td>
-
 <td style="text-align:right;">
-
-10.7613882
-
+10.7064600
 </td>
-
 <td style="text-align:right;">
-
 0.1861650
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 relative\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 0.0970741
-
 </td>
-
 <td style="text-align:right;">
-
-0.0946241
-
+0.0948599
 </td>
-
 <td style="text-align:right;">
-
-0.1008645
-
+0.1003497
 </td>
-
 <td style="text-align:right;">
-
 0.0017449
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $effect\_cum
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 estimates
-
 </th>
-
 <th style="text-align:right;">
-
 inf
-
 </th>
-
 <th style="text-align:right;">
-
 sup
-
 </th>
-
 <th style="text-align:right;">
-
 sd
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 observed
-
 </td>
-
 <td style="text-align:right;">
-
 3511.4555050
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 <td style="text-align:right;">
-
 NA
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 forecasted
-
 </td>
-
 <td style="text-align:right;">
-
 3200.7460337
-
 </td>
-
 <td style="text-align:right;">
-
-3188.6138578
-
+3190.2617046
 </td>
-
 <td style="text-align:right;">
-
-3208.5877913
-
+3207.8329294
 </td>
-
 <td style="text-align:right;">
-
 5.5849514
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 absolute\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 310.7094713
-
 </td>
-
 <td style="text-align:right;">
-
-302.8677137
-
+303.6225756
 </td>
-
 <td style="text-align:right;">
-
-322.8416472
-
+321.1938004
 </td>
-
 <td style="text-align:right;">
-
 5.5849514
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 relative\_effect
-
 </td>
-
 <td style="text-align:right;">
-
 0.0970741
-
 </td>
-
 <td style="text-align:right;">
-
-0.0946241
-
+0.0948599
 </td>
-
 <td style="text-align:right;">
-
-0.1008645
-
+0.1003497
 </td>
-
 <td style="text-align:right;">
-
 0.0017449
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 $p\_values
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 x
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 alpha
-
 </td>
-
 <td style="text-align:right;">
-
-0.01
-
+0.05
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 p
-
 </td>
-
 <td style="text-align:right;">
-
 0.00
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
 ## Modify the plots
@@ -2385,12 +1326,12 @@ The plotting functions have some graphical parameters that make easier
 to personalize the plots:
 
 ``` r
-forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
+forecasted_2<-plot(ce, type="forecast", fill_colour="orange",
                colours=c("red", "blue"))
 forecasted_2
 ```
 
-![](man/figures/README-unnamed-chunk-13-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-15-1.png)<!-- -->
 
 All plotting functions return a ggplot object or a list of ggplot
 objects, which makes easy to modify any ggplot parameters of the theme.
@@ -2403,7 +1344,7 @@ library(ggthemes)
 forecasted+theme_wsj()
 ```
 
-![](man/figures/README-unnamed-chunk-14-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-16-1.png)<!-- -->
 
 ## Learn more
 

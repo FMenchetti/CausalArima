@@ -96,6 +96,8 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
   return(tab)
 }
 
+
+
 # -----------------------------------------------------------------------------------------
 
 #' Function to create a table of the estimated model coefficients from a call to CausalArima
@@ -128,10 +130,11 @@ ResultTable <- function(x, type = "norm", stat = c("tau", "avg", "sum"), directi
 #' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
 #'
 #' # Table of the estimated temporal average effects
-#' CoefficientsTable(ce)
+#' impact(ce)
 #'
-CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, cov, ...){
+impact <- function(x, printing=FALSE, format="numeric", n=10, alfa = 0.05, bootstraping=FALSE, horizon=NULL, ...){
 
+  cov<-x$xreg
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
 
@@ -157,8 +160,24 @@ CoefficientsTable <- function(x, printing=FALSE, format="numeric", n=10, alfa = 
 
   results_arima<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats)
   results_effect<-list(  average=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
-  # results<-list( arima_order=arima_order, param=param, accuracy=accuracies, log_stats=log_stats, effect=impact$effect, effect_cum=impact$effect_cum, p_values=impact$p_values)
-  results<-list(impact=results_effect, arima=results_arima)
+
+  if(is.null(horizon)){
+  c_arima_res<-print(x)
+  c_arima_res_tau<-c_arima_res[grepl("tau", names(c_arima_res) )]
+  c_arima_res_sum<-c_arima_res[grepl("sum", names(c_arima_res) )]
+  c_arima_res_avg<-c_arima_res[grepl("avg", names(c_arima_res) )]
+  c_arima_res<-list(avg=c_arima_res_avg, sum=c_arima_res_sum, tau=c_arima_res_tau)
+  }
+  else{
+    c_arima_res<-print(x, horizon=horizon)
+    c_arima_res_tau<-c_arima_res[,grepl("tau", colnames(c_arima_res) )]
+    c_arima_res_sum<-c_arima_res[,grepl("sum", colnames(c_arima_res) )]
+    c_arima_res_avg<-c_arima_res[,grepl("avg", colnames(c_arima_res) )]
+    c_arima_res<-list(avg=c_arima_res_avg, sum=c_arima_res_sum, tau=c_arima_res_tau)
+    c_arima_res<-lapply(c_arima_res, function(z){ data.frame(horizon=horizon, z)})
+  }
+
+  results<-list(impact= c_arima_res, impact_boot =results_effect, arima=results_arima)
 
   if(isTRUE(printing)){
     cat("Arima Order:\n")
@@ -250,11 +269,14 @@ impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
   results$alpha <- alpha
 
   # Add one-sided tail-area probability of overall impact, p
-  y.samples.post.sum <- rowSums(simulated)
+  y.samples.post.sum <- colSums(simulated)
   y.post.sum <- sum(x$y[post_index])
-  p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
-           sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
-    (length(y.samples.post.sum) + 1)
+  # return(list(y.samples.post.sum=y.samples.post.sum, y.post.sum=y.post.sum))
+  # p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
+  #          sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
+  #   (length(y.samples.post.sum) + 1)
+
+  p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))
   results$p <- p
 
   return(results)

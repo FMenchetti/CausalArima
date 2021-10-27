@@ -24,7 +24,7 @@
 #' @param horizon Optional vector with elements of class \code{Date}. If provided, the function
 #'                plots the pointwise causal effect (for \code{type = "impact"}) or the forecasted
 #'                time series (for \code{type = "forecast"}) up to the required time horizon(s).
-#' @param ... Optional arguments passed to \code{grid.arrange}, to be used if \code{!is.null(horizon)}.
+#' @param ... Optional arguments passed to other methods.
 #'
 #' @return NULL
 #' @export
@@ -54,7 +54,7 @@
 #'
 #' # Plot
 #' plot(ce, type = "forecast")
-#' plot(ce, type = "impact", horizon = horizon, nrow = 2, ncol = 1)
+#' plot(ce, type = "impact", horizon = horizon)
 #' plot(ce, type = "residuals")
 #'
 plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon = NULL, ...){
@@ -65,16 +65,17 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     stop("`horizon` must be a Date object")
   if(!all(type %in% c("forecast", "impact", "residuals")))
     stop("allowed 'type' values are 'forecast', 'impact' and 'residuals'")
+  if(any(horizon <= x$int.date)) stop("Dates in `horizon` must follow `int.date`")
 
   # Plot "Observed vs Forecast"
   if("forecast" %in% type){
-    res<-.forecast(x, horizon = horizon, ...)
+    res <- .forecast(x, horizon = horizon, ...)
     return(res)
   }
 
   # Plot "Causal effect"
   if("impact" %in% type){
-    res<-.impact(x, horizon = horizon, ...)
+    res <- .impact(x, horizon = horizon, ...)
     return(res)
   }
 
@@ -82,11 +83,13 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   if("residuals" %in% type){
     .residuals(x, ...)
   }
+
+
 }
 
 # -----------------------------------------------------------------------------------------
 
-.impact <- function(cArima, horizon = NULL, alpha = 0.05, printing=TRUE, color_line="darkblue", color_intervals="slategray2"){
+.impact <- function(cArima, horizon = NULL, alpha = 0.05, color_line="darkblue", color_intervals="slategray2", lines_size=0.6){
   # Settings
   dates <- cArima$dates[!is.na(cArima$causal.effect)]
   int.date <- cArima$int.date
@@ -102,8 +105,8 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   g <- ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = "Point effect", y = "", x = "") +
     theme_bw(base_size = 15)+
     geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill =color_intervals)+
-    geom_hline(yintercept=0, colour = "darkgrey", size = 0.8, linetype = "solid")+
-    geom_line(aes(y = y), color = color_line, linetype = "dashed")
+    geom_hline(yintercept=0, colour = "darkgrey", size = lines_size, linetype = "solid")+
+    geom_line(aes(y = y), color = color_line, linetype = "dashed", size = lines_size)
 
 
   # Cumulative plot
@@ -115,28 +118,23 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   g_cum <- ggplot(data = dat_cum, aes(x = x))  + labs(title = "Cumulative effect", y = "", x = "") +
     theme_bw(base_size = 15)+
     geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = color_intervals)+
-    geom_hline(yintercept=0, colour = "darkgrey", size = 0.8, linetype = "solid")+
-    geom_line(aes(y = y), color =color_line, linetype = "dashed")
+    geom_hline(yintercept=0, colour = "darkgrey", size = lines_size, linetype = "solid")+
+    geom_line(aes(y = y), color =color_line, linetype = "dashed", size = lines_size)
 
   if(!is.null(horizon)){
-    g<-g+ geom_vline(xintercept = horizon, linetype="dashed")
-    g_cum<-g_cum+ geom_vline(xintercept = horizon, linetype="dashed")
+    g <-g + geom_vline(xintercept = horizon, linetype="dashed", size = lines_size)
+    g_cum<-g_cum+ geom_vline(xintercept = horizon, linetype="dashed", size = lines_size)
   }
 
   results<-list(plot=g, cumulative_plot=g_cum)
-
-  if(printing){
-    print(grid.arrange(grobs=results))
-  }
-
   return(results)
 
 }
 
 # -----------------------------------------------------------------------------------------
 
-.forecast <- function(cArima, horizon = NULL, win = 0.4, printing=TRUE, colours=c("darkblue", "black"),
-                      fill_colour="slategray2", lines_size=0.8){
+.forecast <- function(cArima, horizon = NULL, win = 0.4, colours=c("darkblue", "black"),
+                      fill_colour="slategray2", lines_size=0.6){
 
   # Settings
   dates <- cArima$dates[!is.na(cArima$y)]
@@ -170,19 +168,14 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     geom_line(aes(y = observed.cut, color = "Observed"), size = lines_size)
 
   if(!is.null(horizon)){
-    g<-g+ geom_vline(xintercept = horizon, colour = "darkgrey", size = 0.8, linetype = "dashed")
+    g<-g+ geom_vline(xintercept = horizon, colour = "darkgrey", size = lines_size, linetype = "dashed")
   }
-
-  if(printing){
-    print(g)
-  }
-
 
   return(g)
 }
 
 # -----------------------------------------------------------------------------------------
-qqplot.data <- function (vec) # argument: vector of numbers
+qqplot.data <- function(vec) # argument: vector of numbers
 {
   # following four lines from base R's qqline()
   y <- quantile(vec[!is.na(vec)], c(0.25, 0.75))
@@ -196,7 +189,7 @@ qqplot.data <- function (vec) # argument: vector of numbers
 
 }
 
-.residuals <- function(cArima, printing=TRUE, max_lag=30){
+.residuals <- function(cArima, max_lag=30){
   # Standardized residuals
   std.res <- scale(cArima$model$residuals)
   # Acf and Pacf
@@ -209,11 +202,5 @@ qqplot.data <- function (vec) # argument: vector of numbers
 
   # return plots
   results<-list(ACF=ACF,PACF=PACF, QQ_plot=QQ_plot)
-
-  if(printing){
-    print(grid.arrange(grobs=results))
-  }
-
-
   return(results)
 }

@@ -47,6 +47,8 @@ observations in y.}
 \item{nboot}{Number of bootstrap iteration. Optional, if \code{nboot > 0} the function samples
 \code{nboot} times from the empirical distribution of model residuals and computes
 empirical critical values for the point, cumulative and temporal average effect statistics.}
+
+\item{alpha}{Confidence level for the prediction intervals. Defaults to \code{0.05}.}
 }
 \value{
 A list with the following components:
@@ -64,6 +66,8 @@ A list with the following components:
 \item{int.date}{The intervention date.}
 \item{y}{The vector of observations considered in the analysis.}
 \item{forecast}{Forecasted time series in the absence of intervention.}
+\item{forecast_lower}{Lower confidence bound for the forecasted series.}
+\item{forecast_upper}{Upper confidence bound for the forecasted series.}
 }
 \description{
 Causal effect of an intervention

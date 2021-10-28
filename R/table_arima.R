@@ -78,7 +78,7 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
 
   # 1.2. coefficient estimates
   coef<-x$model$coef
-  se<-sqrt(x$model$var.coef)
+  se<-sqrt(diag(x$model$var.coef))
   param<-data.frame(coef, se)
   rownames(param)<- names(x$model$coef)
   colnames(param)<-c("coef", "se")
@@ -156,15 +156,22 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
     simulated[,i]<-sim
   }
 
+   y_post<-x$y[post_index]
 
-  effects <- apply(simulated, 2, function(z) {x$y[post_index]-z} )
+   nas<-is.na(y_post)
+   y_post<-y_post[!nas]
+   simulated<-simulated[!nas, ]
+   x$forecast<-x$forecast[!nas]
 
-  observed<- c(mean(x$y[post_index]), sum(x$y[post_index]))
+  effects <- apply(simulated, 2, function(z) {y_post-z} )
+
+  observed<- c(mean(y_post), sum(y_post))
   forecasted <- c(mean(x$forecast), sum(x$forecast))
   forecasted_low<-c(quantile(colMeans(simulated), prob.lower), quantile(colSums(simulated), prob.lower))
   forecasted_up<-c(quantile(colMeans(simulated), prob.upper), quantile(colSums(simulated), prob.upper))
   forecasted.sd <- c(sd(colMeans(simulated)), sd(colSums(simulated)))
-  abs_effect <- c(mean(x$y[post_index]) - mean(x$forecast), sum(x$y[post_index]) - sum(x$forecast))
+  abs_effect <- c(mean(y_post) - mean(x$forecast),
+                  sum(y_post) - sum(x$forecast))
 
   abs_effect_lower <- c(quantile(colMeans(effects ),prob.lower), quantile(colSums(effects), prob.lower))
 
@@ -193,7 +200,7 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
 
   # Add one-sided tail-area probability of overall impact, p
   y.samples.post.sum <- colSums(simulated)
-  y.post.sum <- sum(x$y[post_index])
+  y.post.sum <- sum(y_post)
   # return(list(y.samples.post.sum=y.samples.post.sum, y.post.sum=y.post.sum))
   # p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
   #          sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /

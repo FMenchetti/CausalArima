@@ -1,0 +1,31 @@
+# devtools::install_github("FMenchetti/CausalArima")
+
+
+install.packages("C:/Users/eugen/OneDrive/Documenti/GitHub/CausalArima",
+                 repos = NULL,
+                 type = "source")
+
+library(CausalArima)
+# data(sales)
+sales <- read.csv("C:/Users/eugen/OneDrive/Desktop/gente/fiammetta/dataset.csv")
+
+start<-as.numeric(strftime(as.Date(min(sales$Dates), "%Y-%m-%d"), "%u"))
+int.date<-as.Date("2018-10-04")
+# horizon<-int.date+30
+
+
+ce <- CausalArima(y = ts(sales$Sales, start = start, frequency = 7), auto = TRUE, ic = "aicc",
+                  dates = as.Date(sales$Dates), xreg=sales$Price, int.date = int.date, nboot = 1000)
+
+ce <- CausalArima(y = ts(sales$Sales, start = start, frequency = 7), auto = TRUE, ic = "aicc",
+                  dates = as.Date(sales$Dates), int.date = int.date, nboot = 1000)
+
+
+ce <- CausalArima(y = ts(sales$Sales, start = start, frequency = 7), auto = F,
+                  order=c(2,0,2), seasonal = c(2,1,0), arima.args = list(include.drift=F),
+                  dates = as.Date(sales$Dates), int.date = int.date, nboot = 1000)
+
+
+summary_model<-impact(ce, boot=1000)
+summary_model$impact_norm
+summary_model$impact_boot

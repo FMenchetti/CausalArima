@@ -1,24 +1,24 @@
 {
-    "id": "AE8480BD",
+    "id": "E6F356A9",
     "path": "~/GitHub/CausalArima/R/table_arima.R",
     "project_path": "R/table_arima.R",
     "type": "r_source",
     "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1634901011845.0,
+    "created": 1635430519914.0,
     "source_on_save": false,
-    "relative_order": 7,
+    "relative_order": 3,
     "properties": {
-        "cursorPosition": "128,0",
-        "scrollLine": "101"
+        "cursorPosition": "57,0",
+        "scrollLine": "45"
     },
     "folds": "",
-    "lastKnownWriteTime": 1635424128,
+    "lastKnownWriteTime": 1635434990,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1635424128,
+    "last_content_update": 1635434990036,
     "read_only": false,
     "read_only_alternatives": []
 }

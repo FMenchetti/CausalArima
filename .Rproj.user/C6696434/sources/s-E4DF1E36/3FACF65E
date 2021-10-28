@@ -1,17 +1,17 @@
 {
-    "id": "392BCCDE",
-    "path": "~/GitHub/CausalArima/R/CausalARIMA.R",
-    "project_path": "R/CausalARIMA.R",
-    "type": "r_source",
+    "id": "3FACF65E",
+    "path": "~/GitHub/CausalArima/README.Rmd",
+    "project_path": "README.Rmd",
+    "type": "r_markdown",
     "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1634638111603.0,
+    "created": 1635433784238.0,
     "source_on_save": false,
     "relative_order": 4,
     "properties": {
-        "cursorPosition": "75,67",
-        "scrollLine": "0"
+        "cursorPosition": "36,3",
+        "scrollLine": "29"
     },
     "folds": "",
     "lastKnownWriteTime": 1635421882,

@@ -4,31 +4,19 @@
 \alias{impact}
 \title{Function to create a table of the estimated model coefficients from a call to CausalArima}
 \usage{
-impact(
-  x,
-  format = "numeric",
-  nboot = 10,
-  alpha = 0.05,
-  bootstraping = FALSE,
-  horizon = NULL,
-  ...
-)
+impact(x, format = "numeric", nboot = 10, horizon = NULL, ...)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}
 
 \item{format}{Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.}
 
-\item{alpha}{?}
-
-\item{bootstraping}{?}
-
 \item{horizon}{Optional vector with elements of class Date. If provided, the function returns
 the estimated effects at the given time horizons.}
 
 \item{...}{Optional arguments passed to other methods.}
 
-\item{n}{Number of bootstrap simulations.#'}
+\item{n}{Number of bootstrap simulations.}
 }
 \value{
 A list with the following components:

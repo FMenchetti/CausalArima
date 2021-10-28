@@ -68,6 +68,7 @@ A list with the following components:
 \item{forecast}{Forecasted time series in the absence of intervention.}
 \item{forecast_lower}{Lower confidence bound for the forecasted series.}
 \item{forecast_upper}{Upper confidence bound for the forecasted series.}
+\item{alpha}{Confidence level for the prediction intervals.}
 }
 \description{
 Causal effect of an intervention

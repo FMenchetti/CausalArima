@@ -1,3 +1,4 @@
+# simulate data
 n<-100
 set.seed(1)
 x1 <- 100 + arima.sim(model = list(ar = 0.999), n = n)
@@ -8,10 +9,9 @@ dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = n)
 start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 
 # Adding a fictional intervention
-int.date <- as.Date("2014-03-161")
+int.date <- as.Date("2014-03-16")
 
 # fit the model - Causal effect estimation
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
-                  xreg =x1)
-
-CoefficientsTable(ce, printing=FALSE, format="html", boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc",
+                  dates = dates, int.date = int.date, xreg=x1)
+impact(ce)

@@ -53,6 +53,7 @@
 #' \item{forecast}{Forecasted time series in the absence of intervention.}
 #' \item{forecast_lower}{Lower confidence bound for the forecasted series.}
 #' \item{forecast_upper}{Upper confidence bound for the forecasted series.}
+#' \item{alpha}{Confidence level for the prediction intervals.}
 #'
 #' @export
 #'
@@ -177,7 +178,7 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   ### STEP 6. Saving results
   my_list <- list(norm = norm, boot = boot, causal.effect = causal.effect.0, model = model,
                   dates = dates, int.date = int.date, y = y, xreg = xreg, forecast = mean.fcast.0, forecast_lower=forecasted_low,
-                  forecast_upper = forecasted_up)
+                  forecast_upper = forecasted_up, alpha=alpha)
   class(my_list) <- "cArima"
   return(my_list)
 

@@ -1,0 +1,7 @@
+library(CausalArima)
+data(sales)
+int.date<-as.Date("2018-11-10")
+
+
+cane<-auto.arima(sales$Sales[], ic = "aicc")
+simulate(cane, future = T, bootstrap = T)

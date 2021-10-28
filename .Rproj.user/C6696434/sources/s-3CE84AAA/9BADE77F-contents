@@ -14,6 +14,6 @@ LazyData: true
 Depends: 
     forecast,
     ggplot2,
-    tidybayes,
-    gridExtra
+    gridExtra,
+    R (>= 2.10)
 RoxygenNote: 7.1.2

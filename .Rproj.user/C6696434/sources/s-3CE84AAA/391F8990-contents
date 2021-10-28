@@ -26,13 +26,14 @@ horizon <- c(dates[floor(n*.8)], dates[floor(n*.9)])# c(as.Date("2015-04-10"), a
 # Causal effect estimation
 start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
-                  xreg =x1, nboot = 10000)
+                  xreg =x1, nboot = 1000)
 
+summary_model<-impact(ce, printing=FALSE, boot=10000, alfa = 0.01, bootstrapping=TRUE, cov=x1)
+summary_model$impact_norm
+summary_model$impact_boot
 
 ResultTable(ce, horizon = horizon)
-summary_model<-CoefficientsTable(ce, printing=FALSE, n=10000, alfa = 0.05, bootstrapping=TRUE, cov=x1, horizon=horizon)
-summary_model$impact
-summary_model$impact_boot
+
 
 fore<-plot(ce, type="forecast")
 impact<-plot(ce, type="impact")
@@ -47,8 +48,6 @@ plot(estimate, type="l")
 plot(real, type="l")
 
 
-summary_model<-CoefficientsTable(ce, printing=FALSE, boot=10000, alfa = 0.05, bootstrapping=FALSE, cov=x1)
-summary_model$impact
 # pre<-dates<int.date
 # fit<-auto.arima(y[pre], xreg=x1[pre])
 # forecasta<-forecast(fit, h=sum(!pre), xreg=x1[!pre])

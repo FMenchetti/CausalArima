@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of CausalArima is to estimates the causal effect of an intervention on a univariate time series using ARIMA models.
+The goal of CausalArima is to estimate the causal effect of an intervention on a univariate time series using ARIMA models.
 
 ## Installation
 
@@ -29,7 +29,7 @@ The goal of CausalArima is to estimates the causal effect of an intervention on 
 <!-- install.packages("CausalArima") -->
 <!-- ``` -->
 
-You can install the development version of CausalArima from from [GitHub](https://github.com/) with:
+You can install the development version of CausalArima from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -63,36 +63,42 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 How to obtain the plot of the forecast:
 
 ```{r, warning=FALSE, message=FALSE}
-forecasted<-plot(ce, type="forecast", printing=FALSE)
+forecasted<-plot(ce, type="forecast")
 forecasted
 ```
 
 How to obtain the plot of the estimated effects and cumulative effects:
 ```{r, fig.height=6}
 
-impact_p<-plot(ce, type="impact", printing=FALSE)
+impact_p<-plot(ce, type="impact")
 grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
-How to obtain a summary of the model (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'. Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex".)
+How to obtain a quick summary of the estimated effect:
+
+```{r}
+summary(ce)
+```
+
+How to obtain a detailed summary of the results, with an option to produce tables in html format (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'). Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex". Estimated model:
 ```{r, results='asis'}
-summary_model<-impact(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE)
+summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE)
 summary_model$arima
 ```
 
-and of the summary of the casual impact:
+Causal impact:
 ```{r, results='asis'}
-summary_model$impact
+summary_model$impact_norm
 ```
 
-and of the summary of the casual impact based on boostrap:
+Causal impact based on boostrap:
 ```{r, results='asis'}
 summary_model$impact_boot
 ```
 
 How to inspect the residuals, with the plots of autocorrelation (ACF) and partial autocorrelation (PACF) functions and QQ-plots:
 ```{r, fig.height=6}
-residuals<-plot(ce, type="residuals", printing=FALSE)
+residuals<-plot(ce, type="residuals")
 grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)
 ```
 
@@ -121,22 +127,28 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "ai
 How to obtain the plot of the estimated effects and cumulative effects:
 ```{r, fig.height=6}
 
-impact_p<-plot(ce, type="impact", printing=FALSE, horizon = horizon)
+impact_p<-plot(ce, type="impact", horizon = horizon)
 grid.arrange(impact_p$plot, impact_p$cumulative_plot)
 ```
 
-How to obtain a summary of the model (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'. Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex".)
+How to obtain a quick summary of the estimated effect:
+
+```{r}
+summary(ce, horizon = horizon)
+```
+
+How to obtain a detailed summary of the results, with an option to produce tables in html format (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'). Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex". Estimated model:
 ```{r, results='asis'}
-summary_model<-impact(ce, printing=FALSE, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, horizon = horizon)
+summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, horizon = horizon)
 summary_model$arima
 ```
 
-and of the summary of the casual impact:
+Causal impact:
 ```{r, results='asis'}
-summary_model$impact
+summary_model$impact_norm
 ```
 
-and of the summary of the casual impact based on boostrap:
+Causal impact based on boostrap:
 ```{r, results='asis'}
 summary_model$impact_boot
 ```
@@ -145,7 +157,7 @@ summary_model$impact_boot
 
 The plotting functions have some graphical parameters that make easier to personalize the plots:
 ```{r}
-forecasted_2<-plot(ce, type="forecast", printing=FALSE, fill_colour="orange",
+forecasted_2<-plot(ce, type="forecast", fill_colour="orange",
                colours=c("red", "blue"))
 forecasted_2
 ```

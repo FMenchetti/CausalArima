@@ -142,7 +142,8 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   observed <- na.omit(as.numeric(cArima$y))
   forecasted <- na.omit(c(cArima$model$fitted, cArima$forecast))
 
-  forecasted_up<-forecasted_inf<-rep(NA, length(na.omit(cArima$model$fitted)))
+  # forecasted_up<-forecasted_inf<-rep(NA, length(na.omit(cArima$model$fitted))) # it breaks with missing values
+  forecasted_up<-forecasted_inf<-rep(NA, length(cArima$model$fitted[!is.na(cArima$model$fitted)]))
   forecasted_up<-append(forecasted_up, cArima$forecast_upper)
   forecasted_inf<-append(forecasted_inf, cArima$forecast_lower)
 

@@ -155,12 +155,13 @@ impact <- function(x, format="numeric", nboot=10, horizon=NULL, ...){
   prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
 
 
-  if(is.numeric(xreg)){  xreg<-xreg[post_index ]  }
+  if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
   else{ xreg<-xreg[post_index, ] }
 
   # start simulations with simulate from the forecast object
   simulated<-matrix(NA, sum(post_index), boot)
   for(i in 1:boot){
+    # return(list(model=x$model, post_index=post_index, xreg=xreg))
     sim<-simulate(x$model,  future=TRUE, nsim=sum(post_index), xreg=xreg, boostrap=TRUE)
     simulated[,i]<-sim
   }

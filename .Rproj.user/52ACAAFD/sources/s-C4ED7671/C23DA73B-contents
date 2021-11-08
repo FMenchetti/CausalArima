@@ -18,9 +18,7 @@
 #'
 #' @param x Object of class \code{cArima}.
 #' @param format Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.
-#' @param n Number of bootstrap simulations.#'
-#' @param alpha ?
-#' @param bootstraping ?
+#' @param n Number of bootstrap simulations.
 #' @param horizon Optional vector with elements of class Date. If provided, the function returns
 #'                the estimated effects at the given time horizons.
 #' @param ... Optional arguments passed to other methods.
@@ -57,8 +55,8 @@
 #' # Table of the estimated temporal average effects
 #' impact(ce)
 #'
-impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FALSE, horizon=NULL, ...){
-
+impact <- function(x, format="numeric", nboot=10, horizon=NULL, ...){
+  # browser()
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
   if(!all(format %in% c("numeric", "html", "latex")))
@@ -70,6 +68,7 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
 
   # settings
   cov<-x$xreg
+  alpha<-x$alpha
 
   ### 1. arima
 
@@ -78,10 +77,16 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
 
   # 1.2. coefficient estimates
   coef<-x$model$coef
-  se<-sqrt(x$model$var.coef)
-  param<-data.frame(coef, se)
+  se<-sqrt(diag(x$model$var.coef))
+  pvalue <- coef/se
+  if(length(coef)!=0){
+  param<-data.frame(coef, se, pvalue)
   rownames(param)<- names(x$model$coef)
-  colnames(param)<-c("coef", "se")
+  colnames(param)<-c("coef", "se", "pvalue")
+  }
+  else{ param<-NULL}
+
+
 
   # 1.3. accuracy measures
   accuracies<-accuracy(x$model)
@@ -117,7 +122,7 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
   ### 3. impact_boot
 
   # Estimated point, cumulative and temporal average effect by bootstrap
-  impact_boot<-.impact_summary(x, xreg=cov, boot=nboot, alpha = alpha, bootstrap=bootstraping) # da modificare i parametri, giusto un test!
+  impact_boot<-.impact_summary(x, boot=nboot) # da modificare i parametri, giusto un test!
   impact_boot<-.format_impact(impact_boot)
 
   # saving a list of results
@@ -141,30 +146,42 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
 # -----------------------------------------------------------------------------------------
 
 
-.impact_summary<-function(x, xreg, boot=10, alpha = 0.05, bootstrap=FALSE){
+.impact_summary<-function(x, boot=10){
+
+  # setting
+  xreg<-x$xreg
+  alpha<-x$alpha  # alfa coef interval
   post_index<-x$dates>=x$int.date # select variable in the post period
   prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
   prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
 
 
-  if(is.null(dim(xreg))){  xreg<-xreg[post_index ]  }
+  if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
   else{ xreg<-xreg[post_index, ] }
 
+  # start simulations with simulate from the forecast object
   simulated<-matrix(NA, sum(post_index), boot)
   for(i in 1:boot){
-    sim<-simulate(x$model,  future=TRUE, nsim=sum(post_index), xreg=xreg, boostrap=bootstrap)
+    # return(list(model=x$model, post_index=post_index, xreg=xreg))
+    sim<-simulate(x$model,  future=TRUE, nsim=sum(post_index), xreg=xreg, boostrap=TRUE)
     simulated[,i]<-sim
   }
+  # select post intervention period and remove missing values
+   y_post<-x$y[post_index]
+   nas<-is.na(y_post)
+   y_post<-y_post[!nas]
+   simulated<-simulated[!nas, ]
+   x$forecast<-x$forecast[!nas]
+  # estimation of statistics
+  effects <- apply(simulated, 2, function(z) {y_post-z} )
 
-
-  effects <- apply(simulated, 2, function(z) {x$y[post_index]-z} )
-
-  observed<- c(mean(x$y[post_index]), sum(x$y[post_index]))
+  observed<- c(mean(y_post), sum(y_post))
   forecasted <- c(mean(x$forecast), sum(x$forecast))
   forecasted_low<-c(quantile(colMeans(simulated), prob.lower), quantile(colSums(simulated), prob.lower))
   forecasted_up<-c(quantile(colMeans(simulated), prob.upper), quantile(colSums(simulated), prob.upper))
   forecasted.sd <- c(sd(colMeans(simulated)), sd(colSums(simulated)))
-  abs_effect <- c(mean(x$y[post_index]) - mean(x$forecast), sum(x$y[post_index]) - sum(x$forecast))
+  abs_effect <- c(mean(y_post) - mean(x$forecast),
+                  sum(y_post) - sum(x$forecast))
 
   abs_effect_lower <- c(quantile(colMeans(effects ),prob.lower), quantile(colSums(effects), prob.lower))
 
@@ -179,12 +196,11 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
               abs_effect_sd=abs_effect_sd)
 
 
+  results$relative_effect<- results$abs_effect /results$forecasted
+  results$relative_effect_lower <-results$abs_effect_lower /  results$forecasted
+  results$relative_effect_upper <-results$abs_effect_upper / results$forecasted
+  results$relative_effect_sd <- results$abs_effect_sd /  results$forecasted
 
-  results <- dplyr::mutate(results,
-                           relative_effect = abs_effect /forecasted,
-                           relative_effect_lower =abs_effect_lower /  forecasted,
-                           relative_effect_upper =abs_effect_upper / forecasted,
-                           relative_effect_sd = abs_effect_sd /  forecasted)
 
   rownames(results) <- c("Average", "Cumulative")
 
@@ -193,12 +209,13 @@ impact <- function(x, format="numeric", nboot=10, alpha = 0.05, bootstraping=FAL
 
   # Add one-sided tail-area probability of overall impact, p
   y.samples.post.sum <- colSums(simulated)
-  y.post.sum <- sum(x$y[post_index])
-  # return(list(y.samples.post.sum=y.samples.post.sum, y.post.sum=y.post.sum))
+  y.post.sum <- sum(y_post)
+
   # p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
   #          sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
   #   (length(y.samples.post.sum) + 1)
 
+  # compute p values for any effect on the sum
   p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))
   results$p <- p
 

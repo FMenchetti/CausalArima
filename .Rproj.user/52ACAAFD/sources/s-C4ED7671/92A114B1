@@ -3,7 +3,7 @@
     "path": "~/GitHub/CausalArima/DESCRIPTION",
     "project_path": "DESCRIPTION",
     "type": "dcf",
-    "hash": "1487296599",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1621351866687.0,
@@ -15,11 +15,11 @@
         "Source": "Source"
     },
     "folds": "",
-    "lastKnownWriteTime": 1635356785,
+    "lastKnownWriteTime": 1635432044,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1635356785797,
+    "last_content_update": 1635432044,
     "read_only": false,
     "read_only_alternatives": []
 }

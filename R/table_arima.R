@@ -78,11 +78,11 @@ impact <- function(x, format="numeric", nboot=10, horizon=NULL, ...){
   # 1.2. coefficient estimates
   coef<-x$model$coef
   se<-sqrt(diag(x$model$var.coef))
-  pvalue <- coef/se
+  tvalue <- coef/se
   if(length(coef)!=0){
-  param<-data.frame(coef, se, pvalue)
+  param<-data.frame(coef, se, tvalue)
   rownames(param)<- names(x$model$coef)
-  colnames(param)<-c("coef", "se", "pvalue")
+  colnames(param)<-c("coef", "se", "t value")
   }
   else{ param<-NULL}
 

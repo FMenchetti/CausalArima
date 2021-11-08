@@ -1,0 +1,208 @@
+---
+title: "webinar"
+output: html_document
+---
+
+### Loading required libraries 
+```{r, warning=FALSE, message=FALSE}
+# install.packages(c("devtools", "kableExtra","tseries" ))
+# devtools::install_github("FMenchetti/CausalArima")
+library("CausalArima")
+library("kableExtra")
+library("tseries") 
+```
+
+### Loading data and setting intervention date
+```{r, warning=FALSE}
+data(sales)
+sales$Dates <- as.Date(sales$Dates, format = "%Y-%m-%d")
+int.date <- as.Date("2018-10-04", format = "%Y-%m-%d")
+dates <- sales$Dates
+y <- sales$Sales
+```
+
+
+### Data inspection
+```{r, warning=FALSE, dpi=300, fig.width=9}
+head(sales)
+
+# NA values
+sum(is.na(y))
+dates[which(is.na(y))]
+
+# Plotting sales & price evolution
+g1 <- ggplot(data = sales, aes(x = Dates, y = Sales)) +
+        geom_line() +
+        geom_vline(xintercept = int.date,
+                   linetype = "dashed", 
+                   color = "red", size = 1)
+
+g2 <- ggplot(data = sales, aes(x = Dates)) +
+        geom_line(aes(y = Price), linetype = "dashed", color = "blue") +
+        geom_line(aes(y = TruePrice)) +
+        geom_vline(aes(xintercept = int.date),
+                   linetype = "dashed", 
+                  color = "red", size = 1)
+
+grid.arrange(g1, g2)
+
+```
+
+Comment: sales data exhibit missing values corresponding to Italian national holidays (the supermarket chain is closed on those days). Daily sales also exhibit a clear weekly pattern, although the ADF test reject the null hypothesis of non-stationarity 
+
+### Causal effect of the permanent price reduction on sales
+```{r, warning=FALSE}
+# Based on the results of the descriptive analysis, we have information to run the causal models, i.e., frequency = 7 
+
+# settings
+horizon <- c(int.date + 7, int.date + 30, int.date + 90)
+Y <- ts(y, frequency = 7) # response variable, weekly data
+X <- sales[, c("Price","hol", "dec.sun","sat","sun","mon", "tue","wed", "thr") ]
+
+
+# causal effect
+fit <- CausalArima(y = Y, 
+                   xreg = X, 
+                   dates = dates, 
+                   int.date = int.date, 
+                   nboot = 10000)
+
+# Quick summary of the causal effect at three different time horizons
+# and at the end of the analysis period
+summary(fit, horizon = horizon)
+summary(fit)
+
+```
+Q1: What is the total number of units sold due to the price reduction after 1-week, 1 month and 3 months from the intervention? 
+
+A1: Due to the price reduction, the supermarket chain sold 11,061 more units at the end of the first week. By November 2018, sales increased by   31,117 units and by January 2019 sales increased by 47,598 units. All the effects are significant (we always reject the null hypothesis of absence of causal effect).
+
+Q2: What is the total number of units sold at the end of the analysis period?
+
+A2: Overall, thanks to the price reduction, total sales increased by 94,312 units. Again, we reject the null of absence of causal effect.
+ 
+We can also visualize the estimated effects with some plots. Plot the forecast of the time series and the observed values:
+```{r, dpi=300, fig.width=9, warning=FALSE, message=FALSE}
+plot(fit, type = "forecast", horizon = horizon)
+
+```
+
+Plot the estimates of the point effects and cumulative effects:
+```{r, dpi=300, fig.width=9}
+impact_plot <- plot(fit, type = "impact", horizon = horizon)
+grid.arrange(impact_plot$plot, impact_plot$cumulative_plot)
+```
+
+How well is the model fitting the data? Plot the autocorrelation (ACF), partial autocorrelation (PACF) functions and the Q-Q plot of the residuals:
+```{r, dpi=300, fig.width=9}
+residuals<-plot(fit, type="residuals", horizon = horizon)
+grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot, ncol = 2)
+```
+
+(P)ACF look nice, but the Normal QQ-Plot shows deviation from the Normality assumption. So, let's see whether the effects are still significant when we use empirical critical values derived from bootstrapping the error term from model residuals.
+
+```{r, dpi=300, fig.width=9}
+summary(fit, type = "boot", horizon = horizon)
+```
+
+The estimated cumulative and temporal average effects are still significant, the point estimate at the second and third horizons is not. A fix that could improve model fit to the pre-intervention data is considering a log transformation.
+
+### Relative effect
+Considering a log transformation also means assuming a multiplicative effect on the outcome variable, i.e., log[Y(1)] - log[Y(0)] = log[Y(1)/Y(0)]
+
+```{r}
+# Defining a log-log model
+X_new <- X
+X_new$log_Price <- log(X_new$Price)
+X_new$Price <- NULL
+
+fit_log <- CausalArima(y = log(Y) ,
+                       ic = "aic", # criterion (possible alternatives: aicc and bic)
+                       dates = dates, # dates of the time series
+                       int.date = int.date, # intervention date
+                       xreg = X_new,
+                       )
+
+```
+
+Residuals plots:
+```{r, dpi=300, fig.width=9}
+residuals<-plot(fit_log, type="residuals", horizon = horizon)
+grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot, ncol = 2)
+```
+
+(P)ACF look even nicer and so does the Normal QQ-Plot. Let's have a quick look at the estimated effects:
+
+```{r}
+summary(fit_log, horizon = horizon)
+```
+
+The temporal average effect of the price reduction is 0.645. After re-exponentiating , we obtain 1.91 (+91% increase) which can be interpreted as the geometric average of daily effects. Now we want to get a more detailed summary of the estimated effect (and in a nice html table ready to be exported).
+
+```{r, results='asis'}
+impact_estimates<-impact(fit_log, nboot=1000, format="html", horizon = horizon)
+```
+
+
+Extract the average effects estimates under the normality assumption:
+```{r}
+kable_styling(impact_estimates$impact_norm$avg)
+```
+
+
+Extract the point effects estimates (usually the main statistics of interest are average and cumulative effects, but in some applications it can be useful) under the normality assumption:
+```{r}
+kable_styling(impact_estimates$impact_norm$tau)
+```
+
+Extract the temporal average effect estimated by bootstrap on the entire period post interventions (different horizons using bootstrap are not implemented yet):
+```{r, results='asis'}
+kable_styling(impact_estimates$impact_boot$average)
+```
+
+Extract information about the arima order, model parameters and error metrics for the selected arima model:
+```{r, results='asis'}
+lapply(impact_estimates$arima, kable_styling)
+```
+
+
+
+## CausalImpact example from simulated data
+
+```{r}
+rm(list=ls())
+# https://google.github.io/CausalImpact/CausalImpact.html
+set.seed(1)
+x1 <- 100 + arima.sim(model = list(ar = 0.999), n = 100)
+y <- 1.2 * x1 + rnorm(100)
+y[71:100] <- y[71:100] + 10
+data <- cbind(y, x1)
+
+time.points <- seq.Date(as.Date("2014-01-01"), by = 1, length.out = 100)
+int.date <- as.Date("2014-03-11", format = "%Y-%m-%d")
+```
+
+
+```{r}
+matplot(data, type = "l")
+```
+
+```{r}
+fit_ci <- CausalArima(y = y, 
+                      xreg = x1, 
+                      dates = time.points, 
+                      int.date = int.date, 
+                      nboot = 10000)
+```
+
+
+As we can see our estimate of the effect is 10.09 [ 9.65 , 10.54], closer to the true value (10) than the estimate from CausalImpact, 11 [9.8, 11]:
+```{r}
+impact_ci<-impact(fit_ci,  nboot = 1000, format="html")
+kable_styling(impact_ci$impact_boot$average)
+```
+
+
+
+
+

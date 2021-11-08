@@ -1,0 +1,24 @@
+"0","# install.packages(c(""devtools"", ""kableExtra"",""tseries"" ))"
+"0","# devtools::install_github(""FMenchetti/CausalArima"")"
+"0","library(""CausalArima"")"
+"2","Loading required package: forecast
+"
+"2","Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo 
+"
+"2","Loading required package: ggplot2
+"
+"2","Loading required package: gridExtra
+"
+"0","library(""kableExtra"")"
+"0","library(""tseries"") "
+"2","
+    ‘tseries’ version: 0.10-48
+
+    ‘tseries’ is a package for time series analysis and computational
+    finance.
+
+    See ‘library(help=""tseries"")’ for details.
+
+"

@@ -142,7 +142,8 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   observed <- na.omit(as.numeric(cArima$y))
   forecasted <- na.omit(c(cArima$model$fitted, cArima$forecast))
 
-  forecasted_up<-forecasted_inf<-rep(NA, length(na.omit(cArima$model$fitted)))
+  # forecasted_up<-forecasted_inf<-rep(NA, length(na.omit(cArima$model$fitted))) # it breaks with missing values
+  forecasted_up<-forecasted_inf<-rep(NA, length(cArima$model$fitted[!is.na(cArima$model$fitted)]))
   forecasted_up<-append(forecasted_up, cArima$forecast_upper)
   forecasted_inf<-append(forecasted_inf, cArima$forecast_lower)
 
@@ -159,7 +160,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     labs(title = "Forecasted series", y = "", x = "") +
      scale_colour_manual(values =colours ) +
     geom_vline(aes(xintercept = int.date, linetype = paste(int.date)), colour = "darkgrey", size = lines_size) +
-    scale_linetype_manual(values = "dashed") +
+    scale_linetype_manual(values = "longdash") +
     labs(color="Time series", linetype="Intervention date") +
     guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))+
     guides(color=guide_legend(override.aes=list(fill=NA)))+
@@ -168,7 +169,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
     geom_line(aes(y = observed.cut, color = "Observed"), size = lines_size)
 
   if(!is.null(horizon)){
-    g<-g+ geom_vline(xintercept = horizon, colour = "darkgrey", size = lines_size, linetype = "dashed")
+    g<-g+ geom_vline(xintercept = horizon, colour = "darkgrey", size = lines_size, linetype = "dotdash")
   }
 
   return(g)

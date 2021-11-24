@@ -167,8 +167,9 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   boot <- if ( NROW(nboot) > 0 && is.finite(nboot) && nboot >= 1)
   {
     nboot <- round(nboot[1])
-    .boot.inf(stat1 = tau, stat2 = sum.tau, stat3 = avg.tau, psi = psi, res = residuals(model),
-              nrep = nboot)
+    .boot.inf.new(model = model, h = h, nboot = nboot, y.01 = y.01, xreg = xreg1)
+    #.boot.inf(stat1 = tau, stat2 = sum.tau, stat3 = avg.tau, psi = psi, res = residuals(model),
+    #          nrep = nboot)
   }
   else
   {
@@ -322,4 +323,41 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
 
   #### Answer
   list(type = "bootstrap", nrep = nrep, inf = inf)
+}
+
+.boot.inf.new <- function(model, h, nboot, y.01, xreg){
+
+  ### Generating bootstrap simulations
+  simulated <- matrix(NA, h, nboot)
+  for(i in 1:nboot){
+    simulated[,i] <- simulate(model,  future = TRUE, nsim = h, xreg = xreg, bootstrap = TRUE)
+  }
+
+  ### stat1
+  dist1 <- y.01 - simulated
+  stat1 <- rowMeans(dist1)
+  sd1  <- apply(dist1, 1, sd)
+  z1 <- (stat1 - 0) / sd1
+  ### stat2
+  dist2 <- apply(dist1, 2, cumsum)
+  stat2 <- rowMeans(dist2)
+  sd2 <- apply(dist2, 1, sd)
+  z2 <- (stat2 - 0) / sd2
+  ### stat3
+  dist3 <- apply(dist2, 2, FUN = function(x)(x/seq(1, h, 1)))
+  stat3 <- rowMeans(dist3)
+  sd3 <- apply(dist3, 1, sd)
+  z3 <- (stat3 - 0) / sd3
+
+  #### Bootstrap based inference
+  inf <- cbind(
+    tau = stat1, sd.tau = sd1,
+    pvalue.tau.l = pnorm(z1), pvalue.tau.b = 2 * (1 - pnorm(abs(z1))), pvalue.tau.r = 1 - pnorm(z1),
+    sum = stat2, sd.sum = sd2,
+    pvalue.sum.l = pnorm(z2), pvalue.sum.b = 2 * (1 - pnorm(abs(z2))), pvalue.sum.r = 1 - pnorm(z2),
+    avg = stat3, sd.avg = sd3,
+    pvalue.avg.l = pnorm(z3), pvalue.avg.b = 2 * (1 - pnorm(abs(z3))), pvalue.avg.r = 1 - pnorm(z3))
+
+  #### Answer
+  list(type = "boot", inf = inf)
 }

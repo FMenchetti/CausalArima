@@ -153,9 +153,9 @@ summary.cArima<- function(x, type = "norm", horizon = NULL, digits = 3){
               "Cumulative causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
               "Temporal average causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value")
 
-  if(type == "boot"){
-    nnames <- nnames[- grep(nnames, pattern = "Standard error")]
-  }
+  # if(type == "boot"){
+  #  nnames <- nnames[- grep(nnames, pattern = "Standard error")]
+  # }
 
   rownames(obj) <- nnames
   noquote(obj)

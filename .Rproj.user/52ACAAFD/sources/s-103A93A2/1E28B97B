@@ -3,7 +3,7 @@
     "path": "~/GitHub/CausalArima/R/print_arima.R",
     "project_path": "R/print_arima.R",
     "type": "r_source",
-    "hash": "3925043575",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1632840211662.0,
@@ -11,8 +11,8 @@
     "relative_order": 6,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "157,4",
-        "scrollLine": "150",
+        "cursorPosition": "157,5",
+        "scrollLine": "0",
         "Source": "Source"
     },
     "folds": "",

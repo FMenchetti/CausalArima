@@ -337,27 +337,43 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   dist1 <- y.01 - simulated
   stat1 <- rowMeans(dist1)
   sd1  <- apply(dist1, 1, sd)
-  z1 <- (stat1 - 0) / sd1
+  pv1.l <- apply(dist1, 1, FUN = function(x)(mean(x < 0)))
+  pv1.b <- apply(dist1, 1, FUN = function(x)(2-2*max(mean(x < 0), mean(x > 0))))
+  pv1.r <- apply(dist1, 1, FUN = function(x)(mean(x > 0)))
   ### stat2
   dist2 <- apply(dist1, 2, cumsum)
   stat2 <- rowMeans(dist2)
   sd2 <- apply(dist2, 1, sd)
-  z2 <- (stat2 - 0) / sd2
+  pv2.l <- apply(dist2, 1, FUN = function(x)(mean(x < 0)))
+  pv2.b <- apply(dist2, 1, FUN = function(x)(2-2*max(mean(x < 0), mean(x > 0))))
+  pv2.r <- apply(dist2, 1, FUN = function(x)(mean(x > 0)))
   ### stat3
   dist3 <- apply(dist2, 2, FUN = function(x)(x/seq(1, h, 1)))
   stat3 <- rowMeans(dist3)
   sd3 <- apply(dist3, 1, sd)
-  z3 <- (stat3 - 0) / sd3
+  pv3.l <- apply(dist3, 1, FUN = function(x)(mean(x < 0)))
+  pv3.b <- apply(dist3, 1, FUN = function(x)(2-2*max(mean(x < 0), mean(x > 0))))
+  pv3.r <- apply(dist3, 1, FUN = function(x)(mean(x > 0)))
 
   #### Bootstrap based inference
   inf <- cbind(
     tau = stat1, sd.tau = sd1,
-    pvalue.tau.l = pnorm(z1), pvalue.tau.b = 2 * (1 - pnorm(abs(z1))), pvalue.tau.r = 1 - pnorm(z1),
+    pvalue.tau.l = pv1.l, pvalue.tau.b = pv1.b, pvalue.tau.r = pv1.r,
     sum = stat2, sd.sum = sd2,
-    pvalue.sum.l = pnorm(z2), pvalue.sum.b = 2 * (1 - pnorm(abs(z2))), pvalue.sum.r = 1 - pnorm(z2),
+    pvalue.sum.l = pv2.l, pvalue.sum.b = pv2.b, pvalue.sum.r = pv2.r,
     avg = stat3, sd.avg = sd3,
-    pvalue.avg.l = pnorm(z3), pvalue.avg.b = 2 * (1 - pnorm(abs(z3))), pvalue.avg.r = 1 - pnorm(z3))
+    pvalue.avg.l = pv3.l, pvalue.avg.b = pv3.b, pvalue.avg.r = pv3.r)
+
+  #### Relative effect
+  dist4 <- dist1/simulated
+
+  inf.rel <- cbind(
+    relative.effect = rowMeans(dist4),
+    sd.relative = apply(dist4, 1, sd),
+    pvalue.tau.l = apply(dist4, 1, FUN = function(x)(mean(x < 0))),
+    pvalue.tau.b = apply(dist4, 1, FUN = function(x)(2-2*max(mean(x < 0), mean(x > 0)))),
+    pvalue.tau.r = apply(dist4, 1, FUN = function(x)(mean(x > 0))))
 
   #### Answer
-  list(type = "boot", inf = inf)
+  list(type = "boot", inf = inf, inf.rel = inf.rel)
 }

@@ -365,15 +365,18 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
     pvalue.avg.l = pv3.l, pvalue.avg.b = pv3.b, pvalue.avg.r = pv3.r)
 
   #### Relative effect
-  dist4 <- dist1/simulated
+  # NOTA: dist1 è semplicemente (y.01 - simulated) dove y.01 = y.post
+  # nel linguaggio che avevi usato in "impact"
 
-  inf.rel <- cbind(
-    relative.effect = rowMeans(dist4),
-    sd.relative = apply(dist4, 1, sd),
-    pvalue.tau.l = apply(dist4, 1, FUN = function(x)(mean(x > 0))),
-    pvalue.tau.b = apply(dist4, 1, FUN = function(x)(2-2*max(mean(x < 0), mean(x > 0)))),
-    pvalue.tau.r = apply(dist4, 1, FUN = function(x)(mean(x < 0))))
+  #dist4 <- dist1/simulated
+
+  # inf.rel <- cbind(
+  #  relative.effect = rowMeans(dist4),
+  #  sd.relative = apply(dist4, 1, sd),
+  #  pvalue.tau.l = apply(dist4, 1, FUN = function(x)(mean(x > 0))),
+  #  pvalue.tau.b = apply(dist4, 1, FUN = function(x)(2-2*max(mean(x < 0), mean(x > 0)))),
+  #  pvalue.tau.r = apply(dist4, 1, FUN = function(x)(mean(x < 0))))
 
   #### Answer
-  list(type = "boot", inf = inf, inf.rel = inf.rel)
+  list(type = "boot", inf = inf, boot.distrib = simulated)
 }

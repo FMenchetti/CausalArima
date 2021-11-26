@@ -4,7 +4,7 @@
 \alias{impact}
 \title{Function to create a table of the estimated model coefficients from a call to CausalArima}
 \usage{
-impact(x, format = "numeric", nboot = 10, horizon = NULL, ...)
+impact(x, format = "numeric", horizon = NULL, ...)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}

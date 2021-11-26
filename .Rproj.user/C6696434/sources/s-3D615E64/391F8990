@@ -3,22 +3,23 @@
     "path": "C:/Users/eugen/OneDrive/Desktop/gente/fiammetta/test_causal_impact.R",
     "project_path": null,
     "type": "r_source",
-    "hash": "1654948432",
+    "hash": "3159813890",
     "contents": "",
     "dirty": false,
     "created": 1634568630028.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
-        "cursorPosition": "21,0",
-        "scrollLine": "8"
+        "cursorPosition": "41,0",
+        "scrollLine": "29",
+        "Source": "Source"
     },
     "folds": "",
-    "lastKnownWriteTime": 1635434625,
+    "lastKnownWriteTime": 1637941942,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1635434625106,
+    "last_content_update": 1637941942656,
     "read_only": false,
     "read_only_alternatives": []
 }

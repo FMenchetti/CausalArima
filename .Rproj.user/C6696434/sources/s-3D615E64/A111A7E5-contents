@@ -1,0 +1,59 @@
+# dati: https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_17-novembre-2021.pdf
+pop_no_vax<-7862567
+pop_vax<-38968164 # VACCINATI CON CICLO COMPLETO ENTRO 6 MES
+
+tot_covid<-50564+ 3980 + 60407 + 11215 + 537
+covid_no_vax<-50564
+covid_vax<-60407
+
+ospedale_no_vax<-3220
+ospedale_vax<-2075
+
+terapia_intensiva_no_vax<-424
+terapia_intensiva_vax<-177
+
+decessi_no_vax<-384
+decessi_vax<-309
+
+
+# diagnosticamento covid
+p_covid_no_vax<-covid_no_vax/pop_no_vax
+p_covid_vax<-covid_vax/pop_vax
+odd_ratio_covid<-p_covid_no_vax/p_covid_vax
+
+# ospedalizzazioni
+p_ospedale_no_vax<-ospedale_no_vax/pop_no_vax
+p_ospedale_vax<-ospedale_vax/pop_vax
+odd_ratio_ospedale<-p_ospedale_no_vax/p_ospedale_vax
+
+# terapie intensive
+p_terapia_intensiva_no_vax<-terapia_intensiva_no_vax/pop_no_vax
+p_terapia_intensiva_vax<-terapia_intensiva_vax/pop_vax
+odd_ratio_terapia_intensiva<-p_terapia_intensiva_no_vax/p_terapia_intensiva_vax
+
+# decessi
+p_decessi_no_vax<-decessi_no_vax/pop_no_vax
+p_decessi_vax<-decessi_vax/pop_vax
+odd_ratio_decessi<-p_decessi_no_vax/p_decessi_vax
+
+res<-rbind(c(p_covid_no_vax, p_covid_vax, odd_ratio_covid),
+c(p_ospedale_no_vax, p_ospedale_vax, odd_ratio_ospedale),
+c(p_terapia_intensiva_no_vax, p_terapia_intensiva_vax, odd_ratio_terapia_intensiva),
+c(p_decessi_no_vax, p_decessi_vax, odd_ratio_decessi)
+)
+
+colnames(res)<-c("perc_no_vax", "perc_vax", "odds_ratio")
+rownames(res)<-c("diagnosi_covid", "ospedalizzazione", "terapia_intensiva", "morte")
+round(res, 6)
+
+
+library(eulerr)
+
+
+covid <- euler(c("vax" = pop_vax, "no_vax" = pop_no_vax, "covid"=tot_covid,
+                 "vax&covid" = covid_vax ),
+               shape = "ellipse"
+               )
+
+plot(covid)
+

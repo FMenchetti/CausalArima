@@ -55,13 +55,12 @@
 #' # Table of the estimated temporal average effects
 #' impact(ce)
 #'
-impact <- function(x, format="numeric", nboot=10, horizon=NULL, ...){
+impact <- function(x, format="numeric", horizon=NULL, ...){
   # browser()
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
   if(!all(format %in% c("numeric", "html", "latex")))
     stop("allowed 'format' values are 'numeric', 'html' and 'latex'")
-  if(!is.numeric(nboot) | nboot <= 0) stop("`nboot` must be a positive numeric value")
   if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
     stop("`horizon` must be a Date object")
   if(any(horizon <= x$int.date)) stop("Dates in `horizon` must follow `int.date`")
@@ -122,7 +121,7 @@ impact <- function(x, format="numeric", nboot=10, horizon=NULL, ...){
   ### 3. impact_boot
 
   # Estimated point, cumulative and temporal average effect by bootstrap
-  impact_boot<-.impact_summary(x, boot=nboot) # da modificare i parametri, giusto un test!
+  impact_boot<-.impact_summary(x) # da modificare i parametri, giusto un test!
   impact_boot<-.format_impact(impact_boot)
 
   # saving a list of results
@@ -146,7 +145,7 @@ impact <- function(x, format="numeric", nboot=10, horizon=NULL, ...){
 # -----------------------------------------------------------------------------------------
 
 
-.impact_summary<-function(x, boot=10){
+.impact_summary<-function(x){
 
   # setting
   xreg<-x$xreg
@@ -160,12 +159,14 @@ impact <- function(x, format="numeric", nboot=10, horizon=NULL, ...){
   else{ xreg<-xreg[post_index, ] }
 
   # start simulations with simulate from the forecast object
-  simulated<-matrix(NA, sum(post_index), boot)
-  for(i in 1:boot){
-    # return(list(model=x$model, post_index=post_index, xreg=xreg))
-    sim<-simulate(x$model,  future=TRUE, nsim=sum(post_index), xreg=xreg, boostrap=TRUE)
-    simulated[,i]<-sim
-  }
+  # simulated<-matrix(NA, sum(post_index), boot)
+  # for(i in 1:boot){
+  #   # return(list(model=x$model, post_index=post_index, xreg=xreg))
+  #   sim<-simulate(x$model,  future=TRUE, nsim=sum(post_index), xreg=xreg, boostrap=TRUE)
+  #   simulated[,i]<-sim
+  # }
+
+  simulated<-ce$boot$boot.distrib
   # select post intervention period and remove missing values
    y_post<-x$y[post_index]
    nas<-is.na(y_post)

@@ -51,7 +51,7 @@ start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 int.date <- as.Date("2014-03-16")
 
 # fit the model - Causal effect estimation
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), ic = "aicc", dates = dates, int.date = int.date,
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), dates = dates, int.date = int.date,
                   xreg =x1, nboot = 1000)
 ```
 
@@ -691,8 +691,8 @@ int.date <- as.Date("2014-03-16")
 horizon<-as.Date(c("2014-03-25", "2014-04-05")) # add horizons
 
 # fit the model - Causal effect estimation
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
-                  xreg =x1)
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), ic = "aicc", dates = dates, int.date = int.date,
+                  xreg =x1, nboot = 1000)
 ```
 
 How to obtain the plot of the estimated effects and cumulative effects:
@@ -1120,7 +1120,218 @@ Causal impact based on boostrap:
 summary_model$impact_boot
 ```
 
-list()
+$average
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+estimates
+</th>
+<th style="text-align:right;">
+inf
+</th>
+<th style="text-align:right;">
+sup
+</th>
+<th style="text-align:right;">
+sd
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+observed
+</td>
+<td style="text-align:right;">
+117.0485168
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+forecasted
+</td>
+<td style="text-align:right;">
+106.6915345
+</td>
+<td style="text-align:right;">
+106.2768920
+</td>
+<td style="text-align:right;">
+107.1550453
+</td>
+<td style="text-align:right;">
+0.2184921
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+absolute_effect
+</td>
+<td style="text-align:right;">
+10.3569824
+</td>
+<td style="text-align:right;">
+9.8934716
+</td>
+<td style="text-align:right;">
+10.7716249
+</td>
+<td style="text-align:right;">
+0.2184921
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+relative_effect
+</td>
+<td style="text-align:right;">
+0.0970741
+</td>
+<td style="text-align:right;">
+0.0927297
+</td>
+<td style="text-align:right;">
+0.1009604
+</td>
+<td style="text-align:right;">
+0.0020479
+</td>
+</tr>
+</tbody>
+</table>
+$effect_cum
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+estimates
+</th>
+<th style="text-align:right;">
+inf
+</th>
+<th style="text-align:right;">
+sup
+</th>
+<th style="text-align:right;">
+sd
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+observed
+</td>
+<td style="text-align:right;">
+3511.4555050
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+forecasted
+</td>
+<td style="text-align:right;">
+3200.7460337
+</td>
+<td style="text-align:right;">
+3188.3067592
+</td>
+<td style="text-align:right;">
+3214.6513578
+</td>
+<td style="text-align:right;">
+6.5547623
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+absolute_effect
+</td>
+<td style="text-align:right;">
+310.7094713
+</td>
+<td style="text-align:right;">
+296.8041472
+</td>
+<td style="text-align:right;">
+323.1487458
+</td>
+<td style="text-align:right;">
+6.5547623
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+relative_effect
+</td>
+<td style="text-align:right;">
+0.0970741
+</td>
+<td style="text-align:right;">
+0.0927297
+</td>
+<td style="text-align:right;">
+0.1009604
+</td>
+<td style="text-align:right;">
+0.0020479
+</td>
+</tr>
+</tbody>
+</table>
+$p_values
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+x
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+alpha
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+p
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+</tbody>
+</table>
 
 ## Modify the plots
 

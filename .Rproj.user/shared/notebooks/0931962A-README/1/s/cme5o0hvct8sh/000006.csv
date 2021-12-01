@@ -1,0 +1,2 @@
+"0","residuals<-plot(ce, type=""residuals"")"
+"0","grid.arrange(residuals$ACF, residuals$PACF, residuals$QQ_plot)"

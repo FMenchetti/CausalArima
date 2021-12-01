@@ -116,8 +116,15 @@ impact <- function(x, format="numeric", horizon=NULL, ...){
 
   # saving a list of results
   impact_norm<-list(avg=impact_norm_avg, sum=impact_norm_sum, tau=impact_norm_tau)
-  if(!is.null(horizon)){impact_norm<-lapply(impact_norm, function(z){ data.frame(horizon=horizon, z)})}
+  names(impact_norm)<-c("average", "sum", "point_effect")
 
+  if(!is.null(horizon)) {
+  impact_norm<-lapply(impact_norm, function(x){ colnames(x)<-c("estimate", "sd", "p_value_left", "p_value_bidirectional", "p_value_right") ; x})
+  impact_norm<-lapply(impact_norm, function(z){ data.frame(horizon=horizon, z)})
+  }
+  else{
+    impact_norm<-lapply(impact_norm, function(x){ names(x)<-c("estimate", "sd", "p_value_left", "p_value_bidirectional", "p_value_right") ; x})
+  }
   ### 3. impact_boot
 
   # Estimated point, cumulative and temporal average effect by bootstrap

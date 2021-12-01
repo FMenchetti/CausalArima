@@ -28,11 +28,11 @@ start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
                   xreg =x1, nboot = 1000)
 
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc",
-                  dates = dates, int.date = int.date,
-                   nboot = 1000)
+# ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc",
+#                   dates = dates, int.date = int.date,
+#                    nboot = 1000)
 
-summary_model<-impact(ce, horizon = horizon) #, format="latex")
+summary_model<-impact(ce, format="latex") #, format="latex")
 summary_model$impact_norm
 summary_model$impact_boot
 

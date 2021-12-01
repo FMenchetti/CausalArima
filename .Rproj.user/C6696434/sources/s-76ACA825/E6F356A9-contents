@@ -16,6 +16,7 @@
 
 #' Function to create a table of the estimated model coefficients from a call to CausalArima
 #'
+#' @importFrom kableExtra kable_styling
 #' @param x Object of class \code{cArima}.
 #' @param format Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.
 #' @param n Number of bootstrap simulations.
@@ -55,7 +56,7 @@
 #' # Table of the estimated temporal average effects
 #' impact(ce)
 #'
-impact <- function(x, format="numeric", horizon=NULL, ...){
+impact <- function(x,  horizon=NULL, format="numeric", style=kable_styling, ...){
   # browser()
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
@@ -139,11 +140,12 @@ impact <- function(x, format="numeric", horizon=NULL, ...){
   results<-list(impact_norm = impact_norm, impact_boot = impact_boot, arima=results_arima)
 
   if(isTRUE(format=="html")){
-    # results<-knitr::kable(results, format = "html")
     results<-lapply(results, function(z) lapply(z, knitr::kable, format = "html"))
+    results<-lapply(results, function(z) lapply(z, style))
   }
   if(isTRUE(format=="latex")){
     results<-lapply(results, function(z) lapply(z, knitr::kable, format = "latex"))
+    results<-lapply(results, function(z) lapply(z, style))
   }
   return(results)
 }
@@ -164,14 +166,6 @@ impact <- function(x, format="numeric", horizon=NULL, ...){
 
   if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
   else{ xreg<-xreg[post_index, ] }
-
-  # start simulations with simulate from the forecast object
-  # simulated<-matrix(NA, sum(post_index), boot)
-  # for(i in 1:boot){
-  #   # return(list(model=x$model, post_index=post_index, xreg=xreg))
-  #   sim<-simulate(x$model,  future=TRUE, nsim=sum(post_index), xreg=xreg, boostrap=TRUE)
-  #   simulated[,i]<-sim
-  # }
 
   simulated<-ce$boot$boot.distrib
   # select post intervention period and remove missing values
@@ -218,10 +212,6 @@ impact <- function(x, format="numeric", horizon=NULL, ...){
   # Add one-sided tail-area probability of overall impact, p
   y.samples.post.sum <- colSums(simulated)
   y.post.sum <- sum(y_post)
-
-  # p <- min(sum(c(y.samples.post.sum, y.post.sum) >= y.post.sum),
-  #          sum(c(y.samples.post.sum, y.post.sum) <= y.post.sum)) /
-  #   (length(y.samples.post.sum) + 1)
 
   # compute p values for any effect on the sum
   p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))

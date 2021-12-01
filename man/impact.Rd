@@ -4,15 +4,15 @@
 \alias{impact}
 \title{Function to create a table of the estimated model coefficients from a call to CausalArima}
 \usage{
-impact(x, format = "numeric", horizon = NULL, ...)
+impact(x, horizon = NULL, format = "numeric", style = kable_styling, ...)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}
 
-\item{format}{Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.}
-
 \item{horizon}{Optional vector with elements of class Date. If provided, the function returns
 the estimated effects at the given time horizons.}
+
+\item{format}{Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.}
 
 \item{...}{Optional arguments passed to other methods.}
 

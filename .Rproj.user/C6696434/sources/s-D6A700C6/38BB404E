@@ -10,8 +10,8 @@
     "source_on_save": false,
     "relative_order": 5,
     "properties": {
-        "cursorPosition": "141,24",
-        "scrollLine": "138",
+        "cursorPosition": "87,0",
+        "scrollLine": "87",
         "Source": "Source"
     },
     "folds": "",
@@ -19,7 +19,7 @@
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1638376230007,
+    "last_content_update": 1638376881203,
     "read_only": false,
     "read_only_alternatives": []
 }

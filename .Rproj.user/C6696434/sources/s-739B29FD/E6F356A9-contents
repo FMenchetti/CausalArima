@@ -125,6 +125,7 @@ impact <- function(x,  horizon=NULL, format="numeric", style=kable_styling, ...)
   }
   else{
     impact_norm<-lapply(impact_norm, function(x){ names(x)<-c("estimate", "sd", "p_value_left", "p_value_bidirectional", "p_value_right") ; x})
+    impact_norm<-lapply(impact_norm, function(x) data.frame(t(x)))
   }
   ### 3. impact_boot
 

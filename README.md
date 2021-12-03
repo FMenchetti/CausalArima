@@ -285,52 +285,39 @@ $average
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:right;">
+estimate
 </th>
 <th style="text-align:right;">
-x
+sd
+</th>
+<th style="text-align:right;">
+p_value_left
+</th>
+<th style="text-align:right;">
+p_value_bidirectional
+</th>
+<th style="text-align:right;">
+p_value_right
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-estimate
-</td>
 <td style="text-align:right;">
-10.3569824
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-sd
+10.35698
 </td>
 <td style="text-align:right;">
 0.2211311
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_left
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_bidirectional
+0
 </td>
 <td style="text-align:right;">
-0.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_right
-</td>
-<td style="text-align:right;">
-0.0000000
+0
 </td>
 </tr>
 </tbody>
@@ -339,52 +326,39 @@ $sum
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:right;">
+estimate
 </th>
 <th style="text-align:right;">
-x
+sd
+</th>
+<th style="text-align:right;">
+p_value_left
+</th>
+<th style="text-align:right;">
+p_value_bidirectional
+</th>
+<th style="text-align:right;">
+p_value_right
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-estimate
-</td>
 <td style="text-align:right;">
-310.709471
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-sd
+310.7095
 </td>
 <td style="text-align:right;">
 6.633933
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_left
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_bidirectional
+0
 </td>
 <td style="text-align:right;">
-0.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_right
-</td>
-<td style="text-align:right;">
-0.000000
+0
 </td>
 </tr>
 </tbody>
@@ -393,52 +367,39 @@ $point_effect
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:right;">
+estimate
 </th>
 <th style="text-align:right;">
-x
+sd
+</th>
+<th style="text-align:right;">
+p_value_left
+</th>
+<th style="text-align:right;">
+p_value_bidirectional
+</th>
+<th style="text-align:right;">
+p_value_right
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-estimate
-</td>
 <td style="text-align:right;">
-12.257154
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-sd
+12.25715
 </td>
 <td style="text-align:right;">
 1.211185
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_left
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_bidirectional
+0
 </td>
 <td style="text-align:right;">
-0.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-p_value_right
-</td>
-<td style="text-align:right;">
-0.000000
+0
 </td>
 </tr>
 </tbody>

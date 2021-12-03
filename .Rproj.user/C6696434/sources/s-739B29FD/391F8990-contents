@@ -34,7 +34,7 @@ ce <- CausalArima(y = ts(y, start = start, frequency = 1), ic = "aicc", dates = 
 #                   dates = dates, int.date = int.date,
 #                    nboot = 1000)
 
-summary_model<-impact(ce, format="latex") #, format="latex")
+summary_model<-impact(ce) #, format="latex")
 summary_model$impact_norm
 summary_model$impact_boot
 

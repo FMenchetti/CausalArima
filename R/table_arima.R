@@ -267,7 +267,7 @@ impact <- function(x,  horizon=NULL, format="numeric", style=kable_styling, ...)
   # estimation of statistics
   effects <- apply(simulated, 2, function(z) {y_post-z} )
 
-  index<-sapply(horizon, function(z) x$dates <z)
+  index<-sapply(horizon, function(z) x$dates <=z)
   index<-tail(index, length(y_post))
   results<-NULL
   for(i in 1:ncol(index)){

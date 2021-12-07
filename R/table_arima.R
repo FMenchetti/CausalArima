@@ -80,9 +80,9 @@ impact <- function(x,  horizon=NULL, format="numeric", style=kable_styling, ...)
   se<-sqrt(diag(x$model$var.coef))
   tvalue <- coef/se
   if(length(coef)!=0){
-  param<-data.frame(coef, se, tvalue)
-  rownames(param)<- names(x$model$coef)
-  colnames(param)<-c("coef", "se", "t value")
+    param<-data.frame(coef, se, tvalue)
+    rownames(param)<- names(x$model$coef)
+    colnames(param)<-c("coef", "se", "t value")
   }
   else{ param<-NULL}
 
@@ -120,8 +120,8 @@ impact <- function(x,  horizon=NULL, format="numeric", style=kable_styling, ...)
   names(impact_norm)<-c("average", "sum", "point_effect")
 
   if(!is.null(horizon)) {
-  impact_norm<-lapply(impact_norm, function(x){ colnames(x)<-c("estimate", "sd", "p_value_left", "p_value_bidirectional", "p_value_right") ; x})
-  impact_norm<-lapply(impact_norm, function(z){ data.frame(horizon=horizon, z)})
+    impact_norm<-lapply(impact_norm, function(x){ colnames(x)<-c("estimate", "sd", "p_value_left", "p_value_bidirectional", "p_value_right") ; x})
+    impact_norm<-lapply(impact_norm, function(z){ data.frame(horizon=horizon, z)})
   }
   else{
     impact_norm<-lapply(impact_norm, function(x){ names(x)<-c("estimate", "sd", "p_value_left", "p_value_bidirectional", "p_value_right") ; x})
@@ -134,22 +134,41 @@ impact <- function(x,  horizon=NULL, format="numeric", style=kable_styling, ...)
     impact_boot<-NULL
   }
   else{
-  impact_boot<-.impact_summary(x) # da modificare i parametri, giusto un test!
-  impact_boot<-.format_impact(impact_boot)
+    if(!is.null(horizon)) {
+      impact_boot<-.impact_summary_horizons(x, horizon=horizon)
+      impact_boot<- lapply(impact_boot, .format_impact)
+      impact_boot<-lapply(impact_boot, function(z) {
+        list(average=z$effect, effect_cum=z$effect_cum, p_values=z$p_values)
+      })
+    }
+    else{
+      impact_boot<-.impact_summary(x)
+      impact_boot<-.format_impact(impact_boot)
+      # saving a list of results
+      impact_boot <- list(average=impact_boot$effect, effect_cum=impact_boot$effect_cum, p_values=impact_boot$p_values)
+    }
 
-  # saving a list of results
-  impact_boot <- list(average=impact_boot$effect, effect_cum=impact_boot$effect_cum, p_values=impact_boot$p_values)
-}
+  }
 
   ### Global savings
   results<-list(impact_norm = impact_norm, impact_boot = impact_boot, arima=results_arima)
 
   if(isTRUE(format=="html")){
+    if(!is.null(horizon)) {
+      lapply(results, function(u) lapply(u, function(z) lapply(z, knitr::kable, format = "html")) )
+    }
+    else{
     results<-lapply(results, function(z) lapply(z, knitr::kable, format = "html"))
+    }
     results<-lapply(results, function(z) lapply(z, style))
   }
   if(isTRUE(format=="latex")){
-    results<-lapply(results, function(z) lapply(z, knitr::kable, format = "latex"))
+    if(!is.null(horizon)) {
+      lapply(results, function(u) lapply(u, function(z) lapply(z, knitr::kable, format = "latex")) )
+    }
+    else{
+      results<-lapply(results, function(z) lapply(z, knitr::kable, format ="latex"))
+    }
     results<-lapply(results, function(z) lapply(z, style))
   }
   return(results)
@@ -225,6 +244,82 @@ impact <- function(x,  horizon=NULL, format="numeric", style=kable_styling, ...)
   return(results)
 }
 
+.impact_summary_horizons<-function(x, horizon){
+
+  # setting
+  xreg<-x$xreg
+  alpha<-x$alpha  # alfa coef interval
+  post_index<-x$dates>=x$int.date # select variable in the post period
+  prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
+  prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
+
+
+  if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
+  else{ xreg<-xreg[post_index, ] }
+
+  simulated<-ce$boot$boot.distrib
+  # select post intervention period and remove missing values
+  y_post<-x$y[post_index]
+  nas<-is.na(y_post)
+  y_post<-y_post[!nas]
+  simulated<-simulated[!nas, ]
+  x$forecast<-x$forecast[!nas]
+  # estimation of statistics
+  effects <- apply(simulated, 2, function(z) {y_post-z} )
+
+  index<-sapply(horizon, function(z) x$dates <z)
+  index<-tail(index, length(y_post))
+  results<-NULL
+  for(i in 1:ncol(index)){
+  y_post_h<-y_post[index[,i]]
+  forecast_h<-x$forecast[index[,i]]
+  simulated_h<-simulated[index[,i], ]
+  effects_h<-effects[index[,i], ]
+
+  observed<- c(mean(y_post_h), sum(y_post_h))
+  forecasted <- c(mean(forecast_h), sum(forecast_h))
+  forecasted_low<-c(quantile(colMeans(simulated_h), prob.lower), quantile(colSums(simulated_h), prob.lower))
+  forecasted_up<-c(quantile(colMeans(simulated_h), prob.upper), quantile(colSums(simulated_h), prob.upper))
+  forecasted.sd <- c(sd(colMeans(simulated_h)), sd(colSums(simulated_h)))
+  abs_effect <- c(mean(y_post_h) - mean(forecast_h),
+                  sum(y_post_h) - sum(forecast_h))
+
+  abs_effect_lower <- c(quantile(colMeans(effects_h ),prob.lower), quantile(colSums(effects_h), prob.lower))
+
+  abs_effect_upper <- c(quantile(colMeans(effects_h), prob.upper), quantile(colSums(effects_h), prob.upper))
+
+  abs_effect_sd <- c(sd(colMeans( effects_h)), sd(colSums(effects_h)))
+
+
+
+  results_h <-data.frame(observed=observed, forecasted=forecasted, forecasted_low=forecasted_low, forecasted_up=forecasted_up,
+                       forecasted.sd=forecasted.sd, abs_effect=abs_effect, abs_effect_lower=abs_effect_lower, abs_effect_upper=abs_effect_upper,
+                       abs_effect_sd=abs_effect_sd)
+
+
+  results_h$relative_effect<- results_h$abs_effect /results_h$forecasted
+  results_h$relative_effect_lower <-results_h$abs_effect_lower /  results_h$forecasted
+  results_h$relative_effect_upper <-results_h$abs_effect_upper / results_h$forecasted
+  results_h$relative_effect_sd <- results_h$abs_effect_sd /  results_h$forecasted
+
+
+  rownames(results_h) <- c("Average", "Cumulative")
+
+  # Add interval coverage, defined by alpha
+  results_h$alpha <- alpha
+
+  # Add one-sided tail-area probability of overall impact, p
+  y.samples.post.sum <- colSums(simulated_h)
+  y.post.sum <- sum(y_post_h)
+
+  # compute p values for any effect on the sum
+  p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))
+  results_h$p <- p
+  results[[i]]<-results_h
+  }
+  names(results)<-horizon
+  return(results)
+}
 
 # -----------------------------------------------------------------------------------------
 

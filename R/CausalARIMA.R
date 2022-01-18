@@ -81,7 +81,7 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
                       int.date, arima.args = list(), auto.args = list(), nboot = NULL, alpha = 0.05){
 
   ### param checks
-  if(class(y) != "ts") stop("y must be an object of class ts")
+  # if(class(y) != "ts") stop("y must be an object of class ts")
   if(!missing(xreg)) {
     if(!is.matrix(xreg) && !is.data.frame(xreg) && !is.numeric(xreg))
       stop("`xreg` must be a numeric vector, matrix or data.frame")
@@ -111,13 +111,13 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   }
 
   ### STEP 2. Model estimation in the pre-intervention period
-  start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
-
   if(auto){
-     model <- do.call("auto.arima", c(list(y = ts(y.00, start = start, frequency = frequency(y))),
+     model <- do.call("auto.arima", c(list(y = ts(y.00,
+                                                  frequency = frequency(y))),
                                      list(ic = ic), list(xreg = xreg0), auto.args))
    } else {
-    model <- do.call("Arima", c(list(y = ts(y.00, start = start, frequency = frequency(y))),
+    model <- do.call("Arima", c(list(y = ts(y.00,
+                                            frequency = frequency(y))),
                                 list(order = order), list(seasonal = seasonal), list(xreg = xreg0),
                                 arima.args))
   }

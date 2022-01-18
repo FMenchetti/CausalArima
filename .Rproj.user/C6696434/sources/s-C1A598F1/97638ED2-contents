@@ -1,0 +1,18 @@
+library(zoo)
+library(ggplot2)
+dat <- read.csv("C:/Users/eugen/OneDrive/Desktop/gente/covid_derivative/owid-covid-data.csv")
+dat$date<-as.Date(dat$date)
+dat<-dat[dat$iso_code=="ITA",]
+dat<-dat[order(dat$date),]
+variable<-"hosp_patients"
+dat<-dat[, c("date",variable)]
+
+serie<- zoo(dat[, variable], dat$date)
+serie_rolla<-rollmean(serie, 7)
+p1<-ggplot(aes(x = Index, y = Value), data = fortify(serie_rolla, melt = TRUE)) +
+    geom_line() + xlab("tempo") + ylab("ospedalizzazioni")
+p2<-ggplot(aes(x = Index, y = Value), data = fortify(diff(serie_rolla), melt = TRUE)) +
+    geom_line() + xlab("tempo") + ylab("variazione ospedalizzazioni")+geom_hline(yintercept = 0)
+
+plotto<-gridExtra::grid.arrange(p1, p2)
+ggsave(plotto)

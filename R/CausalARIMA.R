@@ -118,13 +118,13 @@
 #' # Causal effect estimation
 #' # The autocorrelation function indicates a weekly sesonal pattern
 #' ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
-#'                   dates = dates, nboot = 1000)
+#'                   dates = dates, nboot = 100)
 CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0), ic = "aic", xreg = NULL, dates,
                       int.date, arima.args = list(), auto.args = list(), nboot = NULL, alpha = 0.05){
 
   ### param checks
   if(class(y) != "ts" & !is.numeric(y)) stop("y must be numeric or ts")
-  if(is.numeric(y)){
+  if(!is.ts(y)){
     y <- ts(y, frequency = findfrequency(y))
   }
   if(!missing(xreg)) {
@@ -143,8 +143,8 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
 
   ### STEP 1. Subsetting the data: before and after the intervention date
   ind<-dates>=int.date
-  y.00<-y[!ind]
-  y.01<-y[ind]
+  y.00<-ts(y[!ind], frequency = frequency(y))
+  y.01<-ts(y[ind], frequency = frequency(y))
 
   if(!is.null(xreg)) {
     xreg0<-xreg[!ind,]

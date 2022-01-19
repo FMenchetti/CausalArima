@@ -20,7 +20,7 @@ CausalArima(
 )
 }
 \arguments{
-\item{y}{Vector of observations, univariate time series of class \code{ts}.}
+\item{y}{Vector of observations, univariate time series of class \code{ts} or \code{numeric}.}
 
 \item{auto}{If set to TRUE, \code{auto.arima} returns the best fitting model in the pre-intervention period
 according to the selected \code{ic}. Defaults to TRUE.}

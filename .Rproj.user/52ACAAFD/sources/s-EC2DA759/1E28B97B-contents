@@ -12,7 +12,12 @@
 ######################################################################################
 ######################################################################################
 
-#' Print method for object of class 'cArima'
+#' Printing method for object of class 'cArima'
+#'
+#' Quick shortcut to see the results of a call to \code{CausalArima}, i.e., the estimated
+#' causal effects at each time point provided in \code{horizon}. If \code{horizon = NULL}
+#' (default), the function prints the estimated effects at the last date of the
+#' post-intervention period.
 #'
 #' @param x Object of class \code{cArima}.
 #' @param type Character string indicating the summary to be produced. Possible values
@@ -21,7 +26,8 @@
 #'                summarizes the point, cumulative and temporal average effects at the given
 #'                time horizon(s).
 #'
-#' @return A data frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
+#' @return An extract from the data.frame returned by \code{cArima$norm$inf} or \code{cArima$boot$inf}
+#'         corresponding to the dates provided in horizon (if \code{horizon = NULL},
 #'         a single row corresponding to the last date of the post-intervention period) with the
 #'         following columns:
 #'         \item{tau}{The estimated causal effect at the given time horizon or at the end of analysis
@@ -36,8 +42,8 @@
 #'                        period if \code{is.null(horizon)}.}
 #'         \item{pvalue.avg}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
 #'                           p-values for \code{avg.tau}.}
-#'         When \code{type = "norm"} additional columns are provided with the estimated standard deviations
-#'         for the point, cumulative and temporal average effects under the assumption of Normally distributed residuals.
+#'         Additional columns are provided with the estimated standard deviations for the point, cumulative
+#'         and temporal average effects.
 #' @export
 #' @examples
 #' ## Example 1
@@ -57,6 +63,23 @@
 #'
 #' # Print
 #' print(ce, type = "norm")
+#' print(ce, type = "boot", horizon = horizon)
+#'
+#' ## Example 2
+#' # Loading data and setting dates
+#' data(sales)
+#' y <- sales[, "Sales"]
+#' dates <- as.Date(sales[, "Dates"])
+#' int.date <- as.Date("2018-10-04")
+#' horizon<-c("2018-11-04","2019-01-04","2019-04-30")
+#' xreg <- sales[, "Price"]
+#'
+#' # Causal effect estimation
+#' ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
+#'                   dates = dates, nboot = 100)
+#'
+#' # Print
+#' print(ce, horizon = horizon)
 #' print(ce, type = "boot", horizon = horizon)
 #'
 print.cArima<- function(x, type = "norm", horizon = NULL){
@@ -123,6 +146,23 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
 #'
 #' # Summary
 #' summary(ce, type = "norm")
+#' summary(ce, type = "boot", horizon = horizon)
+#'
+#' ## Example 2
+#' # Loading data and setting dates
+#' data(sales)
+#' y <- sales[, "Sales"]
+#' dates <- as.Date(sales[, "Dates"])
+#' int.date <- as.Date("2018-10-04")
+#' horizon<-c("2018-11-04","2019-01-04","2019-04-30")
+#' xreg <- sales[, "Price"]
+#'
+#' # Causal effect estimation
+#' ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
+#'                   dates = dates, nboot = 100)
+#'
+#' # Summary of the estimated effects at different time points (defined in horizon)
+#' summary(ce, horizon = horizon)
 #' summary(ce, type = "boot", horizon = horizon)
 #'
 summary.cArima<- function(x, type = "norm", horizon = NULL, digits = 3){

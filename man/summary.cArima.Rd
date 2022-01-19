@@ -45,4 +45,21 @@ ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic =
 summary(ce, type = "norm")
 summary(ce, type = "boot", horizon = horizon)
 
+## Example 2
+# Loading data and setting dates
+data(sales)
+y <- sales[, "Sales"]
+dates <- as.Date(sales[, "Dates"])
+int.date <- as.Date("2018-10-04")
+horizon<-c("2018-11-04","2019-01-04","2019-04-30")
+xreg <- sales[, "Price"]
+
+# Causal effect estimation
+ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
+                  dates = dates, nboot = 100)
+
+# Summary of the estimated effects at different time points (defined in horizon)
+summary(ce, horizon = horizon)
+summary(ce, type = "boot", horizon = horizon)
+
 }

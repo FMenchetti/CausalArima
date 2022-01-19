@@ -172,11 +172,6 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   forecasted_low<-as.numeric(fcast$lower)
   forecasted_up<-as.numeric(fcast$upper)
 
-  # Check
-  if(sum(y<0, na.rm = T)==0 & sum(mean.fcast.0<0, na.rm = T)>0){print("warning: negative forecasts for a positive variable")
-    print(mean.fcast.0[mean.fcast.0<0])}
-  if(sum(y<0, na.rm = T)==0 & sum(model$fitted<0, na.rm = T)>0){"warning: negative fitted for a positive variable"}
-
   ### STEP 4. Causal effect computation: direct comparison between the observed outcome (y.01) and the
   #           predicted counterfactual (mean.fcast.0)
   causal.effect.0 <- y.01 - mean.fcast.0
@@ -318,7 +313,9 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   }
 
   ### stat1
+  # removing rows corresponding to missing obs in y.01
   dist1 <- y.01 - simulated
+  dist1 <- dist1[-which(is.na(y.01)), ]
   stat1 <- rowMeans(dist1)
   sd1  <- apply(dist1, 1, sd)
   pv1.l <- apply(dist1, 1, FUN = function(x)(mean(x > 0)))
@@ -332,7 +329,7 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   pv2.b <- apply(dist2, 1, FUN = function(x)(2-2*max(mean(x < 0), mean(x > 0))))
   pv2.r <- apply(dist2, 1, FUN = function(x)(mean(x < 0)))
   ### stat3
-  dist3 <- apply(dist2, 2, FUN = function(x)(x/seq(1, h, 1)))
+  dist3 <- apply(dist2, 2, FUN = function(x)(x/seq(1, dim(dist2)[1], 1)))
   stat3 <- rowMeans(dist3)
   sd3 <- apply(dist3, 1, sd)
   pv3.l <- apply(dist3, 1, FUN = function(x)(mean(x > 0)))

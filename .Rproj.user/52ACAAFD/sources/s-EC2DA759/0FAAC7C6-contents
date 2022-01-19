@@ -56,8 +56,9 @@ start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 int.date <- as.Date("2014-03-16")
 
 # fit the model - Causal effect estimation
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
-                  xreg =x1)
+ce <- CausalArima(y =y,   # ts(y, start = start, frequency = 1),
+                  dates = dates, int.date = int.date,
+                  xreg =x1, nboot = 1000)
 ```
 
 How to obtain the plot of the forecast:
@@ -82,7 +83,7 @@ summary(ce)
 
 How to obtain a detailed summary of the results, with an option to produce tables in html format (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'). Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex". Estimated model:
 ```{r, results='asis'}
-summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE)
+summary_model<-impact(ce, format="html")
 summary_model$arima
 ```
 
@@ -120,8 +121,8 @@ int.date <- as.Date("2014-03-16")
 horizon<-as.Date(c("2014-03-25", "2014-04-05")) # add horizons
 
 # fit the model - Causal effect estimation
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
-                  xreg =x1)
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), ic = "aicc", dates = dates, int.date = int.date,
+                  xreg =x1, nboot = 1000)
 ```
 
 How to obtain the plot of the estimated effects and cumulative effects:
@@ -139,7 +140,7 @@ summary(ce, horizon = horizon)
 
 How to obtain a detailed summary of the results, with an option to produce tables in html format (notice that to proper display the results as html on a Rmarkdown chunk you have to set result as 'asis'). Other possible format include "numeric", useful to retrieve the statistics and use them in calculations, and "latex". Estimated model:
 ```{r, results='asis'}
-summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, horizon = horizon)
+summary_model<-impact(ce, format="html", horizon = horizon)
 summary_model$arima
 ```
 

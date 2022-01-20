@@ -4,19 +4,20 @@
 \alias{impact}
 \title{Function to create a table of the estimated model coefficients from a call to CausalArima}
 \usage{
-impact(x, horizon = NULL, format = "numeric", style = kable_styling, ...)
+impact(x, format = "numeric", horizon = NULL, style = kable_styling, ...)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}
 
+\item{format}{Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.}
+
 \item{horizon}{Optional vector with elements of class Date. If provided, the function returns
 the estimated effects at the given time horizons.}
 
-\item{format}{Required format for the table. Possible values in \code{c("numeric", "html", "latex")}.}
+\item{style}{Function to pass to \code{knitr_kable} objects to customize the style of the table.
+Defaults to \code{kable_styling}.}
 
 \item{...}{Optional arguments passed to other methods.}
-
-\item{n}{Number of bootstrap simulations.}
 }
 \value{
 A list with the following components:
@@ -42,14 +43,14 @@ y <- y -2*x1 + x2
 
 # Adding a fictional intervention
 int.date <- as.Date("2019-05-11")
-horizon <- c(as.Date("2019-12-07"), as.Date("2020-02-15"), as.Date("2020-04-25"))
+horizon <- as.Date(c("2019-12-07", "2020-02-15", "2020-04-25"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.40
 
 # Causal effect estimation
-start<-as.numeric(strftime(as.Date(dates[1], "\%Y-\%m-\%d"), "\%u"))
-ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
+ce <- CausalArima(y = y.new, dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
 
 # Table of the estimated temporal average effects
 impact(ce)
+impact(ce, horizon = horizon)
 
 }

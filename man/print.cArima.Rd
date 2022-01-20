@@ -50,12 +50,11 @@ dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
 
 # Adding a fictional intervention
 int.date <- as.Date("2015-04-01")
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+horizon <- as.Date(c("2015-04-10", "2015-04-20"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
 
 # Causal effect estimation
-start<-as.numeric(strftime(as.Date(dates[1], "\%Y-\%m-\%d"), "\%u"))
-ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic",
+ce <- CausalArima(y = y.new, auto = TRUE, ic = "aic",
                   dates = dates, int.date = int.date, nboot = 1000)
 
 # Print
@@ -68,7 +67,7 @@ data(sales)
 y <- sales[, "Sales"]
 dates <- as.Date(sales[, "Dates"])
 int.date <- as.Date("2018-10-04")
-horizon<-c("2018-11-04","2019-01-04","2019-04-30")
+horizon<- as.Date(c("2018-11-04","2019-01-04","2019-04-30"))
 xreg <- sales[, "Price"]
 
 # Causal effect estimation

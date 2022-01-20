@@ -96,7 +96,7 @@ dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
 
 # Adding a fictional intervention
 int.date <- as.Date("2015-04-01")
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+horizon <- as.Date(c("2015-04-10", "2015-04-20"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
 
 # Plot
@@ -123,7 +123,7 @@ par(oldpar)
 # Causal effect estimation
 # The autocorrelation function indicates a weekly sesonal pattern
 ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
-                  dates = dates, nboot = 1000)
+                  dates = dates, nboot = 100)
 }
 \references{
 Rubin, D. B. (1976). Inference and missing data. Biometrika, 63(3), 581-592.

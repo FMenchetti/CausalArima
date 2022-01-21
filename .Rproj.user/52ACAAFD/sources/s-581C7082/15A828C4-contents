@@ -56,7 +56,7 @@
 #' plot(ce, type = "impact", horizon = horizon)
 #' plot(ce, type = "residuals")
 #'
-#'## Example 2 (daily data, with predictors)
+#'## Example 2 (daily data, with predictors, log-linear model)
 #'# Loading data and setting dates
 #' data(sales)
 #' y <- log(sales[, "Sales"])
@@ -156,11 +156,12 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   # Settings
   dates <- cArima$dates[!is.na(cArima$y)]
   int.date <- cArima$int.date
-  observed <- na.omit(as.numeric(cArima$y))
-  forecasted <- na.omit(c(cArima$model$fitted, cArima$forecast))
+  observed <- na.omit(cArima$y)
+  fitted <- cArima$model$fitted
+  forecasted <- na.omit(c(fitted, cArima$forecast))
 
   # forecasted_up<-forecasted_inf<-rep(NA, length(na.omit(cArima$model$fitted))) # it breaks with missing values
-  forecasted_up<-forecasted_inf<-rep(NA, length(cArima$model$fitted[!is.na(cArima$model$fitted)]))
+  forecasted_up<-forecasted_inf<-rep(NA, length(fitted[!is.na(fitted)]))
   forecasted_up<-append(forecasted_up, cArima$forecast_upper)
   forecasted_inf<-append(forecasted_inf, cArima$forecast_lower)
 

@@ -107,6 +107,7 @@ lines(y = y, x = dates, col = "orange")
 ce <- CausalArima(y = y.new, dates = dates, int.date = int.date)
 
 ## Example 2 (daily data, with predictors)
+# Loading data and setting dates
 data(sales)
 y <- sales[, "Sales"]
 dates <- as.Date(sales[, "Dates"])

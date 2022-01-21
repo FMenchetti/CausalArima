@@ -46,7 +46,7 @@
 #'         and temporal average effects.
 #' @export
 #' @examples
-#' ## Example 1
+#' ## Example 1 (daily data, no predictors)
 #' # Generating a time series of length 1000 and a vector of dates
 #' y <- 0.5*seq(0.5, 250, by = 0.5) + rnorm(500, sd = 6)
 #' dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
@@ -64,7 +64,7 @@
 #' print(ce, type = "norm")
 #' print(ce, type = "boot", horizon = horizon)
 #'
-#' ## Example 2
+#' ## Example 2 (daily data, with predictors)
 #' # Loading data and setting dates
 #' data(sales)
 #' y <- sales[, "Sales"]
@@ -128,14 +128,14 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
 #' @export
 #'
 #' @examples
-#' ## Example 1
+#' ## Example 1 (daily data, no predictors)
 #' # Generating a time series of length 1000 and a vector of dates
 #' y <- 0.5*seq(0.5, 250, by = 0.5) + rnorm(500, sd = 6)
 #' dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
 #'
 #' # Adding a fictional intervention
 #' int.date <- as.Date("2015-04-01")
-#' horizon <- as.Date(c(2015-04-10", "2015-04-20"))
+#' horizon <- as.Date(c("2015-04-10", "2015-04-20"))
 #' y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
 #'
 #' # Causal effect estimation
@@ -146,7 +146,7 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
 #' summary(ce, type = "norm")
 #' summary(ce, type = "boot", horizon = horizon)
 #'
-#' ## Example 2
+#' ## Example 2 (daily data, with predictors)
 #' # Loading data and setting dates
 #' data(sales)
 #' y <- sales[, "Sales"]
@@ -190,10 +190,6 @@ summary.cArima<- function(x, type = "norm", horizon = NULL, digits = 3){
   nnames <- c("Point causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
               "Cumulative causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value", "",
               "Temporal average causal effect", "Standard error", "Left-sided p-value", "Bidirectional p-value", "Right-sided p-value")
-
-  # if(type == "boot"){
-  #  nnames <- nnames[- grep(nnames, pattern = "Standard error")]
-  # }
 
   rownames(obj) <- nnames
   noquote(obj)

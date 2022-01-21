@@ -48,7 +48,7 @@ plot(ce, type = "forecast")
 plot(ce, type = "impact", horizon = horizon)
 plot(ce, type = "residuals")
 
-## Example 2 (daily data, with predictors)
+## Example 2 (daily data, with predictors, log-linear model)
 # Loading data and setting dates
 data(sales)
 y <- log(sales[, "Sales"])

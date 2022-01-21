@@ -43,7 +43,7 @@ causal effects at each time point provided in \code{horizon}. If \code{horizon =
 post-intervention period.
 }
 \examples{
-## Example 1
+## Example 1 (daily data, no predictors)
 # Generating a time series of length 1000 and a vector of dates
 y <- 0.5*seq(0.5, 250, by = 0.5) + rnorm(500, sd = 6)
 dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
@@ -61,7 +61,7 @@ ce <- CausalArima(y = y.new, auto = TRUE, ic = "aic",
 print(ce, type = "norm")
 print(ce, type = "boot", horizon = horizon)
 
-## Example 2
+## Example 2 (daily data, with predictors)
 # Loading data and setting dates
 data(sales)
 y <- sales[, "Sales"]

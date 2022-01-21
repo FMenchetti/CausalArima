@@ -102,6 +102,7 @@
 #' ce <- CausalArima(y = y.new, dates = dates, int.date = int.date)
 #'
 #' ## Example 2 (daily data, with predictors)
+#' # Loading data and setting dates
 #' data(sales)
 #' y <- sales[, "Sales"]
 #' dates <- as.Date(sales[, "Dates"])
@@ -214,8 +215,8 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   }
 
   ### STEP 6. Saving results
-  my_list <- list(norm = norm, boot = boot, causal.effect = causal.effect.0, model = model,
-                  dates = dates, int.date = int.date, y = y, xreg = xreg, forecast = mean.fcast.0, forecast_lower=forecasted_low,
+  my_list <- list(norm = norm, boot = boot, causal.effect = as.numeric(causal.effect.0), model = model,
+                  dates = dates, int.date = int.date, y = as.numeric(y), xreg = xreg, forecast = mean.fcast.0, forecast_lower=forecasted_low,
                   forecast_upper = forecasted_up, alpha=alpha)
   class(my_list) <- "cArima"
   return(my_list)
@@ -315,7 +316,7 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   ### stat1
   # removing rows corresponding to missing obs in y.01
   dist1 <- as.numeric(y.01) - simulated
-  dist1 <- dist1[-which(is.na(y.01)), ]
+  dist1 <- dist1[!is.na(y.01), ]
   stat1 <- rowMeans(dist1)
   sd1  <- apply(dist1, 1, sd)
   pv1.l <- apply(dist1, 1, FUN = function(x)(mean(x > 0)))

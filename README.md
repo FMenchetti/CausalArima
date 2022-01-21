@@ -36,6 +36,7 @@ library(CausalArima)
 #>   as.zoo.data.frame zoo
 #> Loading required package: ggplot2
 #> Loading required package: gridExtra
+
 # simulate data
 n<-100
 set.seed(1)
@@ -50,8 +51,8 @@ start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
 int.date <- as.Date("2014-03-16")
 
 # fit the model - Causal effect estimation
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
-                  xreg =x1)
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), dates = dates, int.date = int.date,
+                  xreg =x1, nboot = 1000)
 ```
 
 How to obtain the plot of the forecast:
@@ -103,12 +104,12 @@ possible format include “numeric”, useful to retrieve the statistics and
 use them in calculations, and “latex”. Estimated model:
 
 ``` r
-summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE)
+summary_model<-impact(ce, format="html")
 summary_model$arima
 ```
 
-$arima\_order
-<table>
+$arima_order
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -127,7 +128,7 @@ q
 <tbody>
 <tr>
 <td style="text-align:left;">
-arima\_order
+arima_order
 </td>
 <td style="text-align:right;">
 0
@@ -142,7 +143,7 @@ arima\_order
 </tbody>
 </table>
 $param
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -152,6 +153,9 @@ coef
 </th>
 <th style="text-align:right;">
 se
+</th>
+<th style="text-align:right;">
+t value
 </th>
 </tr>
 </thead>
@@ -166,11 +170,14 @@ xreg
 <td style="text-align:right;">
 0.0016581
 </td>
+<td style="text-align:right;">
+723.3279
+</td>
 </tr>
 </tbody>
 </table>
 $accuracy
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -227,8 +234,8 @@ Training set
 </tr>
 </tbody>
 </table>
-$log\_stats
-<table>
+$log_stats
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -274,164 +281,125 @@ Causal impact:
 summary_model$impact_norm
 ```
 
-$avg
-<table>
+$average
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:right;">
+estimate
 </th>
 <th style="text-align:right;">
-x
+sd
+</th>
+<th style="text-align:right;">
+p_value_left
+</th>
+<th style="text-align:right;">
+p_value_bidirectional
+</th>
+<th style="text-align:right;">
+p_value_right
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-avg
-</td>
 <td style="text-align:right;">
-10.3569824
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-sd.avg
+10.35698
 </td>
 <td style="text-align:right;">
 0.2211311
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.avg.l
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.avg.b
+0
 </td>
 <td style="text-align:right;">
-0.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.avg.r
-</td>
-<td style="text-align:right;">
-0.0000000
+0
 </td>
 </tr>
 </tbody>
 </table>
 $sum
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:right;">
+estimate
 </th>
 <th style="text-align:right;">
-x
+sd
+</th>
+<th style="text-align:right;">
+p_value_left
+</th>
+<th style="text-align:right;">
+p_value_bidirectional
+</th>
+<th style="text-align:right;">
+p_value_right
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-sum
-</td>
 <td style="text-align:right;">
-310.709471
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-sd.sum
+310.7095
 </td>
 <td style="text-align:right;">
 6.633933
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.sum.l
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.sum.b
+0
 </td>
 <td style="text-align:right;">
-0.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.sum.r
-</td>
-<td style="text-align:right;">
-0.000000
+0
 </td>
 </tr>
 </tbody>
 </table>
-$tau
-<table>
+$point_effect
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:right;">
+estimate
 </th>
 <th style="text-align:right;">
-x
+sd
+</th>
+<th style="text-align:right;">
+p_value_left
+</th>
+<th style="text-align:right;">
+p_value_bidirectional
+</th>
+<th style="text-align:right;">
+p_value_right
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-tau
-</td>
 <td style="text-align:right;">
-12.257154
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-sd.tau
+12.25715
 </td>
 <td style="text-align:right;">
 1.211185
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.tau.l
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.tau.b
+0
 </td>
 <td style="text-align:right;">
-0.000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pvalue.tau.r
-</td>
-<td style="text-align:right;">
-0.000000
+0
 </td>
 </tr>
 </tbody>
@@ -444,7 +412,7 @@ summary_model$impact_boot
 ```
 
 $average
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -489,53 +457,53 @@ forecasted
 106.6915345
 </td>
 <td style="text-align:right;">
-106.3420568
+106.2768920
 </td>
 <td style="text-align:right;">
-106.9277643
+107.1550453
 </td>
 <td style="text-align:right;">
-0.1861650
+0.2184921
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-absolute\_effect
+absolute_effect
 </td>
 <td style="text-align:right;">
 10.3569824
 </td>
 <td style="text-align:right;">
-10.1207525
+9.8934716
 </td>
 <td style="text-align:right;">
-10.7064600
+10.7716249
 </td>
 <td style="text-align:right;">
-0.1861650
+0.2184921
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-relative\_effect
+relative_effect
 </td>
 <td style="text-align:right;">
 0.0970741
 </td>
 <td style="text-align:right;">
-0.0948599
+0.0927297
 </td>
 <td style="text-align:right;">
-0.1003497
+0.1009604
 </td>
 <td style="text-align:right;">
-0.0017449
+0.0020479
 </td>
 </tr>
 </tbody>
 </table>
-$effect\_cum
-<table>
+$effect_cum
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -580,53 +548,53 @@ forecasted
 3200.7460337
 </td>
 <td style="text-align:right;">
-3190.2617046
+3188.3067592
 </td>
 <td style="text-align:right;">
-3207.8329294
+3214.6513578
 </td>
 <td style="text-align:right;">
-5.5849514
+6.5547623
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-absolute\_effect
+absolute_effect
 </td>
 <td style="text-align:right;">
 310.7094713
 </td>
 <td style="text-align:right;">
-303.6225756
+296.8041472
 </td>
 <td style="text-align:right;">
-321.1938004
+323.1487458
 </td>
 <td style="text-align:right;">
-5.5849514
+6.5547623
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-relative\_effect
+relative_effect
 </td>
 <td style="text-align:right;">
 0.0970741
 </td>
 <td style="text-align:right;">
-0.0948599
+0.0927297
 </td>
 <td style="text-align:right;">
-0.1003497
+0.1009604
 </td>
 <td style="text-align:right;">
-0.0017449
+0.0020479
 </td>
 </tr>
 </tbody>
 </table>
-$p\_values
-<table>
+$p_values
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -684,8 +652,8 @@ int.date <- as.Date("2014-03-16")
 horizon<-as.Date(c("2014-03-25", "2014-04-05")) # add horizons
 
 # fit the model - Causal effect estimation
-ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
-                  xreg =x1)
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), ic = "aicc", dates = dates, int.date = int.date,
+                  xreg =x1, nboot = 1000)
 ```
 
 How to obtain the plot of the estimated effects and cumulative effects:
@@ -728,12 +696,12 @@ possible format include “numeric”, useful to retrieve the statistics and
 use them in calculations, and “latex”. Estimated model:
 
 ``` r
-summary_model<-impact(ce, format="html", boot=10000, alfa = 0.01, bootstrapping=TRUE, horizon = horizon)
+summary_model<-impact(ce, format="html", horizon = horizon)
 summary_model$arima
 ```
 
-$arima\_order
-<table>
+$arima_order
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -752,7 +720,7 @@ q
 <tbody>
 <tr>
 <td style="text-align:left;">
-arima\_order
+arima_order
 </td>
 <td style="text-align:right;">
 0
@@ -767,7 +735,7 @@ arima\_order
 </tbody>
 </table>
 $param
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -777,6 +745,9 @@ coef
 </th>
 <th style="text-align:right;">
 se
+</th>
+<th style="text-align:right;">
+t value
 </th>
 </tr>
 </thead>
@@ -791,11 +762,14 @@ xreg
 <td style="text-align:right;">
 0.0016581
 </td>
+<td style="text-align:right;">
+723.3279
+</td>
 </tr>
 </tbody>
 </table>
 $accuracy
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -852,8 +826,8 @@ Training set
 </tr>
 </tbody>
 </table>
-$log\_stats
-<table>
+$log_stats
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -899,27 +873,27 @@ Causal impact:
 summary_model$impact_norm
 ```
 
-$avg
-<table>
+$average
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
 horizon
 </th>
 <th style="text-align:right;">
-avg
+estimate
 </th>
 <th style="text-align:right;">
-sd.avg
+sd
 </th>
 <th style="text-align:right;">
-pvalue.avg.l
+p_value_left
 </th>
 <th style="text-align:right;">
-pvalue.avg.b
+p_value_bidirectional
 </th>
 <th style="text-align:right;">
-pvalue.avg.r
+p_value_right
 </th>
 </tr>
 </thead>
@@ -967,26 +941,26 @@ pvalue.avg.r
 </tbody>
 </table>
 $sum
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
 horizon
 </th>
 <th style="text-align:right;">
-sum
+estimate
 </th>
 <th style="text-align:right;">
-sd.sum
+sd
 </th>
 <th style="text-align:right;">
-pvalue.sum.l
+p_value_left
 </th>
 <th style="text-align:right;">
-pvalue.sum.b
+p_value_bidirectional
 </th>
 <th style="text-align:right;">
-pvalue.sum.r
+p_value_right
 </th>
 </tr>
 </thead>
@@ -1033,27 +1007,27 @@ pvalue.sum.r
 </tr>
 </tbody>
 </table>
-$tau
-<table>
+$point_effect
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
 horizon
 </th>
 <th style="text-align:right;">
-tau
+estimate
 </th>
 <th style="text-align:right;">
-sd.tau
+sd
 </th>
 <th style="text-align:right;">
-pvalue.tau.l
+p_value_left
 </th>
 <th style="text-align:right;">
-pvalue.tau.b
+p_value_bidirectional
 </th>
 <th style="text-align:right;">
-pvalue.tau.r
+p_value_right
 </th>
 </tr>
 </thead>
@@ -1107,7 +1081,11 @@ Causal impact based on boostrap:
 summary_model$impact_boot
 ```
 
-$average
+$`2014-03-25`
+<table class="kable_wrapper table" style="margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td>
 <table>
 <thead>
 <tr>
@@ -1133,7 +1111,7 @@ sd
 observed
 </td>
 <td style="text-align:right;">
-117.0485168
+117.57705
 </td>
 <td style="text-align:right;">
 NA
@@ -1150,55 +1128,56 @@ NA
 forecasted
 </td>
 <td style="text-align:right;">
-106.6915345
+107.08878
 </td>
 <td style="text-align:right;">
-106.3420568
+106.336204
 </td>
 <td style="text-align:right;">
-106.9277643
+107.8783426
 </td>
 <td style="text-align:right;">
-0.1861650
+0.3887218
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-absolute\_effect
+absolute_effect
 </td>
 <td style="text-align:right;">
-10.3569824
+10.48827
 </td>
 <td style="text-align:right;">
-10.1207525
+9.698704
 </td>
 <td style="text-align:right;">
-10.7064600
+11.2408425
 </td>
 <td style="text-align:right;">
-0.1861650
+0.3887218
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-relative\_effect
+relative_effect
 </td>
 <td style="text-align:right;">
-0.0970741
+0.09794
 </td>
 <td style="text-align:right;">
-0.0948599
+0.090567
 </td>
 <td style="text-align:right;">
-0.1003497
+0.1049675
 </td>
 <td style="text-align:right;">
-0.0017449
+0.0036299
 </td>
 </tr>
 </tbody>
 </table>
-$effect\_cum
+</td>
+<td>
 <table>
 <thead>
 <tr>
@@ -1224,7 +1203,7 @@ sd
 observed
 </td>
 <td style="text-align:right;">
-3511.4555050
+1058.19342
 </td>
 <td style="text-align:right;">
 NA
@@ -1241,55 +1220,56 @@ NA
 forecasted
 </td>
 <td style="text-align:right;">
-3200.7460337
+963.79898
 </td>
 <td style="text-align:right;">
-3190.2617046
+957.025838
 </td>
 <td style="text-align:right;">
-3207.8329294
+970.9050836
 </td>
 <td style="text-align:right;">
-5.5849514
+3.4984965
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-absolute\_effect
+absolute_effect
 </td>
 <td style="text-align:right;">
-310.7094713
+94.39444
 </td>
 <td style="text-align:right;">
-303.6225756
+87.288337
 </td>
 <td style="text-align:right;">
-321.1938004
+101.1675823
 </td>
 <td style="text-align:right;">
-5.5849514
+3.4984965
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-relative\_effect
+relative_effect
 </td>
 <td style="text-align:right;">
-0.0970741
+0.09794
 </td>
 <td style="text-align:right;">
-0.0948599
+0.090567
 </td>
 <td style="text-align:right;">
-0.1003497
+0.1049675
 </td>
 <td style="text-align:right;">
-0.0017449
+0.0036299
 </td>
 </tr>
 </tbody>
 </table>
-$p\_values
+</td>
+<td>
 <table>
 <thead>
 <tr>
@@ -1315,6 +1295,232 @@ p
 </td>
 <td style="text-align:right;">
 0.00
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+$`2014-04-05`
+<table class="kable_wrapper table" style="margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+estimates
+</th>
+<th style="text-align:right;">
+inf
+</th>
+<th style="text-align:right;">
+sup
+</th>
+<th style="text-align:right;">
+sd
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+observed
+</td>
+<td style="text-align:right;">
+117.8232981
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+forecasted
+</td>
+<td style="text-align:right;">
+107.4906190
+</td>
+<td style="text-align:right;">
+106.9643496
+</td>
+<td style="text-align:right;">
+108.0108449
+</td>
+<td style="text-align:right;">
+0.2687184
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+absolute_effect
+</td>
+<td style="text-align:right;">
+10.3326792
+</td>
+<td style="text-align:right;">
+9.8124532
+</td>
+<td style="text-align:right;">
+10.8589485
+</td>
+<td style="text-align:right;">
+0.2687184
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+relative_effect
+</td>
+<td style="text-align:right;">
+0.0961263
+</td>
+<td style="text-align:right;">
+0.0912866
+</td>
+<td style="text-align:right;">
+0.1010223
+</td>
+<td style="text-align:right;">
+0.0024999
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+estimates
+</th>
+<th style="text-align:right;">
+inf
+</th>
+<th style="text-align:right;">
+sup
+</th>
+<th style="text-align:right;">
+sd
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+observed
+</td>
+<td style="text-align:right;">
+2356.4659629
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+forecasted
+</td>
+<td style="text-align:right;">
+2149.8123792
+</td>
+<td style="text-align:right;">
+2139.2869920
+</td>
+<td style="text-align:right;">
+2160.2168984
+</td>
+<td style="text-align:right;">
+5.3743690
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+absolute_effect
+</td>
+<td style="text-align:right;">
+206.6535837
+</td>
+<td style="text-align:right;">
+196.2490645
+</td>
+<td style="text-align:right;">
+217.1789708
+</td>
+<td style="text-align:right;">
+5.3743690
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+relative_effect
+</td>
+<td style="text-align:right;">
+0.0961263
+</td>
+<td style="text-align:right;">
+0.0912866
+</td>
+<td style="text-align:right;">
+0.1010223
+</td>
+<td style="text-align:right;">
+0.0024999
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+x
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+alpha
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+p
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+</tbody>
+</table>
 </td>
 </tr>
 </tbody>

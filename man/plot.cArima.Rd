@@ -37,15 +37,32 @@ dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
 
 # Adding a fictional intervention
 int.date <- as.Date("2015-04-01")
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+horizon <- as.Date(c("2015-04-10", "2015-04-20"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
 
 # Causal effect estimation
-start<-as.numeric(strftime(as.Date(dates[1], "\%Y-\%m-\%d"), "\%u"))
-ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
+ce <- CausalArima(y = y.new, auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
 
 # Plot
 plot(ce, type = "forecast")
+plot(ce, type = "impact", horizon = horizon)
+plot(ce, type = "residuals")
+
+## Example 2 (daily data, with predictors, log-linear model)
+# Loading data and setting dates
+data(sales)
+y <- log(sales[, "Sales"])
+dates <- as.Date(sales[, "Dates"])
+int.date <- as.Date("2018-10-04")
+horizon<- as.Date(c("2018-11-04","2019-01-04"))
+xreg <- sales[, 4:12]
+
+# Causal effect estimation
+ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
+                  dates = dates, nboot = 100)
+
+# Plot
+plot(ce, type = "forecast", horizon = horizon)
 plot(ce, type = "impact", horizon = horizon)
 plot(ce, type = "residuals")
 

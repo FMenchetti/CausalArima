@@ -1,0 +1,8 @@
+datu<-speed_data %>%
+  filter(location == "Italy")
+datu<-datu[, c("date", "hosp_patients")]
+datu$"hosp_patients"[is.na(datu$"hosp_patients")] <- 0
+datu$`7-days rolling average`<-zoo::rollmean(datu[,"hosp_patients" ], k = 7, fill = NA)
+datu$`20-days rolling average`<-zoo::rollmean(datu[,"hosp_patients" ], k = 20, fill = NA)
+datu$`variation 7-days rolling average`<-c(NA, diff(datu$`7-days rolling average`))
+datu$`variation 20-days rolling average`<-c(NA, diff(datu$`20-days rolling average`))

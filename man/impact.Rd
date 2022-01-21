@@ -4,7 +4,14 @@
 \alias{impact}
 \title{Function to create a table of the estimated model coefficients from a call to CausalArima}
 \usage{
-impact(x, format = "numeric", nboot = 10, horizon = NULL, ...)
+impact(
+  x,
+  format = "numeric",
+  horizon = NULL,
+  style = kable_styling,
+  digits = 3,
+  ...
+)
 }
 \arguments{
 \item{x}{Object of class \code{cArima}.}
@@ -14,13 +21,18 @@ impact(x, format = "numeric", nboot = 10, horizon = NULL, ...)
 \item{horizon}{Optional vector with elements of class Date. If provided, the function returns
 the estimated effects at the given time horizons.}
 
-\item{...}{Optional arguments passed to other methods.}
+\item{style}{Function to pass to \code{knitr_kable} objects to customize the style of the table.
+Defaults to \code{kable_styling}. Alternative themes for html tables include \code{kable_classic},
+or \code{kable_minimal}. For the full list of alternatives, see package \code{kableExtra}
+documentation.}
 
-\item{n}{Number of bootstrap simulations.}
+\item{digits}{Number of digits in table columns.}
+
+\item{...}{Optional arguments passed to other methods.}
 }
 \value{
 A list with the following components:
-\item{impact}{Estimated point, cumulative and temporal average effect assuming Normality
+\item{impact_norm}{Estimated point, cumulative and temporal average effect assuming Normality
              of the error terms.}
 \item{impact_boot}{Estimated point, cumulative and temporal average effect by bootstrap.}
 \item{arima}{Arima order, coefficient estimates and accuracy measures for the estimated model
@@ -30,26 +42,44 @@ A list with the following components:
 Function to create a table of the estimated model coefficients from a call to CausalArima
 }
 \examples{
-## Example 2 (weekly data, with predictors)
-# Generating a time series of length 800 and a vector of dates
-y <- rnorm(800, sd = 1)
+## Example 1 (weekly data, no predictors)
+# Generating a time series with weekly seasonality and a vector of dates
+y <- simulate(Arima(ts(rnorm(100),freq=4), order=c(1,0,1), seasonal=c(1,0,1)),
+              nsim=800)
 dates <- seq.Date(from = as.Date("2005-01-01"), by = "week", length.out = 800)
-
-# Generating predictors
-x1 <- rnorm(800, mean = 2, sd = 0.5)
-x2 <- rnorm(800, mean = 3, sd = 0.5)
-y <- y -2*x1 + x2
 
 # Adding a fictional intervention
 int.date <- as.Date("2019-05-11")
-horizon <- c(as.Date("2019-12-07"), as.Date("2020-02-15"), as.Date("2020-04-25"))
+horizon <- as.Date(c("2019-12-07", "2020-02-15", "2020-04-25"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.40
 
 # Causal effect estimation
-start<-as.numeric(strftime(as.Date(dates[1], "\%Y-\%m-\%d"), "\%u"))
-ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, xreg = data.frame(x1,x2), int.date = int.date)
+ce <- CausalArima(y = ts(y.new, frequency = 4), dates = dates, int.date = int.date)
 
-# Table of the estimated temporal average effects
+# Table of the estimated effects (numeric and latex)
 impact(ce)
+impact(ce, horizon = horizon)
+tab_latex <- impact(ce, format = "latex", horizon = horizon, digits = 3, latex_options = "striped")
+tab_latex$impact_norm$average
+
+## Example 2 (daily data, with predictors)
+# Loading data and setting dates
+data(sales)
+y <- sales[, "Sales"]
+dates <- as.Date(sales[, "Dates"])
+int.date <- as.Date("2018-10-04")
+horizon<- as.Date(c("2018-11-04","2019-01-04","2019-04-30"))
+xreg <- sales[, 4:12]
+
+# Causal effect estimation
+ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
+                  dates = dates, nboot = 100)
+
+# Table of the estimated effects (html)
+tab_html <- impact(ce, format = "html", horizon = horizon)
+tab_html$arima$param
+tab_html <- impact(ce, format = "html", horizon = horizon, style = kable_classic,
+                   html_font = "Cambria")
+tab_html$arima$param
 
 }

@@ -1,0 +1,76 @@
+install.packages("C:/Users/eugen/OneDrive/Documenti/GitHub/CausalArima",
+                 repos = NULL,
+                 type = "source")
+
+
+library(CausalArima)
+# library(grid)
+# library(gridExtra)
+# library(ggthemes)
+# # library(ggplot2)
+# library(tidybayes)
+n<-100
+# n<-100
+set.seed(1)
+x1 <- 100 + arima.sim(model = list(ar = 0.999), n = n)
+y <- 1.2 * x1 + rnorm(n)
+y[ floor(n*.71):n] <- y[ floor(n*.71):n] +  10 # 10*sin(x1[floor(n*.71):n])
+data <- cbind(y, x1)
+
+dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = n)
+
+# Adding a fictional intervention
+int.date <- dates[floor(n*.71)] # as.Date("2014-03-16")
+horizon <- c(dates[floor(n*.8)], dates[floor(n*.9)])# c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+
+# Causal effect estimation
+start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc", dates = dates, int.date = int.date,
+                  xreg =x1, nboot = 1000)
+
+ce <- CausalArima(y = ts(y, start = start, frequency = 1), ic = "aicc", dates = dates, int.date = int.date,
+                  xreg =x1, nboot = 1000)
+# ce <- CausalArima(y = ts(y, start = start, frequency = 1), auto = TRUE, ic = "aicc",
+#                   dates = dates, int.date = int.date,
+#                    nboot = 1000)
+
+summary_model<-impact(ce, horizon = horizon, format="html") #, format="latex")
+summary_model$impact_norm
+summary_model$impact_boot
+
+ResultTable(ce, horizon = horizon)
+
+
+fore<-plot(ce, type="forecast")
+impact<-plot(ce, type="impact")
+residuals<-plot(ce, type="residuals")
+table(ce)
+print(ce)
+
+estimate<-ce$causal.effect
+real<-10*sin(x1[floor(n*.71):n])
+par(mfrow=c(2,1))
+plot(estimate, type="l")
+plot(real, type="l")
+
+
+# pre<-dates<int.date
+# fit<-auto.arima(y[pre], xreg=x1[pre])
+# forecasta<-forecast(fit, h=sum(!pre), xreg=x1[!pre])
+#
+# grid.arrange(autoplot(forecasta), fore)
+#
+#
+# forecasta$fitted
+
+# ([here](https://ggplot2.tidyverse.org/reference/theme.html) a reference to the many ggplot parameters that can be modified):
+#
+#
+#   ```{r}
+# forecasted+ theme(legend.text = element_text(size=8, colour = "red", family ="mono"),
+#                   legend.title = element_text(size=9, colour = "blue", family ="sans"),
+#                   title= element_text(size=15, colour = "green", family ="serif"),
+#                   axis.line=element_line(size=2, colour="yellow"),
+#                   legend.position = "bottom"
+# )
+# ```

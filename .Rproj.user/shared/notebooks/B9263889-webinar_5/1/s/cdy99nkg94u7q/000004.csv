@@ -1,5 +1,0 @@
-"0","data(sales)"
-"0","sales$Dates <- as.Date(sales$Dates, format = ""%Y-%m-%d"")"
-"0","int.date <- as.Date(""2018-10-04"", format = ""%Y-%m-%d"")"
-"0","dates <- sales$Dates"
-"0","y <- sales$Sales"

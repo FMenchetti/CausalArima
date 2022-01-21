@@ -20,7 +20,7 @@ CausalArima(
 )
 }
 \arguments{
-\item{y}{Vector of observations, univariate time series of class \code{ts}.}
+\item{y}{Vector of observations, univariate time series of class \code{ts} or \code{numeric}.}
 
 \item{auto}{If set to TRUE, \code{auto.arima} returns the best fitting model in the pre-intervention period
 according to the selected \code{ic}. Defaults to TRUE.}
@@ -33,7 +33,7 @@ according to the selected \code{ic}. Defaults to TRUE.}
 Defaults to \code{"aic"}.}
 
 \item{xreg}{Optional vector, matrix or data.frame of regressors to be included in the model.
-It must have the same length of y.}
+It must have the same number of rows as y.}
 
 \item{dates}{Vector of dates of length t (with elements of class \code{Date}) corresponding to the
 observations in y.}
@@ -53,11 +53,11 @@ empirical critical values for the point, cumulative and temporal average effect 
 \value{
 A list with the following components:
 \item{norm}{The inferred point, cumulative and temporal average effects at each point in time after the
-            intervention with standard deviations and p-values (left-sided, right-sided, bidirectional)
+            intervention with their standard deviations and p-values (left-sided, right-sided, bidirectional)
             estimated under the assumption of Normally distributed residuals.}
 \item{boot}{The inferred point, cumulative and temporal average effects at each point in time after the
-            intervention and empirical critical values (left-sided, right-sided, bidirectional) estimated
-            by bootstrapping the errors from model residuals.}
+            intervention with their standard deviations and p-values (left-sided, right-sided, bidirectional) estimated
+            by bootstrap.}
 \item{causal.effect}{Estimated causal effect at each point in time after the intervention
                    date (point effect).}
 \item{model}{The model estimated in the pre-intervention period,
@@ -65,13 +65,28 @@ A list with the following components:
 \item{dates}{The vector of dates considered in the analysis.}
 \item{int.date}{The intervention date.}
 \item{y}{The vector of observations considered in the analysis.}
+\item{xreg}{The covariates, if any, used in the analysis.}
 \item{forecast}{Forecasted time series in the absence of intervention.}
 \item{forecast_lower}{Lower confidence bound for the forecasted series.}
 \item{forecast_upper}{Upper confidence bound for the forecasted series.}
 \item{alpha}{Confidence level for the prediction intervals.}
 }
 \description{
-Causal effect of an intervention
+The function estimates the causal effect of an intervention on a time series by using
+the best-fitting ARIMA model on pre-intervention data to forecast what would have
+happened afterwards in the absence of the intervention. The prediction step can be
+improved by adding covariates that are linked to the outcome variable. Then, the
+causal effect is estimated by difference between the observed outcome post-intervention
+ad the prediction.
+}
+\details{
+The function accepts both \code{ts} and \code{numeric} objects. In the latter case, y
+is internally transformed in a \code{ts} object whose frequency is set by
+\code{findfrequency} from the \code{forecast} package.
+
+\code{NA} values are allowed in y but not in \code{xreg}. Users are then left to
+choose their preferred technique to deal with missing data in the outcome (e.g., imputation,
+deletion, analysis etc.)
 }
 \examples{
 ## Example 1 (daily data, no predictors)
@@ -81,16 +96,42 @@ dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
 
 # Adding a fictional intervention
 int.date <- as.Date("2015-04-01")
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+horizon <- as.Date(c("2015-04-10", "2015-04-20"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
 
 # Plot
-oldpar <- par(no.readonly = TRUE)
 plot(y = y.new, x = dates, type = "l", col = "cadetblue", xlim = c(as.Date("2014-10-01"), tail(dates, 1)))
 lines(y = y, x = dates, col = "orange")
 
 # Causal effect estimation
-start<-as.numeric(strftime(as.Date(dates[1], "\%Y-\%m-\%d"), "\%u"))
-ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
+ce <- CausalArima(y = y.new, dates = dates, int.date = int.date)
 
+## Example 2 (daily data, with predictors)
+# Loading data and setting dates
+data(sales)
+y <- sales[, "Sales"]
+dates <- as.Date(sales[, "Dates"])
+int.date <- as.Date("2018-10-04")
+xreg <- sales[, "Price"]
+
+# Plot
+oldpar <- par(no.readonly = TRUE)
+par(mfrow = c(1,2))
+plot(y = y, x = dates, type = "l", main = "Time series of daily sales")
+abline(v = int.date, col = "red"); Acf(y, main = "Acf sales")
+par(oldpar)
+
+# Causal effect estimation
+# The autocorrelation function indicates a weekly sesonal pattern
+ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
+                  dates = dates, nboot = 100)
+}
+\references{
+Rubin, D. B. (1976). Inference and missing data. Biometrika, 63(3), 581-592.
+
+Little, R. J. A., and Rubin, D.B. (1987). Statistical Analysis with Missing Data.
+New York: John Wiley & Sons.
+
+Imbens, G. W., and  and Rubin, D.B. (2015). Causal Inference in Statistics, Social,
+and Biomedical Sciences. Cambridge, U.K.: Cambridge University Press.
 }

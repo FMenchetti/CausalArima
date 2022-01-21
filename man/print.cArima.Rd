@@ -2,7 +2,7 @@
 % Please edit documentation in R/print_arima.R
 \name{print.cArima}
 \alias{print.cArima}
-\title{Print method for object of class 'cArima'}
+\title{Printing method for object of class 'cArima'}
 \usage{
 \method{print}{cArima}(x, type = "norm", horizon = NULL)
 }
@@ -17,7 +17,8 @@ summarizes the point, cumulative and temporal average effects at the given
 time horizon(s).}
 }
 \value{
-A data frame with as many rows as the dates provided in horizon (if \code{is.null(horizon)},
+An extract from the data.frame returned by \code{cArima$norm$inf} or \code{cArima$boot$inf}
+        corresponding to the dates provided in horizon (if \code{horizon = NULL},
         a single row corresponding to the last date of the post-intervention period) with the
         following columns:
         \item{tau}{The estimated causal effect at the given time horizon or at the end of analysis
@@ -32,30 +33,49 @@ A data frame with as many rows as the dates provided in horizon (if \code{is.nul
                        period if \code{is.null(horizon)}.}
         \item{pvalue.avg}{Left-sided (\code{.l}), bidirectional (\code{.b}) and right-sided (\code{.r})
                           p-values for \code{avg.tau}.}
-        When \code{type = "norm"} additional columns are provided with the estimated standard deviations
-        for the point, cumulative and temporal average effects under the assumption of Normally distributed residuals.
+        Additional columns are provided with the estimated standard deviations for the point, cumulative
+        and temporal average effects.
 }
 \description{
-Print method for object of class 'cArima'
+Quick shortcut to see the results of a call to \code{CausalArima}, i.e., the estimated
+causal effects at each time point provided in \code{horizon}. If \code{horizon = NULL}
+(default), the function prints the estimated effects at the last date of the
+post-intervention period.
 }
 \examples{
-## Example 1
+## Example 1 (daily data, no predictors)
 # Generating a time series of length 1000 and a vector of dates
 y <- 0.5*seq(0.5, 250, by = 0.5) + rnorm(500, sd = 6)
 dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
 
 # Adding a fictional intervention
 int.date <- as.Date("2015-04-01")
-horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+horizon <- as.Date(c("2015-04-10", "2015-04-20"))
 y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
 
 # Causal effect estimation
-start<-as.numeric(strftime(as.Date(dates[1], "\%Y-\%m-\%d"), "\%u"))
-ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic",
+ce <- CausalArima(y = y.new, auto = TRUE, ic = "aic",
                   dates = dates, int.date = int.date, nboot = 1000)
 
 # Print
 print(ce, type = "norm")
+print(ce, type = "boot", horizon = horizon)
+
+## Example 2 (daily data, with predictors)
+# Loading data and setting dates
+data(sales)
+y <- sales[, "Sales"]
+dates <- as.Date(sales[, "Dates"])
+int.date <- as.Date("2018-10-04")
+horizon<- as.Date(c("2018-11-04","2019-01-04","2019-04-30"))
+xreg <- sales[, "Price"]
+
+# Causal effect estimation
+ce <- CausalArima(y = ts(y, frequency = 7), xreg = xreg, int.date = int.date,
+                  dates = dates, nboot = 100)
+
+# Print
+print(ce, horizon = horizon)
 print(ce, type = "boot", horizon = horizon)
 
 }

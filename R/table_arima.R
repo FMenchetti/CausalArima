@@ -59,7 +59,7 @@
 #' impact(ce, horizon = horizon)
 #'
 impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, ...){
-browser()
+
   # param checks
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
   if(!all(format %in% c("numeric", "html", "latex")))
@@ -155,24 +155,19 @@ browser()
   ### Global savings
   results<-list(impact_norm = impact_norm, impact_boot = impact_boot, arima=results_arima)
 
-  if(isTRUE(format=="html")){
-    if(!is.null(horizon)) {
-      lapply(results, function(u) lapply(u, function(z) lapply(z, kable, format = "html")) )
+  if(format != "numeric"){
+    if(format == "html"){
+
+      results<-lapply(results, function(z) lapply(z, kable, format = "html"))
+
     }
-    else{
-    results<-lapply(results, function(z) lapply(z, kable, format = "html"))
-    }
-    results<-lapply(results, function(z) lapply(z, FUN = style))
-  }
-  if(isTRUE(format=="latex")){
-    if(!is.null(horizon)) {
-      lapply(results, function(u) lapply(u, function(z) lapply(z, kable, format = "latex")) )
-    }
-    else{
+    if(format=="latex"){
+
       results<-lapply(results, function(z) lapply(z, kable, format ="latex"))
     }
     results<-lapply(results, function(z) lapply(z, FUN = style))
   }
+
   return(results)
 }
 

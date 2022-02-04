@@ -3,23 +3,23 @@
     "path": "~/GitHub/CausalArima/R/CausalARIMA.R",
     "project_path": "R/CausalARIMA.R",
     "type": "r_source",
-    "hash": "3082815106",
+    "hash": "1980042007",
     "contents": "",
     "dirty": false,
     "created": 1613579315848.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
-        "cursorPosition": "104,35",
-        "scrollLine": "89",
+        "cursorPosition": "130,9",
+        "scrollLine": "125",
         "Source": "Source"
     },
     "folds": "",
-    "lastKnownWriteTime": 1642792220,
+    "lastKnownWriteTime": 1643998821,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1642792220971,
+    "last_content_update": 1643998821704,
     "read_only": false,
     "read_only_alternatives": []
 }

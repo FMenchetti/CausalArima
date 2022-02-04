@@ -128,7 +128,7 @@ CausalArima<-function(y, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0),
   if(!is.ts(y)){
     y <- ts(y, frequency = findfrequency(y))
   }
-  if(!missing(xreg)) {
+  if(!is.null(xreg)) {
     if(!is.matrix(xreg) && !is.data.frame(xreg) && !is.numeric(xreg))
       stop("`xreg` must be a numeric vector, matrix or data.frame")
     xreg <- as.matrix(xreg)

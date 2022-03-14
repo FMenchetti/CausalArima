@@ -1,0 +1,26 @@
+{
+    "id": "1E28B97B",
+    "path": "~/GitHub/CausalArima/R/print_arima.R",
+    "project_path": "R/print_arima.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1632840211662.0,
+    "source_on_save": true,
+    "relative_order": 6,
+    "properties": {
+        "tempName": "Untitled1",
+        "cursorPosition": "48,42",
+        "scrollLine": "0",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1647282312,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1647282312837,
+    "read_only": false,
+    "read_only_alternatives": []
+}

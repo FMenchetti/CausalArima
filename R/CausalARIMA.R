@@ -355,20 +355,25 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
 
   #### p-values
   pv1.l <- pv1.b <- pv1.r <- pv2.l <- pv2.b <- pv2.r <- pv3.l <- pv3.b <- pv3.r <- rep.int(NA, k)
+  v.tau <- v.delta <- v.avg <- rep.int(NA, k)
+
   for (i in 1 : k)
   {
     stat <- tau[i]
     boot <- boot1[i, ]
+    v.tau[i] <- var(boot)
     pv1.l[i] <- mean(boot < stat)
     pv1.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
     pv1.r[i] <- mean(stat < boot)
     stat <- delta[i]
     boot <- boot2[i, ]
+    v.delta[i] <- var(boot)
     pv2.l[i] <- mean(boot < stat)
     pv2.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
     pv2.r[i] <- mean(stat < boot)
     stat <- avg[i]
     boot <- boot3[i, ]
+    v.avg[i] <- var(boot)
     pv3.l[i] <- mean(boot < stat)
     pv3.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
     pv3.r[i] <- mean(stat < boot)
@@ -376,11 +381,11 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
 
   #### Inference
   inf <- cbind(
-    tau = tau,
+    tau = tau, sd.tau = sqrt(v.tau),
     pvalue.tau.l = pv1.l, pvalue.tau.b = pv1.b, pvalue.tau.r = pv1.r,
-    sum = delta,
+    sum = delta, sd.sum = sqrt(v.delta),
     pvalue.sum.l = pv2.l, pvalue.sum.b = pv2.b, pvalue.sum.r = pv2.r,
-    avg = avg,
+    avg = avg, sd.avg = sqrt(v.avg),
     pvalue.avg.l = pv3.l, pvalue.avg.b = pv3.b, pvalue.avg.r = pv3.r)
 
   #### Answer

@@ -6,13 +6,13 @@
 \usage{
 CausalArima(
   y,
+  dates,
+  int.date,
   auto = TRUE,
   order = c(0, 0, 0),
   seasonal = c(0, 0, 0),
   ic = "aic",
   xreg = NULL,
-  dates,
-  int.date,
   arima.args = list(),
   auto.args = list(),
   nboot = NULL,
@@ -21,6 +21,11 @@ CausalArima(
 }
 \arguments{
 \item{y}{Vector of observations, univariate time series of class \code{ts} or \code{numeric}.}
+
+\item{dates}{Vector of dates of length t (with elements of class \code{Date}) corresponding to the
+observations in y.}
+
+\item{int.date}{Date of the intervention (must be of class \code{Date}).}
 
 \item{auto}{If set to TRUE, \code{auto.arima} returns the best fitting model in the pre-intervention period
 according to the selected \code{ic}. Defaults to TRUE.}
@@ -34,11 +39,6 @@ Defaults to \code{"aic"}.}
 
 \item{xreg}{Optional vector, matrix or data.frame of regressors to be included in the model.
 It must have the same number of rows as y.}
-
-\item{dates}{Vector of dates of length t (with elements of class \code{Date}) corresponding to the
-observations in y.}
-
-\item{int.date}{Date of the intervention (must be of class \code{Date}).}
 
 \item{arima.args}{Additional arguments to be passed to Arima.}
 

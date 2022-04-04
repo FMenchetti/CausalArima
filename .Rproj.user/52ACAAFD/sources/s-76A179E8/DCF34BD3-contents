@@ -323,15 +323,20 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   ind1 <- 1 : nobs
   ind2 <- (nobs+1) : nk
   R11  <- R[ind1, ind1]
-  # R21  <- R[ind2, ind1]
   R12  <- R[ind1, ind2]
-  # R22  <- R[ind2, ind2]
   rm(R)
+
   #### Compute
   C11  <- chol(R11)
-  x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
   R12t <- backsolve(r = C11, x = R12, upper.tri = TRUE, transpose = TRUE)
-  At <- (x2 - crossprod(R12t, x1t)) %*% solve( crossprod(x1t), t(x1t) ) + t(R12t)
+
+  if(is.null(xreg)){
+    At <- t(R12t)
+  } else {
+    x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
+    At <- (x2 - crossprod(R12t, x1t)) %*% solve( crossprod(x1t), t(x1t) ) + t(R12t)
+  }
+
   w1 <- bootm[ind1,]
   w2 <- bootm[ind2,]
   AtC <- t(backsolve(r = C11, x = t(At)))

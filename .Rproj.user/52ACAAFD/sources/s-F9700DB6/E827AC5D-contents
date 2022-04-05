@@ -1,0 +1,165 @@
+######################################################################################
+######################################################################################
+####  Authors:           Fiammetta Menchetti                                      ####
+####                     Fabrizio Cipollini                                       ####
+####                                                                              ####
+####  Content:          Plot method for object of class cArima                    ####
+####                                                                              ####
+####  Main function :   plot.cArima                                               ####
+####  Dependencies:     .impact                                                   ####
+####                    .forecast                                                 ####
+####                    .residuals                                                ####
+######################################################################################
+######################################################################################
+
+#' Plotting method for object of class 'cArima'
+#'
+#' @importFrom gridExtra grid.arrange
+#' @param x Object of class \code{cArima}.
+#' @param type Character string indicating the plot to be produced. Possible values
+#'             in c("forecast", "impact", "residuals").
+#' @param horizon Optional vector with elements of class \code{Date}. If provided, the function
+#'                plots the pointwise causal effect (for \code{type = "impact"}) or the forecasted
+#'                time series (for \code{type = "forecast"}) up to the required time horizon(s).
+#' @param ... Optional arguments passed to \code{grid.arrange}, to be used if \code{!is.null(horizon)}.
+#'
+#' @return NULL
+#' @export
+#'
+#' @details
+#' The option 'forecast' plots the observed time series as compared to the forecasted
+#' series. The option 'impact' plots the causal effect at each point in time after the
+#' intervention date, as resulting from the direct comparison between the observed and
+#' forecasted time series. Finally, the option 'residuals' draws the autocorrelation and
+#' partial autocorrelation functions of the residuals of the model fitted to the data
+#' in the pre-intervention period as well as the Normal QQ Plot.
+#'
+#' @examples
+#' ## Example 1 (daily data, no predictors)
+#' # Generating a time series of length 1000 and a vector of dates
+#' y <- 0.5*seq(0.5, 250, by = 0.5) + rnorm(500, sd = 6)
+#' dates <- seq.Date(from = as.Date("2014-01-05"), by = "days", length.out = 500)
+#'
+#' # Adding a fictional intervention
+#' int.date <- as.Date("2015-04-01")
+#' horizon <- c(as.Date("2015-04-10"), as.Date("2015-04-20"))
+#' y.new <- y ; y.new[dates >= int.date] <- y.new[dates >= int.date]*1.25
+#'
+#' # Causal effect estimation
+#' start<-as.numeric(strftime(as.Date(dates[1], "%Y-%m-%d"), "%u"))
+#' ce <- CausalArima(y = ts(y.new, start = start, frequency = 1), auto = TRUE, ic = "aic", dates = dates, int.date = int.date)
+#'
+#' # Plot
+#' plot(ce, type = "forecast")
+#' plot(ce, type = "impact", horizon = horizon, nrow = 2, ncol = 1)
+#' plot(ce, type = "residuals")
+#'
+plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon = NULL, ...){
+  
+  # param checks
+  if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
+  if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+    stop("`horizon` must be a Date object")
+  if(!all(type %in% c("forecast", "impact", "residuals")))
+    stop("allowed 'type' values are 'forecast', 'impact' and 'residuals'")
+  
+  # Plot "Observed vs Forecast"
+  if("forecast" %in% type){
+    res_1 <- .forecast(x, horizon = horizon, ...)
+  } else { res_1 <- NULL}
+  
+  # Plot "Causal effect"
+  if("impact" %in% type){
+    res_2 <- .impact(x, horizon = horizon, ...)
+  } else { res_2 <- NULL}
+  
+  # Residuals plots
+  if("residuals" %in% type){
+    res_3 <- .residuals(x)
+  } else { res_3 <- NULL}
+  
+  return(list(forecast = res_1, impact = res_2, residuals = res_3))
+}
+
+# -----------------------------------------------------------------------------------------
+
+.impact <- function(cArima, horizon = NULL, alpha = 0.05, ...){
+  
+  # Settings
+  dates <- cArima$dates[!is.na(cArima$causal.effect)]
+  int.date <- cArima$int.date
+  x <- dates[dates >= int.date]
+  y <- na.omit(cArima$causal.effect)
+  y.upper <- y + cArima$norm$inf[, "sd.tau"]*qnorm(1-alpha/2)
+  y.lower <- y - cArima$norm$inf[, "sd.tau"]*qnorm(1-alpha/2)
+  
+  # Plot
+  main <- "Point effect"
+  dat <- data.frame(x = x, y = y, y.upper = y.upper, y.lower = y.lower)
+  ylim <- c(min(dat[, "y.lower"]), max(dat[, "y.upper"]))
+  g <- ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = main, y = "", x = "") +
+    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = "grey") +
+    geom_line(aes(y = y), color = "black")
+  
+  if(is.null(horizon)){ print(g) } else {
+    gg <- list()
+    for(i in 1:length(horizon)){
+      gg[[i]] <- g + xlim(int.date, horizon[i]) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
+    }
+    #do.call(grid.arrange, c(gg, ...))
+    g <- gg
+  }
+  return(g)
+}
+
+# -----------------------------------------------------------------------------------------
+
+.forecast <- function(cArima, horizon = NULL, win = 0.4, ...){
+  
+  # Settings
+  dates <- cArima$dates[!is.na(cArima$y)]
+  int.date <- cArima$int.date
+  observed <- na.omit(as.numeric(cArima$y))
+  forecasted <- na.omit(c(cArima$model$fitted, cArima$forecast))
+  start <- which(dates == int.date) - round(win * sum(dates < int.date))
+  end <- length(forecasted)
+  x <- dates[start:end]
+  
+  # Plot
+  dat <- data.frame(x = x, forecasted.cut = forecasted[start:end], observed.cut = observed[start:end])
+  ylim <- c(min(dat[, -1]), max(dat[, -1]))
+  main <- "Forecasted series"
+  g <- ggplot(data = dat, aes(x = x, colour = "Legend")) +  coord_cartesian(ylim = ylim) + labs(title = main, y = "", x = "") +
+    geom_line(aes(y = forecasted.cut, color = "Forecast"))  +
+    geom_line(aes(y = observed.cut, color = "Observed")) +
+    scale_colour_manual(values = c("darkgrey", "grey40")) +
+    geom_vline(aes(xintercept = int.date, linetype = paste(int.date))) +
+    scale_linetype_manual(values = "dashed") +
+    labs(color="Time series", linetype="Intervention date") +
+    guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2))
+  
+  if(is.null(horizon)){ print(g) } else {
+    gg <- list()
+    for(i in 1:length(horizon)){
+      gg[[i]] <- g + xlim(c(dates[start], horizon[i])) + labs(title = main, subtitle = paste("Time horizon ", i, sep = ""), y = "", x = "")
+    }
+    g <- gg
+    #do.call(grid.arrange, c(gg, ...))
+  }
+  return(g)
+}
+
+# -----------------------------------------------------------------------------------------
+
+.residuals <- function(cArima){
+  # Standardized residuals
+  std.res <- scale(cArima$model$residuals)
+  
+  # Acf and Pacf
+  Acf(std.res, main = "") ; title("Acf")
+  Pacf(std.res, main = "") ; title("Pacf")
+  
+  # Normal QQ plot
+  qqnorm(std.res) ; qqline(std.res)
+  
+}

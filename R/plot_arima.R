@@ -1,9 +1,8 @@
 ######################################################################################
 ######################################################################################
-####  Authors:           Fiammetta Menchetti                                      ####
-####                     Fabrizio Cipollini                                       ####
+####  Authors:           Menchetti F., Palmieri E.                                ####
 ####                                                                              ####
-####  Date last update: 2021-08-10                                                ####
+####  Date last update: April 2022                                                ####
 ####                                                                              ####
 ####  Content:          Plot method for object of class cArima                    ####
 ####                                                                              ####
@@ -107,6 +106,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 # -----------------------------------------------------------------------------------------
 
 .impact <- function(cArima, horizon = NULL, alpha = 0.05, color_line="darkblue", color_intervals="slategray2", lines_size=0.6){
+
   # Settings
   dates <- cArima$dates[!is.na(cArima$causal.effect)]
   int.date <- cArima$int.date
@@ -115,28 +115,28 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   y.upper <- y + cArima$norm$inf[, "sd.tau"]*qnorm(1-alpha/2)
   y.lower <- y - cArima$norm$inf[, "sd.tau"]*qnorm(1-alpha/2)
 
-  # Plot effect
+  # Plot of point effect
   dat <- data.frame(x = x, y = y, y.upper = y.upper, y.lower = y.lower)
   ylim <- c(min(dat[, "y.lower"]), max(dat[, "y.upper"]))
 
   g <- ggplot(data = dat, aes(x = x)) +  coord_cartesian(ylim = ylim) + labs(title = "Point effect", y = "", x = "") +
-    theme_bw(base_size = 15)+
-    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill =color_intervals)+
-    geom_hline(yintercept=0, colour = "darkgrey", size = lines_size, linetype = "solid")+
-    geom_line(aes(y = y), color = color_line, linetype = "dashed", size = lines_size)
+              theme_bw(base_size = 15)+
+              geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill =color_intervals)+
+              geom_hline(yintercept=0, colour = "darkgrey", size = lines_size, linetype = "solid")+
+              geom_line(aes(y = y), color = color_line, linetype = "dashed", size = lines_size)
 
 
-  # Cumulative plot
+  # Plot of cumulative effect
   dat_cum<-dat
   dat_cum$y<-cumsum(dat$y)
-  dat_cum$y.upper<-cumsum(dat$y.upper)
-  dat_cum$y.lower<-cumsum(dat$y.lower)
+  dat_cum$y.upper <- dat_cum$y + cArima$norm$inf[, "sd.sum"]*qnorm(1-alpha/2)
+  dat_cum$y.lower <- dat_cum$y - cArima$norm$inf[, "sd.sum"]*qnorm(1-alpha/2)
 
   g_cum <- ggplot(data = dat_cum, aes(x = x))  + labs(title = "Cumulative effect", y = "", x = "") +
-    theme_bw(base_size = 15)+
-    geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = color_intervals)+
-    geom_hline(yintercept=0, colour = "darkgrey", size = lines_size, linetype = "solid")+
-    geom_line(aes(y = y), color =color_line, linetype = "dashed", size = lines_size)
+                  theme_bw(base_size = 15)+
+                  geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = color_intervals)+
+                  geom_hline(yintercept=0, colour = "darkgrey", size = lines_size, linetype = "solid")+
+                  geom_line(aes(y = y), color =color_line, linetype = "dashed", size = lines_size)
 
   if(!is.null(horizon)){
     g <-g + geom_vline(xintercept = horizon, linetype="dashed", size = lines_size)
@@ -209,6 +209,7 @@ qqplot.data <- function(vec) # argument: vector of numbers
 }
 
 .residuals <- function(cArima, max_lag=30){
+
   # Standardized residuals
   std.res <- scale(cArima$model$residuals)
   # Acf and Pacf

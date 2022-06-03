@@ -188,9 +188,10 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
     xreg1 <- apply(xreg1, 2, function(x)(x[!is.na(causal.effect.0)]))
   }
   if("intercept" %in% names(model$coef)){
-    c <- rep(1, times = NROW(xreg1))
-    xreg1 <- cbind(c, xreg1)
-    model$xreg <- cbind(c = rep(1, NROW(model$xreg)), model$xreg)
+    intercept <- rep(1, times = NROW(y.01))
+    xreg1 <- cbind(intercept, xreg1)
+    xreg1 <- as.matrix(xreg1[!is.na(causal.effect.0),]) # as.matrix?
+    model$xreg <- cbind(intercept = rep(1, NROW(y.00)), model$xreg)
   }
 
   # Normal based inference

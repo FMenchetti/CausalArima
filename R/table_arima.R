@@ -205,9 +205,9 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
 
   if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
   else{ xreg<-xreg[post_index, ] }
-
-  simulated<-ce$boot$boot.distrib
-
+  # browser()
+  # simulated<-ce$boot$boot.distrib
+  simulated<-x$y[post_index] + x$boot$effect
   # Select post intervention period and remove missing values
    y_post<-x$y[post_index]
    nas<-is.na(y_post)
@@ -272,8 +272,8 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
   if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
   else{ xreg<-xreg[post_index, ] }
 
-  simulated<-ce$boot$boot.distrib
-
+  # simulated<-ce$boot$boot.distrib
+  simulated<-x$y[post_index] + x$boot$effect
   # Select post intervention period and remove missing values
   y_post<-x$y[post_index]
   nas<-is.na(y_post)

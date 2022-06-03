@@ -390,7 +390,7 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
     pvalue.avg.l = pv3.l, pvalue.avg.b = pv3.b, pvalue.avg.r = pv3.r)
 
   #### Answer
-  list(type = "bootstrap", nrep = nrep, inf = inf)
+  list(type = "bootstrap", nrep = nrep, inf = inf, effect=boot1)
 }
 
 ########################################################################################

@@ -18,9 +18,6 @@ time horizon(s).}
 
 \item{digits}{Integer, indicating the number of decimal places to show in the output.}
 }
-\value{
-
-}
 \description{
 Format and prints the point, cumulative and temporal average effects (standard errors
 and critical values) in a nice and clean output.

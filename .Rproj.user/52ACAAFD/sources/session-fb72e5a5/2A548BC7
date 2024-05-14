@@ -1,0 +1,25 @@
+{
+    "id": "2A548BC7",
+    "path": "~/GitHub/CausalArima/R/plot_arima.R",
+    "project_path": "R/plot_arima.R",
+    "type": "r_source",
+    "hash": "118412282",
+    "contents": "",
+    "dirty": false,
+    "created": 1715682649967.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "cursorPosition": "205,24",
+        "scrollLine": "199",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1715701706,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1715701706785,
+    "read_only": false,
+    "read_only_alternatives": []
+}

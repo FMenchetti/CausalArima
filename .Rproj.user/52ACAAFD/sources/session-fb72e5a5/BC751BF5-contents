@@ -1,0 +1,9 @@
+
+y <- rnorm(500)
+y <- y[-1] + 0.7*y[-length(y)]
+y[400:500] <- 2*y[400:500]
+plot(y, type = "l")
+dates <- seq.Date(from = as.Date("01-01-2000", format = "%d-%m-%Y"), by = "day", length.out = 500)
+int.date <- dates[400]
+
+ce <- CausalArima(y = y, dates = dates, int.date = int.date)

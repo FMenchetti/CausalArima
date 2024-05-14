@@ -16,5 +16,6 @@ Depends:
     ggplot2,
     gridExtra,
     kableExtra,
+    tidybayes,
     R (>= 2.10)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.1

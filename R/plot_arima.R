@@ -209,7 +209,8 @@ qqplot.data <- function(vec) {
   x <- qnorm(c(0.25, 0.75))
   slope <- diff(y)/diff(x)
   int <- y[1L] - slope * x[1L]
-  d <- data.frame(resids = vec)
+  d <- data.frame(vec)
+  colnames(d) <- "resids"
 
   # Plotting
   ggplot(d, aes(sample = resids)) + stat_qq() + geom_abline(slope = slope, intercept = int)

@@ -235,11 +235,34 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
 
   #### Extract ARMA parameters
   model <- .Arima.parm(fit)
+  difference <- .diff2poly(d = model$d, ds = model$D, s = model$S)
+  degree <- length(difference) - 1L
+
+  ### Add the drift (already in fit$xreg) to post-intervention
+  if ("drift" %in% names(fit$coef)) {
+    x2 <- cbind(drift = nobs + seq_len(k), x2)
+  }
+  ### If degree > 0, differencing regressors
+  if (degree > 0L && !is.null(x1)) {
+    X <- as.matrix(stats::filter(rbind(x1, x2), difference, sides = 1))
+    x1 <- X[seq.int(degree + 1L, nobs), , drop = FALSE]
+    x2 <- X[nobs + seq_len(k), , drop = FALSE]
+  }
+  nobs <- nobs - degree
+  nk <- nobs + k
   #### Remap to long format
-  model.l <- .parm(model = model)
+  model.l <- .parm(model = model, include.differences = FALSE)
   #### Derive the ACF
-  acvf <- ltsa::tacvfARMA(phi = model.l$ar, theta = -model.l$ma, maxLag = nk-1,
-                          sigma2 = model$sigma2)
+  acvf <- if (!length(model.l$ar) && !length(model.l$ma)) {
+    c(model$sigma2, numeric(nk - 1L))
+  } else {
+    ltsa::tacvfARMA(
+      phi = model.l$ar, theta = -model.l$ma,
+      maxLag = nk - 1L, sigma2 = model$sigma2
+    )
+  }
+  # acvf <- ltsa::tacvfARMA(phi = model.l$ar, theta = -model.l$ma, maxLag = nk-1,
+  #                        sigma2 = model$sigma2)
   sigma2w <- acvf[1]
   acf  <- acvf / sigma2w
 
@@ -247,16 +270,16 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   R    <- toeplitz(acf)
   ind1 <- 1 : nobs
   ind2 <- (nobs+1) : nk
-  R11  <- R[ind1, ind1]
-  R21  <- R[ind2, ind1]
-  R12  <- R[ind1, ind2]
-  R22  <- R[ind2, ind2]
+  R11  <- R[ind1, ind1, drop = FALSE]
+  R21  <- R[ind2, ind1, drop = FALSE]
+  R12  <- R[ind1, ind2, drop = FALSE]
+  R22  <- R[ind2, ind2, drop = FALSE]
   rm(R)
   #### Compute
   C11  <- chol(R11)
   R12t <- backsolve(r = C11, x = R12, upper.tri = TRUE, transpose = TRUE)
 
-  if(is.null(xreg)){
+  if(is.null(x1)){
     At <- t(R12t)
   } else {
   x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
@@ -266,12 +289,22 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   x2 <- At %*% R12t
   vc <- sigma2w * ( R22 - x2 - t(x2) + tcrossprod(At) )
 
+  #### If degree > 0, covariance back in levels
+  if (degree > 0L && k > 1L) {
+    b <- c(1, stats::ARMAtoMA(
+      ar = -difference[-1L], ma = numeric(0), lag.max = k - 1L
+    ))
+    B <- toeplitz(b)
+    B[upper.tri(B)] <- 0
+    vc <- B %*% vc %*% t(B)
+  }
+
   #### Answer
   v.tau <- diag(vc)
   v.delta <- v.tau
-  for (i in 2 : k )
-  {
-    v.delta[i] <- v.delta[i-1] + vc[i,i] + 2 * sum(vc[1:(i-1),i])
+  for (i in seq_len(k)[-1L]) {
+    v.delta[i] <- v.delta[i - 1L] + vc[i, i] +
+      2 * sum(vc[seq_len(i - 1L), i])
   }
   v.avg <- v.delta / (seq(1, k , 1)^2)
   z.tau <- tau / sqrt(v.tau)
@@ -556,6 +589,7 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   beta <- coef[ ind.beta ]
   sig2 <- fit$sigma2
   vcov <- fit$var.coef
+  if (!length(coef)) vcov <- matrix(numeric(0), 0L, 0L)
   vcov.xreg <- vcov[ind.beta, ind.beta]
   vcov.arma <- vcov[!ind.beta, !ind.beta]
   #### Answer
@@ -568,7 +602,9 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
 .parm <- function(
 
   model = list(d = 0, D = 0, S = 12,
-               ar = NULL, ma = NULL, sar = NULL, sma = NULL))
+               ar = NULL, ma = NULL, sar = NULL, sma = NULL),
+  include.differences = TRUE)
+
 {
   #### Orders
   p <- NROW(model$ar)
@@ -580,7 +616,11 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   S <- ifelse( NROW(model$S) > 0, model$S[1], 12)
 
   #### Long form of parameters
-  ar.ns <- .diff2poly(d = d, ds = ds, s = S)
+  ar.ns <- if (include.differences) {
+    .diff2poly(d = d, ds = ds, s = S)
+  } else {
+    1
+  }
   if ( NROW(model$ar) > 0 ) { model$ar <- -model$ar }
   if ( NROW(model$sar) > 0 ) { model$sar <- -model$sar }
   ar.s <- .long2(p = model$ar, ps = model$sar, s = S)

@@ -1,0 +1,703 @@
+########################################################################################
+## CausalArima : estimation and inference of causal effects with C-ARIMA
+##
+## @param y A univariate time series
+## @param dates A vector of dates 
+## @param int.date The intervention date
+## @param auto Should automatic model selection be performed with 'auto.arima'?
+## @param order A given (p, d, q) model order (used only when 'auto = FALSE')
+## @param seasonal A given (P, D, Q) seasonal order (used only when 'auto = FALSE')
+## @param arima.args Optional list of arguments to be passed to 'Arima'
+## @param auto.args Optional list of arguments to be passed to 'auto.arima'
+## @parma nboot Optional, number of bootstrap iterations
+## @param alpha Confidence level
+## 
+## @return list of several objects (e.g., estimated effects, estimated st.dev, p values...)
+########################################################################################
+
+CausalARIMA<-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seasonal = c(0, 0, 0), ic = "aic", xreg = NULL, 
+                      arima.args = list(), auto.args = list(), nboot = NULL, alpha = 0.05){
+  
+  ### param checks
+  if(class(y) != "ts" & !is.numeric(y)) stop("y must be numeric or ts")
+  if(!is.ts(y)){
+    y <- ts(y, frequency = findfrequency(y))
+  }
+  if(!is.null(xreg)) {
+    if(!is.matrix(xreg) && !is.data.frame(xreg) && !is.numeric(xreg))
+      stop("`xreg` must be a numeric vector, matrix or data.frame")
+    xreg <- as.matrix(xreg)
+    if(nrow(xreg) != length(y)) stop("nrow(xreg) != length(y)")
+  }
+  if(!any(class(dates) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+    stop("`dates` must be a vector of class Date")
+  if(length(dates) != length(y)) stop("length(dates) != length(y)")
+  if(length(int.date) != 1 || !any(class(dates) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+    stop("`int.date` must be a Date of length 1")
+  if((!missing(nboot) & !is.null(nboot)) && (!is.numeric(nboot) | nboot <= 0)) stop("`nboot` must be a positive numeric value")
+  if(auto && sum(sum(order), sum(seasonal)) > 0){auto <- FALSE}
+  
+  ### STEP 1. Subsetting the data: before and after the intervention date
+  ind<-dates>=int.date
+  y.00<-ts(y[!ind], frequency = frequency(y))
+  y.01<-ts(y[ind], frequency = frequency(y))
+  
+  if(!is.null(xreg)) {
+    xreg0<-xreg[!ind,]
+    xreg1<-xreg[ind,]
+    
+  } else {
+    xreg0 <- NULL
+    xreg1 <- NULL
+  }
+  
+  ### STEP 2. Model estimation in the pre-intervention period
+  if(auto){
+    model <- do.call("auto.arima", c(list(y = y.00),
+                                     list(ic = ic), list(xreg = xreg0), auto.args))
+  } else {
+    model <- do.call("Arima", c(list(y = y.00),
+                                list(order = order), list(seasonal = seasonal), list(xreg = xreg0),
+                                arima.args))
+  }
+  
+  ### STEP 3. Forecasting the counterfactual outcome in the absence of intervention
+  h<-length(y.01)
+  fcast<-forecast(model, xreg = xreg1, h = h, level = 1-alpha)
+  mean.fcast.0<-as.numeric(fcast$mean)
+  forecasted_low<-as.numeric(fcast$lower)
+  forecasted_up<-as.numeric(fcast$upper)
+  
+  ### STEP 4. Causal effect computation: direct comparison between the observed outcome (y.01) and the
+  #           predicted counterfactual (mean.fcast.0)
+  causal.effect.0 <- y.01 - mean.fcast.0
+  
+  ### STEP 5. Test statistics
+  ## Extracting
+  d <- model$arma[6]; D <- model$arma[7]; S <- model$arma[5]
+  coef <- model$coef
+  sig2 <- model$sigma2
+  ar  <- coef[ substr(names(coef), 1, 2) == "ar"  ]
+  ma  <- coef[ substr(names(coef), 1, 2) == "ma"  ]
+  sar <- coef[ substr(names(coef), 1, 3) == "sar" ]
+  sma <- coef[ substr(names(coef), 1, 3) == "sma" ]
+  
+  ## MA(inf)
+  par <- .sarma2larma(ar = ar, ma = ma, sar = sar, sma = sma, S = S)
+  psi <- c(1, ARMAtoMA(ar = par$ar[-1], ma = par$ma[-1], lag.max = h-1))
+  
+  
+  ## Stats (tau, sum.tau, avg.tau)
+  # Removing NA's
+  psi <- psi[!is.na(causal.effect.0)]
+  tau  <- causal.effect.0[!is.na(causal.effect.0)]
+  delta <- cumsum(tau)
+  avg <- cumsum(tau) / seq(1, length(tau), 1)
+  
+  # Normal based inference
+  # norm <- .norm.inf(stat1 = tau, stat2 = sum.tau, stat3 = avg.tau, sig2 = sig2,
+  #                  psi = psi, model = model, xreg1 = xreg1[!is.na(causal.effect.0),])
+  norm <- .norm.inf(tau = tau, delta = delta, avg = avg, fit = model, 
+                    xreg = xreg1[!is.na(causal.effect.0),])
+  # Bootstrap based inference
+  boot <- if ( NROW(nboot) > 0 && is.finite(nboot) && nboot >= 1)
+  {
+    nboot <- round(nboot[1])
+    
+    .boot.inf(tau = tau, delta = delta, avg = avg, fit = model,
+              nrep = nboot, xreg = xreg1[!is.na(causal.effect.0),])
+  }
+  else
+  {
+    NULL
+  }
+  
+  ### STEP 6. Saving results
+  my_list <- list(norm = norm, boot = boot, causal.effect = as.numeric(causal.effect.0), model = model,
+                  dates = dates, int.date = int.date, y = as.numeric(y), xreg = xreg, forecast = mean.fcast.0, forecast_lower=forecasted_low,
+                  forecast_upper = forecasted_up, alpha = alpha, sig2 = sig2)
+  class(my_list) <- "cArima"
+  return(my_list)
+  
+}
+
+
+########################################################################################
+## RegArima : estimation of a linear regression with Arima errors (REG-ARIMA)
+##
+## @param y.1 A univariate time series
+## @param dates A vector of dates 
+## @param int.date The intervention date
+## @param horizon A vector of dates the effect should be estimated at
+## @param auto Should automatic model selection be performed with 'auto.arima'?
+## @param order A given (p, d, q) model order (used only when 'auto = FALSE')
+## @param seasonal A given (P, D, Q) seasonal order (used only when 'auto = FALSE')
+## @param auto.args Optional list of arguments to be passed to 'auto.arima'
+## 
+## @return list of several objects (e.g., estimated effects, estimated st.dev, p values...)
+########################################################################################
+
+RegArima <- function(y.1, dates, int.date, horizon, xreg = NULL, auto = TRUE, 
+                     auto.args = list(), order = c(0,0,0), seasonal = c(0,0,0)){
+ 
+  ### param checks
+  if(class(y.1) != "ts" & !is.numeric(y.1)) stop("y must be numeric or ts")
+  if(!is.ts(y.1)){
+    y.1 <- ts(y.1, frequency = findfrequency(y.1))
+  }
+  if(!is.null(xreg)) {
+    if(!is.matrix(xreg) && !is.data.frame(xreg) && !is.numeric(xreg))
+      stop("`xreg` must be a numeric vector, matrix or data.frame")
+    xreg <- as.matrix(xreg)
+    if(nrow(xreg) != length(y.1)) stop("nrow(xreg) != length(y)")
+  }
+  if(!any(class(dates) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+    stop("`dates` must be a vector of class Date")
+  if(length(dates) != length(y.1)) stop("length(dates) != length(y)")
+  if(length(int.date) != 1 || !any(class(dates) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+    stop("`int.date` must be a Date of length 1")
+  if(auto && sum(sum(order), sum(seasonal)) > 0){auto <- FALSE}
+  
+  ### STEP 1: Empty objects to store the results
+  beta <- c()
+  sd <- c()
+  
+  ### STEP 2: Loop over 'horizon'
+  for(j in 1:length(horizon)){ 
+    
+    int <- dates <= horizon[j]
+    y <- ts(y.1[int], freq = frequency(y.1))
+    dummy <- rep(0, times = length(y.1))
+    dummy[dates >= int.date] <- 1
+    xregg <- cbind(xreg[int,], dummy = dummy[int]) 
+    
+    #tryCatch({ 
+      if(auto){
+        
+        model <- do.call("auto.arima", c(list(y = y), list(xreg = xregg), auto.args))
+        
+      } else {
+        
+        model <- do.call("Arima", c(list(y = y), list(order = order), list(seasonal = seasonal),
+                                    list(xreg = xregg)))
+      }
+    #}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+    
+    beta[j] <- model$coef["dummy"]
+    sd[j] <- sqrt(model$var.coef["dummy", "dummy"])
+    
+  }
+  
+  pvalue <- 2*(1-pnorm(abs(beta)/sd))
+  return(list(beta = beta, sd = sd, coef = model$coef, model = model, pvalue = pvalue))
+}
+
+########################################################################################
+## AUXILIARY FUNCTIONS : .long2, .seas2poly, .sarma2larma, .diff2poly, .norm.inf, .boot.inf, 
+##                      .Arima.parm, .parm
+##
+## All functions are auxiliary to (and called back by) 'CausalArima'
+########################################################################################
+
+.seas2poly <- function(ps, s)
+{
+  #### 
+  nps <- NROW(ps)
+  if ( nps > 0 )
+  { 
+    ind <- seq(from = s, by = s, length.out = nps)
+    x1 <- numeric(s * nps)
+    x1[ind] <- ps
+    c(1, x1)
+  }
+  else
+  {
+    1
+  }
+}
+
+# ------------------------------------------------------------------------------
+.long2 <- function(p, ps, s)
+{
+  #### Settings
+  np  <- NROW( p )
+  nps <- NROW( ps )
+  
+  #### 
+  cp  <- if ( np > 0 ) { c(1, p) } else { 1 }
+  cps <- .seas2poly(ps, s)
+  
+  #### Answer
+  pracma::polymul(cp, cps)
+}
+
+# ------------------------------------------------------------------------------
+.sarma2larma <- function(ar = NULL, ma = NULL, sar = NULL, sma = NULL, S )
+{
+  #### Adjust
+  if ( NROW(ar) > 0 ) { ar <- -ar }
+  if ( NROW(sar) > 0 ) { sar <- -sar }
+  
+  #### model
+  list(
+    ar = -.long2(p = ar, ps = sar, s = S),
+    ma =  .long2(p = ma, ps = sma, s = S) )
+}
+
+# ------------------------------------------------------------------------------
+
+.norm.inf <- function(tau, delta, avg, fit, xreg = NULL)
+{ 
+  #### Forecast
+  #forec <- forecast(object = fit, h = h, xreg = xreg)$mean
+  #### Settings
+  nobs <- NROW(fit$x)
+  k    <- NROW(tau)
+  nk   <- nobs + k
+  x1   <- fit$xreg
+  x2   <- xreg
+  
+  #### Stats
+  #tau <- y - as.numeric(forec)
+  #delta <- cumsum(tau)
+  
+  #### Extract ARMA parameters
+  model <- .Arima.parm(fit)
+  #### Remap to long format
+  model.l <- .parm(model = model)
+  #### Derive the ACF
+  acvf <- ltsa::tacvfARMA(phi = model.l$ar, theta = -model.l$ma, maxLag = nk-1,
+                          sigma2 = model$sigma2) 
+  sigma2w <- acvf[1] 
+  acf  <- acvf / sigma2w
+  # acf1 <- ARMAacf(ar = model.l$ar, ma = model.l$ma, lag.max = nk-1) 
+  # print( sum(abs(acf-acf1)))
+  #### Make Toeplitz matrix and extract
+  R    <- toeplitz(acf)
+  ind1 <- 1 : nobs
+  ind2 <- (nobs+1) : nk
+  R11  <- R[ind1, ind1]
+  R21  <- R[ind2, ind1]
+  R12  <- R[ind1, ind2]
+  R22  <- R[ind2, ind2]
+  rm(R)
+  #### Compute
+  C11  <- chol(R11)
+  x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
+  R12t <- backsolve(r = C11, x = R12, upper.tri = TRUE, transpose = TRUE)
+  At <- (x2 - crossprod(R12t, x1t)) %*% solve( crossprod(x1t), t(x1t) ) + t(R12t)
+  # At <- (x2 - crossprod(R12t, x1t)) %*% solve( vcov / sigma2, t(x1t) ) + t(R12t)
+  x2 <- At %*% R12t
+  vc <- sigma2w * ( R22 - x2 - t(x2) + tcrossprod(At) )
+  
+  #### Test
+  # sigma2 <- model$sigma2
+  # vcov <- model$vcov.xreg
+  # beta <- model$xreg
+  # y1t  <- backsolve(r = C11, x = fit$x, upper.tri = TRUE, transpose = TRUE)
+  # beta1 <- solve(crossprod(x1t), crossprod(x1t, y1t))
+  # vcov1 <- sigma2w * solve(crossprod(x1t))
+  # return( list(beta = beta, beta1 = beta1, vcov = vcov, vcov1 = vcov1 ) )
+  
+  #### Answer
+  v.tau <- diag(vc)
+  v.delta <- v.tau
+  for (i in 2 : k )
+  {
+    v.delta[i] <- v.delta[i-1] + vc[i,i] + 2 * sum(vc[1:(i-1),i])
+  }
+  v.avg <- v.delta / (seq(1, k , 1)^2)
+  z.tau <- tau / sqrt(v.tau)
+  z.delta <- delta / sqrt(v.delta)
+  z.avg <- avg / sqrt(v.avg)
+  
+  #### Answer
+  inf <- cbind(
+    tau = tau, sd.tau = sqrt(v.tau),
+    pvalue.tau.l = pnorm(z.tau), pvalue.tau.b = 2 * (1 - pnorm(abs(z.tau))), pvalue.tau.r = 1 - pnorm(z.tau),
+    sum = delta, sd.sum = sqrt(v.delta),
+    pvalue.sum.l = pnorm(z.delta), pvalue.sum.b = 2 * (1 - pnorm(abs(z.delta))), pvalue.sum.r = 1 - pnorm(z.delta),
+    avg = avg, sd.avg = sqrt(v.avg),
+    pvalue.avg.l = pnorm(z.avg), pvalue.avg.b = 2 * (1 - pnorm(abs(z.avg))), pvalue.avg.r = 1 - pnorm(z.avg))
+  
+  list(type = "norm", inf = inf)
+
+}
+
+# ------------------------------------------------------------------------------
+
+.Arima.parm <- function(fit)
+{
+  #### Extract
+  d <- fit$arma[6]; D <- fit$arma[7]; S <- fit$arma[5]
+  coef <- fit$coef
+  ind.ar   <- substr(names(coef), 1, 2) == "ar"
+  ind.ma   <- substr(names(coef), 1, 2) == "ma"
+  ind.sar  <- substr(names(coef), 1, 3) == "sar"
+  ind.sma  <- substr(names(coef), 1, 3) == "sma"
+  ind.beta <- !(ind.ar | ind.ma | ind.sar | ind.sma)
+  ar  <- coef[ ind.ar ]
+  ma  <- coef[ ind.ma ]
+  sar <- coef[ ind.sar ]
+  sma <- coef[ ind.sma ]
+  beta <- coef[ ind.beta ]  
+  sig2 <- fit$sigma2
+  vcov <- fit$var.coef
+  vcov.xreg <- vcov[ind.beta, ind.beta]
+  vcov.arma <- vcov[!ind.beta, !ind.beta]
+  #### Answer
+  list(d = d, D = D, S = S, ar = ar, ma = ma, sar = sar, sma = sma, 
+       xreg = beta, sigma2 = sig2, 
+       vcov.arma = vcov.arma, vcov.xreg = vcov.xreg)
+}
+
+# ------------------------------------------------------------------------------
+.parm <- function(
+    
+    model = list(d = 0, D = 0, S = 12, 
+                 ar = NULL, ma = NULL, sar = NULL, sma = NULL))
+{ 
+  #### Orders
+  p <- NROW(model$ar)
+  d <- ifelse( NROW(model$d) > 0, model$d[1], 0) 
+  q <- NROW(model$ma)
+  ps <- NROW(model$sar)
+  ds <- ifelse( NROW(model$D) > 0, model$D[1], 0) 
+  qs <- NROW(model$sma)
+  S <- ifelse( NROW(model$S) > 0, model$S[1], 12) 
+  
+  #### Long form of parameters
+  ar.ns <- .diff2poly(d = d, ds = ds, s = S)
+  if ( NROW(model$ar) > 0 ) { model$ar <- -model$ar }
+  if ( NROW(model$sar) > 0 ) { model$sar <- -model$sar }
+  ar.s <- .long2(p = model$ar, ps = model$sar, s = S)
+  ar <- -pracma::polymul(ar.ns, ar.s)[-1]
+  ma <- .long2(p = model$ma, ps = model$sma, s = S)[-1]
+  
+  #### Answer
+  list(ar = ar, ma = ma)
+}
+
+# ------------------------------------------------------------------------------
+
+.diff2poly <- function(d, ds, s)
+{
+  #### init
+  x1 <- 1
+  #### d
+  ind <- if ( d > 0 ) { 1 : d } else { NULL }
+  for (i in ind)
+  {
+    x2 <- c(1, -1)
+    x1 <- pracma::polymul(x1, x2)
+  }
+  #### ds
+  ind <- if ( ds > 0 ) { 1 : ds } else { NULL }
+  for (i in ind)
+  {
+    x2 <- c(1, numeric(s-1), -1)
+    x1 <- pracma::polymul(x1, x2)
+  }
+  #### Answer
+  x1
+}
+
+########################################################################################
+## OTHER FUNCTIONS : .arima.sim , .arma.sim 
+##
+## Functions to generate replications from a give ARIMA/ARIMA model
+########################################################################################
+
+.arima.sim <- function(
+    model = list(d = 0, D = 0, S = 12,
+                 constant = NULL, ar = NULL, ma = NULL, sar = NULL, sma = NULL),
+    innov, nburn)
+{
+  #### Orders
+  p  <- NROW(model$ar)  
+  d <- ifelse( NROW(model$d) > 0, model$d[1], 0)
+  q <- NROW(model$ma)
+  ps <- NROW(model$sar)
+  ds <- ifelse( NROW(model$D) > 0, model$D[1], 0)
+  qs <- NROW(model$sma)
+  S <- ifelse( NROW(model$S) > 0, model$S[1], 12)
+  constant <- model$constant
+  
+  #### Long form of parameters
+  model <- .sarma2larma(ar = model$ar, ma = model$ma,
+                        sar = model$sar, sma = model$sma, S = S)
+  model$ar <- model$ar[-1]
+  model$ma <- model$ma[-1]
+  
+  #### Check roots
+  if (p > 0)
+  {
+    minroots <- min(abs(polyroot(c(1, -model$ar))))
+    if (minroots <= 1) { warning("AR side not stationary") }
+  }
+  if (q > 0)
+  {
+    minroots <- min(abs(polyroot(c(1, model$ma))))
+    if (minroots <= 1) { warning("MA side not invertible") }  
+  }
+  
+  #### Simulate ARMA
+  x <- .arma.sim(model = model, innov = innov)
+  
+  #### Add mean
+  constant <- constant[1]
+  if (NROW(constant) > 0 && d + ds <= 1)
+  {
+    x <- constant / (1 - sum(model$ar)) + x    
+  }
+  
+  #### d
+  if (d > 0)
+  {
+    x <- stats::diffinv(x, lag = 1, differences = d)
+  }
+  if (ds > 0)
+  {
+    x <- stats::diffinv(x, lag = S, differences = ds)
+  }
+  
+  #### Answer
+  x[(nburn + 1) : NROW(innov)]
+}
+
+#--------------------------------------------------------------------------------------
+
+.arma.sim <-
+  function(model, innov = innov)
+  {
+    #### Extract orders
+    p <- length(model$ar)
+    q <- length(model$ma)
+    #### Copy
+    x <- innov
+    #### MA
+    if (length(model$ma))
+    {
+      x <- stats::filter(x, c(1, model$ma), sides = 1L)
+      x[seq_along(model$ma)] <- 0    
+    }
+    #### AR
+    if (length(model$ar))
+    {
+      x <- stats::filter(x, model$ar, method = "recursive")
+    }
+    #### Answer
+    x
+  }
+# ------------------------------------------------------------------------------
+
+.boot.inf <- function(tau, delta, avg, nrep, fit, xreg)
+{ 
+  #### Settings
+  nobs <- NROW(fit$x)
+  k    <- NROW(tau)
+  nk   <- nobs + k
+  x1   <- fit$xreg
+  x2   <- xreg
+  res <- residuals(fit)
+  
+  #### Remove NA from res
+  res <- na.omit(as.numeric(res))
+  #### Bootstrap residuals
+  bootm <- as.data.frame(
+    matrix( sample(x = res, size = nk * nrep, replace = TRUE), nk, nrep ) )
+  
+  #### Extract ARMA parameters
+  model <- .Arima.parm(fit)
+  #### Remap to long format
+  model.l <- .parm(model = model)
+  #### Derive the ACF
+  acvf <- ltsa::tacvfARMA(phi = model.l$ar, theta = -model.l$ma, maxLag = nk-1,
+                          sigma2 = model$sigma2)
+  sigma2w <- acvf[1] 
+  acf  <- acvf / sigma2w
+  
+  #### Make Toeplitz matrix and extract
+  R    <- toeplitz(acf)
+  ind1 <- 1 : nobs
+  ind2 <- (nobs+1) : nk
+  R11  <- R[ind1, ind1]
+  # R21  <- R[ind2, ind1]
+  R12  <- R[ind1, ind2]
+  # R22  <- R[ind2, ind2]
+  rm(R)
+  #### Compute
+  C11  <- chol(R11)
+  x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
+  R12t <- backsolve(r = C11, x = R12, upper.tri = TRUE, transpose = TRUE)
+  At <- (x2 - crossprod(R12t, x1t)) %*% solve( crossprod(x1t), t(x1t) ) + t(R12t)  
+  w1 <- bootm[ind1,] 
+  w2 <- bootm[ind2,]
+  AtC <- t(backsolve(r = C11, x = t(At)))
+  
+  #### Stats
+  boot1 <- matrix(NA, k, nrep)
+ 
+  for(i in 1:nrep){
+    w <- .arima.sim(model = list(ar = model$ar, ma = model$ma, sar = model$sar, sma = model$sma,
+                    S = model$S), innov = ts(bootm[,i], frequency = model$S), nburn = 0)
+    boot1[,i] <- w[ind2] - AtC%*%w[ind1]
+    }
+
+  boot2 <- apply(boot1, 2, cumsum)
+  boot3 <- apply(boot2, 2, FUN = function(x)(x / (seq (1, k, 1))))
+  
+  #### p-values
+  pv1.l <- pv1.b <- pv1.r <- pv2.l <- pv2.b <- pv2.r <- pv3.l <- pv3.b <- pv3.r <- rep.int(NA, k)
+  for (i in 1 : k)
+  { 
+    stat <- tau[i]
+    boot <- boot1[i, ]
+    pv1.l[i] <- mean(boot < stat)
+    pv1.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
+    pv1.r[i] <- mean(stat < boot)
+    stat <- delta[i]
+    boot <- boot2[i, ]
+    pv2.l[i] <- mean(boot < stat)
+    pv2.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
+    pv2.r[i] <- mean(stat < boot)
+    stat <- avg[i]
+    boot <- boot3[i, ]
+    pv3.l[i] <- mean(boot < stat)
+    pv3.b[i] <- mean( boot < -abs(stat) | boot > abs(stat) )
+    pv3.r[i] <- mean(stat < boot)
+  }
+  
+  #### Inference
+  inf <- cbind(
+    tau = tau,
+    pvalue.tau.l = pv1.l, pvalue.tau.b = pv1.b, pvalue.tau.r = pv1.r,
+    sum = delta,
+    pvalue.sum.l = pv2.l, pvalue.sum.b = pv2.b, pvalue.sum.r = pv2.r,
+    avg = avg,
+    pvalue.avg.l = pv3.l, pvalue.avg.b = pv3.b, pvalue.avg.r = pv3.r)
+  
+  #### Answer
+  list(type = "bootstrap", nrep = nrep, inf = inf)
+}
+
+
+########################################################################################
+## FUNCTIONS TO CREATE TABLES OF RESULTS: print, ResultTable, effect_table, .star
+##
+########################################################################################
+
+print.cArima<- function(x, type = "norm", horizon = NULL){
+  
+  # param checks
+  if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
+  if(!all(type %in% c("norm", "boot")))
+    stop("allowed 'type' values are 'norm' and 'boot'")
+  if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+    stop("`horizon` must be a Date object")
+  
+  if(!is.null(horizon)){
+    
+    ## Settings & removing NA's
+    int.date <- x$int.date
+    dates <- x$dates
+    ind <- which(dates[dates >= int.date][!is.na(x$causal.effect)] %in% horizon)
+    ncol <- 1 + dim(x[[type]]$inf)[2]
+    results <- data.frame(matrix(nrow = length(horizon), ncol = ncol))
+    colnames(results) <- c("Time horizon", colnames(x[[type]]$inf))
+    results[, 1] <- horizon
+    results[, 2:ncol] <- x[[type]]$inf[ind, ]
+    
+  } else {
+    h <- dim(x[[type]]$inf)[1]
+    results <- x[[type]]$inf[h, ]
+  }
+  
+  results
+}
+
+# --------------------------------------------------------------------------------------
+effect_table <- function(list.results, type, stat, direction, horizon = NULL, digits = 2, latex = FALSE){
+  
+  if(is.null(horizon)){horizon <- tail(list.results[[1]]$dates, 1)}
+  
+  effect.table <- unlist(lapply(lapply(list.results, FUN = ResultTable, type = type, stat = stat,
+                                       direction = direction, horizon = horizon, digits = digits), function(x)(t(x))))
+  
+  if (type == "norm"){
+    tab <- matrix(effect.table, nrow = length(list.results)*2, ncol = length(horizon), byrow = TRUE)
+  } else {
+    tab <- matrix(effect.table, nrow = length(list.results), ncol = length(horizon), byrow = TRUE)
+  }
+  
+  if(latex){
+    tab1 <- paste("&", apply(tab, 1, function(x){paste(x, collapse = " & ")}), " \\")[1]
+    
+    for(i in 2:nrow(tab)){ 
+      
+      tab1 <- rbind(tab1, paste(apply(tab, 1, function(x){paste(x, collapse = " & ")}), " \\")[i])
+      
+    }
+    
+    noquote(tab1)
+    
+  } else {
+    
+    colnames(tab) <- paste(horizon)
+    noquote(tab)
+  }
+}
+
+# ------------------------------------------------------------------------------
+ResultTable <- function(cArima, type, stat, direction, horizon = NULL, digits = 2){
+  
+  # Settings
+  if(is.null(horizon)){ horizon <- tail(cArima$dates, 1)}
+  
+  tab <- matrix(NA, nrow = 1, ncol = length(horizon))
+  colnames(tab) <- paste(horizon)
+  rownames(tab) <- paste(stat)
+  star. <- .star(print(cArima, type = type, horizon = as.Date(horizon))[, paste0("pvalue.", stat, ".", direction)])
+  
+  # Table
+  tab[1,] <- paste(round(print(cArima, type = type, horizon = as.Date(horizon))[, paste(stat)], digits = digits), "^{", star., "}", sep="" )
+  tab[1,] <- gsub(tab[1,], pattern = "\\^\\{ \\}", replacement = "")
+  
+  if(type == "norm"){
+    tab <- rbind(tab, sd = paste("(",round(print(cArima, type = type, horizon = as.Date(horizon))[, paste("sd.", stat, sep = "")], digits = digits),")", sep = ""))
+  }
+  
+  noquote(tab)
+}
+
+# ------------------------------------------------------------------------------
+.star <- function(pvalue){ 
+  star <- rep(NA, times = length(pvalue))
+  ind  <- abs(pvalue) < 0.001
+  ind2 <- abs(pvalue) < 0.01 & abs(pvalue) >= 0.001
+  ind3 <- abs(pvalue) < 0.05 & abs(pvalue) >= 0.01
+  ind4 <- abs(pvalue) < 0.1 &  abs(pvalue) >= 0.05
+  star[ind] <- "***" ; star[ind2] <- "**" ; star[ind3]<- "*"
+  star[ind4] <- "." ; star[!ind & !ind2 & !ind3 & !ind4] <- " "
+  star
+}
+
+# ------------------------------------------------------------------------------
+
+regarima_table <- function(regarima){
+  
+  beta <- round(regarima[[1]][["beta"]], 2)
+  sd <- round(regarima[[1]][["sd"]], 2)
+  pvalue <- regarima[[1]][["pvalue"]]  
+  res <- rbind(paste0(beta, "^{", .star(pvalue), "}"), paste0("(", sd, ")"))  
+  
+  for(i in 2:length(regarima)){  
+    beta <- round(regarima[[i]][["beta"]], 2)
+    sd <- round(regarima[[i]][["sd"]], 2)
+    pvalue <- regarima[[i]][["pvalue"]]
+    res <- rbind(res, rbind(paste0(beta, "^{", .star(pvalue), "}"), paste0("(", sd, ")")))
+  }
+  res <- gsub(res, pattern = "\\^\\{ \\}", replacement = "")
+  return(noquote(res))
+}
+

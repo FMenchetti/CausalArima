@@ -1,15 +1,14 @@
 ######################################################################################
 ######################################################################################
-####  Authors:           Fiammetta Menchetti                                      ####
-####                     Fabrizio Cipollini                                       ####
+####  Authors:           Palmieri E.                                              ####
 ####                                                                              ####
-####  Date last update: 2021-09-28                                                ####
+####  Date last update: April 2022                                                ####
 ####                                                                              ####
 ####  Content:          Table method for object of class cArima                   ####
 ####                                                                              ####
 ####  Main function :   impact                                                    ####
-####  Dependencies:     .impact_summary                                            ####
-####                    .format_impact                                             ####
+####  Dependencies:    .impact_summary                                            ####
+####                   .format_impact                                             ####
 ####                                                                              ####
 ######################################################################################
 ######################################################################################

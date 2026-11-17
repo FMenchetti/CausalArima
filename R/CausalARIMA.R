@@ -137,7 +137,7 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   if(!any(class(dates) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
     stop("`dates` must be a vector of class Date")
   if(length(dates) != length(y)) stop("length(dates) != length(y)")
-  if(length(int.date) != 1 || !any(class(dates) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+  if(length(int.date) != 1 || !any(class(int.date) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
     stop("`int.date` must be a Date of length 1")
   if((!missing(nboot) & !is.null(nboot)) && (!is.numeric(nboot) | nboot <= 0)) stop("`nboot` must be a positive numeric value")
   if(auto && sum(sum(order), sum(seasonal)) > 0){auto <- FALSE}
@@ -148,8 +148,8 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   y.01<-ts(y[ind], frequency = frequency(y))
 
   if(!is.null(xreg)) {
-    xreg0<-xreg[!ind,]
-    xreg1<-xreg[ind,]
+    xreg0<-xreg[!ind, , drop = FALSE]
+    xreg1<-xreg[ind, , drop = FALSE]
 
   } else {
     xreg0 <- NULL
@@ -178,32 +178,24 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   causal.effect.0 <- y.01 - mean.fcast.0
 
   ### STEP 5. Test statistics
-  tau  <- causal.effect.0[!is.na(causal.effect.0)]
+  # tau  <- causal.effect.0[!is.na(causal.effect.0)]
+  tau  <- as.numeric(causal.effect.0)
   delta <- cumsum(tau)
   avg <- cumsum(tau) / seq(1, length(tau), 1)
 
-  # Handling covariates
-  if(!is.null(xreg)){
-    xreg1 <- as.matrix(xreg1)
-    xreg1 <- apply(xreg1, 2, function(x)(x[!is.na(causal.effect.0)]))
-  }
-  if("intercept" %in% names(model$coef)){
-    intercept <- rep(1, times = NROW(y.01))
-    xreg1 <- cbind(intercept, xreg1)
-    xreg1 <- as.matrix(xreg1[!is.na(causal.effect.0),]) # as.matrix?
-    model$xreg <- cbind(intercept = rep(1, NROW(y.00)), model$xreg)
-  }
+  # Inference setup
+  inference <- .inference.setup(fit = model, xreg0 = xreg0, xreg1 = xreg1, k = h)
 
   # Normal based inference
-  norm <- .norm.inf(tau = tau, delta = delta, avg = avg, fit = model,
-                    xreg = xreg1)
+  norm <- .norm.inf(tau = tau, delta = delta, avg = avg, inference = inference)
+
   # Bootstrap based inference
   boot <- if ( NROW(nboot) > 0 && is.finite(nboot) && nboot >= 1)
   {
     nboot <- round(nboot[1])
 
     .boot.inf(tau = tau, delta = delta, avg = avg, fit = model,
-              nrep = nboot, xreg = xreg1)
+              nrep = nboot, inference = inference)
   }
   else
   {
@@ -224,80 +216,20 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
 ## Compute variance of the point, cumulative and temporal average effect
 ##################################################################################
 
-.norm.inf <- function(tau, delta, avg, fit, xreg = NULL)
+.norm.inf <- function(tau, delta, avg, inference)
 {
   #### Settings
-  nobs <- NROW(fit$x)
   k    <- NROW(tau)
-  nk   <- nobs + k
-  x1   <- fit$xreg
-  x2   <- xreg
 
-  #### Extract ARMA parameters
-  model <- .Arima.parm(fit)
-  difference <- .diff2poly(d = model$d, ds = model$D, s = model$S)
-  degree <- length(difference) - 1L
+  #### Variance estimation
+  At <- inference$At
+  AR12 <- At %*% inference$R12t
+  vc <- inference$sigma2z *
+    (inference$R22 - AR12 - t(AR12) + tcrossprod(At))
 
-  ### Add the drift (already in fit$xreg) to post-intervention
-  if ("drift" %in% names(fit$coef)) {
-    x2 <- cbind(drift = nobs + seq_len(k), x2)
-  }
-  ### If degree > 0, differencing regressors
-  if (degree > 0L && !is.null(x1)) {
-    X <- as.matrix(stats::filter(rbind(x1, x2), difference, sides = 1))
-    x1 <- X[seq.int(degree + 1L, nobs), , drop = FALSE]
-    x2 <- X[nobs + seq_len(k), , drop = FALSE]
-  }
-  nobs <- nobs - degree
-  nk <- nobs + k
-  #### Remap to long format
-  model.l <- .parm(model = model, include.differences = FALSE)
-  #### Derive the ACF
-  acvf <- if (!length(model.l$ar) && !length(model.l$ma)) {
-    c(model$sigma2, numeric(nk - 1L))
-  } else {
-    ltsa::tacvfARMA(
-      phi = model.l$ar, theta = -model.l$ma,
-      maxLag = nk - 1L, sigma2 = model$sigma2
-    )
-  }
-  # acvf <- ltsa::tacvfARMA(phi = model.l$ar, theta = -model.l$ma, maxLag = nk-1,
-  #                        sigma2 = model$sigma2)
-  sigma2w <- acvf[1]
-  acf  <- acvf / sigma2w
-
-  #### Make Toeplitz matrix and extract
-  R    <- toeplitz(acf)
-  ind1 <- 1 : nobs
-  ind2 <- (nobs+1) : nk
-  R11  <- R[ind1, ind1, drop = FALSE]
-  R21  <- R[ind2, ind1, drop = FALSE]
-  R12  <- R[ind1, ind2, drop = FALSE]
-  R22  <- R[ind2, ind2, drop = FALSE]
-  rm(R)
-  #### Compute
-  C11  <- chol(R11)
-  R12t <- backsolve(r = C11, x = R12, upper.tri = TRUE, transpose = TRUE)
-
-  if(is.null(x1)){
-    At <- t(R12t)
-  } else {
-  x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
-  At <- (x2 - crossprod(R12t, x1t)) %*% solve( crossprod(x1t), t(x1t) ) + t(R12t)
-  }
-
-  x2 <- At %*% R12t
-  vc <- sigma2w * ( R22 - x2 - t(x2) + tcrossprod(At) )
-
-  #### If degree > 0, covariance back in levels
-  if (degree > 0L && k > 1L) {
-    b <- c(1, stats::ARMAtoMA(
-      ar = -difference[-1L], ma = numeric(0), lag.max = k - 1L
-    ))
-    B <- toeplitz(b)
-    B[upper.tri(B)] <- 0
-    vc <- B %*% vc %*% t(B)
-  }
+  #### Covariance back in levels
+  B <- inference$integration
+  vc <- B %*% vc %*% t(B)
 
   #### Answer
   v.tau <- diag(vc)
@@ -326,53 +258,28 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
 
 # ------------------------------------------------------------------------------
 
-.boot.inf <- function(tau, delta, avg, nrep, fit, xreg)
+.boot.inf <- function(tau, delta, avg, nrep, fit, inference)
 {
   #### Settings
-  nobs <- NROW(fit$x)
   k    <- NROW(tau)
-  nk   <- nobs + k
-  x1   <- fit$xreg
-  x2   <- xreg
-  res <- residuals(fit)
+  res <- as.numeric(residuals(fit))
+  res <- res[seq_along(res) > inference$degree]
+  C11 <- inference$C11
+  At <- inference$At
+  pre <- inference$pre
+  post <- inference$post
+  nk <- max(post)
+  B <- inference$integration
+  model <- inference$arma
 
   #### Remove NA from res
-  res <- na.omit(as.numeric(res))
+  # res <- na.omit(as.numeric(res))
+
   #### Bootstrap residuals
   bootm <- as.data.frame(
-    matrix( sample(x = res, size = nk * nrep, replace = TRUE), nk, nrep ) )
+    matrix( sample(x = res, size = nk * nrep, replace = TRUE),
+            nrow = nk, ncol = nrep ) )
 
-  #### Extract ARMA parameters
-  model <- .Arima.parm(fit)
-  #### Remap to long format
-  model.l <- .parm(model = model)
-  #### Derive the ACF
-  acvf <- ltsa::tacvfARMA(phi = model.l$ar, theta = -model.l$ma, maxLag = nk-1,
-                          sigma2 = model$sigma2)
-  sigma2w <- acvf[1]
-  acf  <- acvf / sigma2w
-
-  #### Make Toeplitz matrix and extract
-  R    <- toeplitz(acf)
-  ind1 <- 1 : nobs
-  ind2 <- (nobs+1) : nk
-  R11  <- R[ind1, ind1]
-  R12  <- R[ind1, ind2]
-  rm(R)
-
-  #### Compute
-  C11  <- chol(R11)
-  R12t <- backsolve(r = C11, x = R12, upper.tri = TRUE, transpose = TRUE)
-
-  if(is.null(xreg)){
-    At <- t(R12t)
-  } else {
-    x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
-    At <- (x2 - crossprod(R12t, x1t)) %*% solve( crossprod(x1t), t(x1t) ) + t(R12t)
-  }
-
-  w1 <- bootm[ind1,]
-  w2 <- bootm[ind2,]
   AtC <- t(backsolve(r = C11, x = t(At)))
 
   #### Stats
@@ -381,10 +288,11 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   for(i in 1:nrep){
     w <- .arima.sim(model = list(ar = model$ar, ma = model$ma, sar = model$sar, sma = model$sma,
                                  S = model$S), innov = ts(bootm[,i], frequency = model$S), nburn = 0)
-    boot1[,i] <- w[ind2] - AtC%*%w[ind1]
+    error.diff <- w[post] - AtC %*% w[pre]
+    boot1[, i] <- B %*% error.diff
   }
 
-  boot2 <- apply(boot1, 2, cumsum)
+  boot2 <- matrix(apply(boot1, 2L, cumsum), nrow = k, ncol = nrep)
   boot3 <- apply(boot2, 2, FUN = function(x)(x / (seq (1, k, 1))))
 
   #### p-values
@@ -424,6 +332,96 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
 
   #### Answer
   list(type = "bootstrap", nrep = nrep, inf = inf, effect=boot1)
+}
+
+# ---------------------------------------------------------------------
+
+.inference.setup <- function(fit, xreg0, xreg1, k){
+
+  #### Settings
+  nobs <- NROW(fit$x)
+  nk   <- nobs + k
+  x1   <- xreg0
+  x2   <- xreg1
+
+  #### Extract ARMA parameters
+  model <- .Arima.parm(fit)
+
+  #### Remap to long format
+  model.l <- .parm(model = model, include.differences = FALSE)
+
+  #### Check stationarity
+  difference <- .diff2poly(d = model$d, ds = model$D, s = model$S)
+  degree <- length(difference) - 1L
+
+  #### Add drift/intercept (if present in the pre-intervention) also in the post
+  if ("drift" %in% names(fit$coef)) {
+    x1 <- cbind(drift = seq_len(nobs), x1)
+    x2 <- cbind(drift = nobs + seq_len(k), x2)
+  }
+  if ("intercept" %in% names(fit$coef)) {
+    x1 <- cbind(intercept = rep(1, nobs), x1)
+    x2 <- cbind(intercept = rep(1, k), x2)
+  }
+
+  ### If degree > 0, differencing regressors
+  if (degree > 0L && !is.null(x1)) {
+    X <- as.matrix(stats::filter(rbind(x1, x2), difference, sides = 1))
+    x1 <- X[seq.int(degree + 1L, nobs), , drop = FALSE]
+    x2 <- X[nobs + seq_len(k), , drop = FALSE]
+  }
+  nobs <- nobs - degree
+  nk <- nobs + k
+
+  #### Derive the ACF
+  acvf <- if (!length(model.l$ar) && !length(model.l$ma)) {
+    c(model$sigma2, numeric(nk - 1L))
+  } else {
+    ltsa::tacvfARMA(
+      phi = model.l$ar, theta = -model.l$ma,
+      maxLag = nk - 1L, sigma2 = model$sigma2
+    )
+  }
+
+  sigma2w <- acvf[1]
+  acf  <- acvf / sigma2w
+
+  #### Make Toeplitz matrix and extract
+  R    <- toeplitz(acf)
+  ind1 <- 1 : nobs
+  ind2 <- (nobs+1) : nk
+  R11  <- R[ind1, ind1, drop = FALSE]
+  R21  <- R[ind2, ind1, drop = FALSE]
+  R12  <- R[ind1, ind2, drop = FALSE]
+  R22  <- R[ind2, ind2, drop = FALSE]
+  rm(R)
+
+  #### Compute At
+  C11  <- chol(R11)
+  R12t <- backsolve(r = C11, x = R12, upper.tri = TRUE, transpose = TRUE)
+
+  if(is.null(x1)){
+    At <- t(R12t)
+  } else {
+    x1t  <- backsolve(r = C11, x = x1, upper.tri = TRUE, transpose = TRUE)
+    At <- (x2 - crossprod(R12t, x1t)) %*% solve( crossprod(x1t), t(x1t) ) + t(R12t)
+  }
+
+  #### B matrix to transform back in levels
+  B <- diag(k)
+  if (degree > 0L && k > 1L) {
+    b <- c(1, stats::ARMAtoMA(
+      ar = -difference[-1L], ma = numeric(0), lag.max = k - 1L
+    ))
+    B <- toeplitz(b)
+    B[upper.tri(B)] <- 0
+  }
+  # B <- B[selected, , drop = FALSE]
+
+  #### Return
+  list(arma = model, degree = degree, pre = ind1, post = ind2,
+       integration = B, C11 = C11, R12t = R12t, R22 = R22,
+       At = At, sigma2z = sigma2w)
 }
 
 ########################################################################################

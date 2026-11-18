@@ -293,7 +293,7 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   }
 
   boot2 <- matrix(apply(boot1, 2L, cumsum), nrow = k, ncol = nrep)
-  boot3 <- apply(boot2, 2, FUN = function(x)(x / (seq (1, k, 1))))
+  boot3 <- boot2 / seq_len(k)
 
   #### p-values
   pv1.l <- pv1.b <- pv1.r <- pv2.l <- pv2.b <- pv2.r <- pv3.l <- pv3.b <- pv3.r <- rep.int(NA, k)

@@ -82,9 +82,11 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
   if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
   if(!all(format %in% c("numeric", "html", "latex")))
     stop("allowed 'format' values are 'numeric', 'html' and 'latex'")
-  if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+  if (!is.null(horizon) &&
+      !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt"))) {
     stop("`horizon` must be a Date object")
-  if(any(horizon <= x$int.date)) stop("Dates in `horizon` must follow `int.date`")
+  }
+  if(any(horizon < x$int.date)) stop("Dates in `horizon` must be on or after `int.date`")
 
   # settings
   cov<-x$xreg
@@ -212,11 +214,11 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
    y_post<-x$y[post_index]
    nas<-is.na(y_post)
    y_post<-y_post[!nas]
-   simulated<-simulated[!nas, ]
+   simulated<-simulated[!nas, , drop = FALSE]
    x$forecast<-x$forecast[!nas]
 
   # Estimation of statistics
-  effects <- apply(simulated, 2, function(z) {y_post-z} )
+   effects <- y_post - simulated
 
   observed<- c(mean(y_post), sum(y_post))
   forecasted <- c(mean(x$forecast), sum(x$forecast))
@@ -278,11 +280,11 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
   y_post<-x$y[post_index]
   nas<-is.na(y_post)
   y_post<-y_post[!nas]
-  simulated<-simulated[!nas, ]
+  simulated<-simulated[!nas, , drop = FALSE]
   x$forecast<-x$forecast[!nas]
 
   # Estimation of statistics
-  effects <- apply(simulated, 2, function(z) {y_post-z} )
+  effects <- effects <- y_post - simulated
 
   index<-sapply(horizon, function(z) x$dates <=z)
   index<-tail(index, length(y_post))
@@ -290,8 +292,8 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
   for(i in 1:ncol(index)){
   y_post_h<-y_post[index[,i]]
   forecast_h<-x$forecast[index[,i]]
-  simulated_h<-simulated[index[,i], ]
-  effects_h<-effects[index[,i], ]
+  simulated_h <- simulated[index[, i], , drop = FALSE]
+  effects_h <- effects[index[, i], , drop = FALSE]
 
   observed<- c(mean(y_post_h), sum(y_post_h))
   forecasted <- c(mean(forecast_h), sum(forecast_h))

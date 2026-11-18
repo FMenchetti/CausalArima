@@ -182,7 +182,9 @@ summary.cArima<- function(x, type = "norm", horizon = NULL, digits = 3){
 
   } else {
     sumry <- round(t(sumryy[,-1]), digits = digits)
-    obj <- rbind(sumry[ind1-1,], "", sumry[ind2-1,], "", sumry[ind3-1,])
+    obj <- rbind(sumry[ind1-1, , drop = FALSE], "",
+                 sumry[ind2-1, , drop = FALSE], "",
+                 sumry[ind3-1, , drop = FALSE])
     colnames(obj) <- paste(sumryy[,1])
   }
 

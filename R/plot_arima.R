@@ -78,12 +78,14 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   # param checks
   if (class(x) != "cArima")
     stop("`x` must be an object of class cArima")
-  if (!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
+  if (!is.null(horizon) &&
+      !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt"))) {
     stop("`horizon` must be a Date object")
+  }
   if (!all(type %in% c("forecast", "impact", "residuals")))
     stop("allowed 'type' values are 'forecast', 'impact' and 'residuals'")
-  if (any(horizon <= x$int.date))
-    stop("Dates in `horizon` must follow `int.date`")
+  if (any(horizon < x$int.date))
+    stop("Dates in `horizon` must be on or after `int.date`")
 
   # Plot 'Observed vs Forecast'
   if ("forecast" %in% type) {
@@ -128,12 +130,27 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   dat <- data.frame(x = x, y = y, y.upper = y.upper, y.lower = y.lower)
   ylim <- c(min(dat[, "y.lower"]), max(dat[, "y.upper"]))
 
+  effect_geom <- if (nrow(dat) == 1L) {
+    geom_pointrange(
+      aes(y = y, ymin = y.lower, ymax = y.upper),
+      color = color_line,
+      size = lines_size
+    )
+  } else {
+    geom_line(
+      aes(y = y),
+      color = color_line,
+      linetype = "solid",
+      size = lines_size
+    )
+  }
+
   g <- ggplot(data = dat, aes(x = x)) + coord_cartesian(ylim = ylim) +
               labs(title = "Point effect", y = "", x = "") +
               theme_bw(base_size = 15) +
               geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = color_intervals) +
               geom_hline(yintercept = 0, colour = "darkgrey", size = lines_size, linetype = "solid") +
-              geom_line(aes(y = y), color = color_line, linetype = "solid", size = lines_size)
+              effect_geom
 
 
   # Plot of cumulative effect
@@ -145,7 +162,7 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   g_cum <- ggplot(data = dat_cum, aes(x = x)) + labs(title = "Cumulative effect", y = "", x = "") +
                   theme_bw(base_size = 15) + geom_ribbon(aes(x = x, ymax = y.upper, ymin = y.lower), fill = color_intervals) +
                   geom_hline(yintercept = 0, colour = "darkgrey", size = lines_size, linetype = "solid") +
-                  geom_line(aes(y = y), color = color_line, linetype = "solid", size = lines_size)
+                  effect_geom
 
   if (!is.null(horizon)) {
 

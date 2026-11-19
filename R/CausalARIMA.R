@@ -2,13 +2,14 @@
 ######################################################################################
 ####  Authors:           Cipollini F., Menchetti F.
 ####                                                                              ####
-####  Date last update: April 2022                                                ####
+####  Date last update: November 2026                                             ####
 ####                                                                              ####
 ####  Content:          Causal effect of an intervention                          ####
 ####                                                                              ####
 ####  Main function :   CausalArima                                               ####
 ####  Dependencies:     .boot.inf                                                 ####
 ####                    .norm.inf                                                 ####
+####                    .inference.setup                                          ####
 ####                    .long                                                     ####
 ####                    .seas2poly                                                ####
 ####                    .sarma2larma                                              ####
@@ -178,13 +179,19 @@ CausalArima <-function(y, dates, int.date, auto = TRUE, order = c(0, 0, 0), seas
   causal.effect.0 <- y.01 - mean.fcast.0
 
   ### STEP 5. Test statistics
-  # tau  <- causal.effect.0[!is.na(causal.effect.0)]
-  tau  <- as.numeric(causal.effect.0)
+  observed <- !is.na(y.01)
+
+  if (!any(observed)) {
+    stop("At least one observed post-intervention outcome is required")
+  }
+
+  tau <- as.numeric(causal.effect.0[observed])
   delta <- cumsum(tau)
-  avg <- cumsum(tau) / seq(1, length(tau), 1)
+  avg <- delta / seq_along(tau)
 
   # Inference setup
   inference <- .inference.setup(fit = model, xreg0 = xreg0, xreg1 = xreg1, k = h)
+  inference$integration <- inference$integration[observed, , drop = FALSE]
 
   # Normal based inference
   norm <- .norm.inf(tau = tau, delta = delta, avg = avg, inference = inference)

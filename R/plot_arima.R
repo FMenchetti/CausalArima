@@ -119,9 +119,9 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
                     lines_size = 0.4) {
 
   # Settings
-  dates <- cArima$dates[!is.na(cArima$causal.effect)]
   int.date <- cArima$int.date
-  x <- dates[dates >= int.date]
+  dates <- cArima$dates[cArima$dates >= int.date]
+  x <- dates[!is.na(cArima$causal.effect)]
   y <- na.omit(cArima$causal.effect)
   y.upper <- y + cArima$norm$inf[, "sd.tau"] * qnorm(1 - alpha/2)
   y.lower <- y - cArima$norm$inf[, "sd.tau"] * qnorm(1 - alpha/2)
@@ -184,12 +184,12 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
                       lines_size = 0.6) {
 
   # Settings
-  dates <- cArima$dates[!is.na(cArima$y)]
+  dates <- cArima$dates
   int.date <- cArima$int.date
-  observed <- na.omit(cArima$y)
+  observed <- cArima$y
   fitted <- cArima$model$fitted
-  forecasted <- na.omit(c(fitted, cArima$forecast))
-  forecasted_up <- forecasted_inf <- rep(NA, length(fitted[!is.na(fitted)]))
+  forecasted <- c(fitted, cArima$forecast)
+  forecasted_up <- forecasted_inf <- rep(NA_real_, length(fitted))
   forecasted_up <- append(forecasted_up, cArima$forecast_upper)
   forecasted_inf <- append(forecasted_inf, cArima$forecast_lower)
   start <- which(dates == int.date) - round(win * sum(dates < int.date))

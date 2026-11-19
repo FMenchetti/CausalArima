@@ -84,26 +84,52 @@
 print.cArima<- function(x, type = "norm", horizon = NULL){
   if(!is.null(horizon)){
 
-    # param checks
+    ## param checks
     if(class(x) != "cArima") stop ("`x` must be an object of class cArima")
     if(!all(type %in% c("norm", "boot")))
       stop("allowed 'type' values are 'norm' and 'boot'")
     if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
       stop("`horizon` must be a Date object")
 
-    ## Settings & removing NA's
+    ## Settings and NA handling
     int.date <- x$int.date
     dates <- x$dates
-    ind <- which(dates[dates >= int.date][!is.na(x$causal.effect)] %in% horizon)
+    post_dates <- dates[dates >= int.date]
+
+    if (any(!horizon %in% post_dates)) {
+      stop("`horizon` must contain post-intervention dates in `x$dates`")
+    }
+
+    # Observed dates (i.e., dates corresponding to non-missing values in Yt)
+    observed_dates <- post_dates[!is.na(x$causal.effect)]
+    ind <- match(horizon, observed_dates)
+    statistics <- x[[type]]$inf[ind, , drop = FALSE]
+
+    # If a date in 'horizon' is not among the observed dates, retrieve the
+    # preevious observed date and its causal effect
+    previous <- findInterval(
+      as.numeric(horizon),
+      as.numeric(observed_dates)
+    )
+
+    missing <- which(is.na(ind) & previous > 0L)
+    statistics[missing, 6:15] <-
+      x[[type]]$inf[previous[missing], 6:15, drop = FALSE]
+
+    ## Results
     ncol <- 1 + dim(x[[type]]$inf)[2]
-    results <- data.frame(matrix(nrow = length(horizon), ncol = ncol))
+    results <- data.frame(
+      matrix(nrow = length(horizon), ncol = ncol)
+    )
     colnames(results) <- c("Time horizon", colnames(x[[type]]$inf))
     results[, 1] <- horizon
-    results[, 2:ncol] <- x[[type]]$inf[ind, ]
+    results[, 2:ncol] <- statistics
 
   } else {
+
     h <- dim(x[[type]]$inf)[1]
     results <- x[[type]]$inf[h, ]
+
   }
 
   results

@@ -195,27 +195,51 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
 # -----------------------------------------------------------------------------------------
 
 
-.impact_summary<-function(x){
+.impact_summary<-function(x, horizon = NULL){
 
   # Setting
-  xreg<-x$xreg
-  alpha<-x$alpha  # alfa coef interval
-  post_index<-x$dates>=x$int.date # select variable in the post period
-  prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
-  prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
+  alpha <- x$alpha
+  post_index <- x$dates >= x$int.date
+  prob.lower <- alpha / 2
+  prob.upper <- 1 - alpha / 2
 
+  post_dates <- x$dates[post_index]
+  observed <- which(!is.na(x$causal.effect))
+  selected <- observed
 
-  if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
-  else{ xreg<-xreg[post_index, ] }
-  # browser()
-  # simulated<-ce$boot$boot.distrib
-  simulated<-x$y[post_index] + x$boot$effect
-  # Select post intervention period and remove missing values
-   y_post<-x$y[post_index]
-   nas<-is.na(y_post)
-   y_post<-y_post[!nas]
-   simulated<-simulated[!nas, , drop = FALSE]
-   x$forecast<-x$forecast[!nas]
+  if (!is.null(horizon)) {
+    selected <- selected[post_dates[selected] <= horizon]
+  }
+
+  if (!length(selected)) {
+    results <- as.data.frame(
+      matrix(
+        NA_real_,
+        nrow = 2L,
+        ncol = 15L,
+        dimnames = list(
+          c("Average", "Cumulative"),
+          c(
+            "observed", "forecasted",
+            "forecasted_low", "forecasted_up", "forecasted.sd",
+            "abs_effect", "abs_effect_lower", "abs_effect_upper",
+            "abs_effect_sd",
+            "relative_effect", "relative_effect_lower",
+            "relative_effect_upper", "relative_effect_sd",
+            "alpha", "p"
+          )
+        )
+      )
+    )
+    results$alpha <- alpha
+    return(results)
+  }
+
+  y_post <- x$y[post_index][selected]
+  simulated <- y_post +
+    x$boot$effect[match(selected, observed), , drop = FALSE]
+
+  x$forecast <- x$forecast[selected]
 
   # Estimation of statistics
    effects <- y_post - simulated
@@ -261,82 +285,14 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
 }
 
 # -----------------------------------------------------------------------------------------
-.impact_summary_horizons<-function(x, horizon){
-
-  # Setting
-  xreg<-x$xreg
-  alpha<-x$alpha  # alfa coef interval
-  post_index<-x$dates>=x$int.date # select variable in the post period
-  prob.lower <- alpha / 2      # e.g., 0.025 when alpha = 0.05
-  prob.upper <- 1 - alpha / 2  # e.g., 0.975 when alpha = 0.05
-
-
-  if(is.vector(xreg)){  xreg<-xreg[post_index ]  }
-  else{ xreg<-xreg[post_index, ] }
-
-  # simulated<-ce$boot$boot.distrib
-  simulated<-x$y[post_index] + x$boot$effect
-  # Select post intervention period and remove missing values
-  y_post<-x$y[post_index]
-  nas<-is.na(y_post)
-  y_post<-y_post[!nas]
-  simulated<-simulated[!nas, , drop = FALSE]
-  x$forecast<-x$forecast[!nas]
-
-  # Estimation of statistics
-  effects <- effects <- y_post - simulated
-
-  index<-sapply(horizon, function(z) x$dates <=z)
-  index<-tail(index, length(y_post))
-  results<-NULL
-  for(i in 1:ncol(index)){
-  y_post_h<-y_post[index[,i]]
-  forecast_h<-x$forecast[index[,i]]
-  simulated_h <- simulated[index[, i], , drop = FALSE]
-  effects_h <- effects[index[, i], , drop = FALSE]
-
-  observed<- c(mean(y_post_h), sum(y_post_h))
-  forecasted <- c(mean(forecast_h), sum(forecast_h))
-  forecasted_low<-c(quantile(colMeans(simulated_h), prob.lower), quantile(colSums(simulated_h), prob.lower))
-  forecasted_up<-c(quantile(colMeans(simulated_h), prob.upper), quantile(colSums(simulated_h), prob.upper))
-  forecasted.sd <- c(sd(colMeans(simulated_h)), sd(colSums(simulated_h)))
-  abs_effect <- c(mean(y_post_h) - mean(forecast_h),
-                  sum(y_post_h) - sum(forecast_h))
-
-  abs_effect_lower <- c(quantile(colMeans(effects_h ),prob.lower), quantile(colSums(effects_h), prob.lower))
-
-  abs_effect_upper <- c(quantile(colMeans(effects_h), prob.upper), quantile(colSums(effects_h), prob.upper))
-
-  abs_effect_sd <- c(sd(colMeans( effects_h)), sd(colSums(effects_h)))
-
-  # Saving results
-  results_h <-data.frame(observed=observed, forecasted=forecasted, forecasted_low=forecasted_low, forecasted_up=forecasted_up,
-                       forecasted.sd=forecasted.sd, abs_effect=abs_effect, abs_effect_lower=abs_effect_lower, abs_effect_upper=abs_effect_upper,
-                       abs_effect_sd=abs_effect_sd)
-
-  results_h$relative_effect<- results_h$abs_effect /results_h$forecasted
-  results_h$relative_effect_lower <-results_h$abs_effect_lower /  results_h$forecasted
-  results_h$relative_effect_upper <-results_h$abs_effect_upper / results_h$forecasted
-  results_h$relative_effect_sd <- results_h$abs_effect_sd /  results_h$forecasted
-
-  rownames(results_h) <- c("Average", "Cumulative")
-
-  # Add interval coverage, defined by alpha
-  results_h$alpha <- alpha
-
-  # Add one-sided tail-area probability of overall impact, p
-  y.samples.post.sum <- colSums(simulated_h)
-  y.post.sum <- sum(y_post_h)
-
-  # compute p values for any effect on the sum
-  p <- min(mean(y.samples.post.sum >= y.post.sum), mean(y.samples.post.sum<=  y.post.sum))
-  results_h$p <- p
-  results[[i]]<-results_h
-  }
-  names(results)<-horizon
-  return(results)
+.impact_summary_horizons <- function(x, horizon) {
+  results <- lapply(
+    horizon,
+    function(date) .impact_summary(x, horizon = date)
+  )
+  names(results) <- as.character(horizon)
+  results
 }
-
 # -----------------------------------------------------------------------------------------
 
 .format_impact<-function(tab_imp){

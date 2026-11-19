@@ -124,7 +124,11 @@ impact <- function(x,  format="numeric", horizon=NULL,  style = kable_styling, d
   ### 2. impact_norm
 
   # Estimated point, cumulative and temporal average effect assuming Normality
-  impact_norm<-print(x, horizon=horizon)
+  impact_norm <- print(x, horizon = horizon)
+
+  if (!is.null(horizon)) {
+    horizon <- impact_norm[["Time horizon"]]
+  }
 
   if(is.numeric(impact_norm)){
     names <- names(impact_norm)

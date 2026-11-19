@@ -82,6 +82,7 @@
 #' print(ce, type = "boot", horizon = horizon)
 #'
 print.cArima<- function(x, type = "norm", horizon = NULL){
+
   if(!is.null(horizon)){
 
     ## param checks
@@ -90,31 +91,61 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
       stop("allowed 'type' values are 'norm' and 'boot'")
     if(!missing(horizon) && !any(class(horizon) %in% c("Date", "POSIXct", "POSIXlt", "POSIXt")))
       stop("`horizon` must be a Date object")
+    if (!is.null(horizon)) {
+      post_dates <- x$dates[x$dates >= x$int.date]
+
+      if (anyNA(horizon) || any(!horizon %in% post_dates)) {
+        stop(
+          "All dates in `horizon` must belong to the post-intervention dates in `x$dates`"
+        )
+      }
+    }
 
     ## Settings and NA handling
     int.date <- x$int.date
     dates <- x$dates
     post_dates <- dates[dates >= int.date]
+    requested_time <- as.numeric(as.POSIXct(horizon))
 
-    if (any(!horizon %in% post_dates)) {
-      stop("`horizon` must contain post-intervention dates in `x$dates`")
+    observed_dates <- post_dates[!is.na(x$causal.effect)]
+    observed_time <- as.numeric(as.POSIXct(observed_dates))
+
+    # Last observed post-intervention date at or before each horizon
+    ind <- findInterval(requested_time, observed_time)
+    available <- ind > 0L
+
+    used_horizon <- horizon
+    used_horizon[available] <- observed_dates[ind[available]]
+
+    # Registering when an available date is different from the requested one
+    # and returning informative messages
+    changed <- available &
+      requested_time != as.numeric(as.POSIXct(used_horizon))
+
+    messages <- character()
+
+    if (any(changed)) {
+      messages <- c(messages, sprintf(
+        "No observed outcome at %s; using previous observed post-intervention date %s.",
+        as.character(horizon[changed]),
+        as.character(used_horizon[changed])
+      ))
     }
 
-    # Observed dates (i.e., dates corresponding to non-missing values in Yt)
-    observed_dates <- post_dates[!is.na(x$causal.effect)]
-    ind <- match(horizon, observed_dates)
+    if (any(!available)) {
+      messages <- c(messages, sprintf(
+        "No observed post-intervention outcome on or before %s; returning NA.",
+        as.character(horizon[!available])
+      ))
+    }
+
+    if (length(messages)) {
+      warning(paste(unique(messages), collapse = "\n"), call. = FALSE)
+    }
+
+    # Retrieve all statistics from the selected inference row
+    ind[!available] <- NA_integer_
     statistics <- x[[type]]$inf[ind, , drop = FALSE]
-
-    # If a date in 'horizon' is not among the observed dates, retrieve the
-    # preevious observed date and its causal effect
-    previous <- findInterval(
-      as.numeric(horizon),
-      as.numeric(observed_dates)
-    )
-
-    missing <- which(is.na(ind) & previous > 0L)
-    statistics[missing, 6:15] <-
-      x[[type]]$inf[previous[missing], 6:15, drop = FALSE]
 
     ## Results
     ncol <- 1 + dim(x[[type]]$inf)[2]
@@ -122,7 +153,7 @@ print.cArima<- function(x, type = "norm", horizon = NULL){
       matrix(nrow = length(horizon), ncol = ncol)
     )
     colnames(results) <- c("Time horizon", colnames(x[[type]]$inf))
-    results[, 1] <- horizon
+    results[, 1] <- used_horizon
     results[, 2:ncol] <- statistics
 
   } else {

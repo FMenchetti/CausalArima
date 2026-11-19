@@ -84,8 +84,15 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   }
   if (!all(type %in% c("forecast", "impact", "residuals")))
     stop("allowed 'type' values are 'forecast', 'impact' and 'residuals'")
-  if (any(horizon < x$int.date))
-    stop("Dates in `horizon` must be on or after `int.date`")
+  if (!is.null(horizon)) {
+    post_dates <- x$dates[x$dates >= x$int.date]
+
+    if (anyNA(horizon) || any(!horizon %in% post_dates)) {
+      stop(
+        "All dates in `horizon` must belong to the post-intervention dates in `x$dates`"
+      )
+    }
+  }
 
   # Plot 'Observed vs Forecast'
   if ("forecast" %in% type) {
@@ -192,8 +199,9 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
   forecasted_up <- forecasted_inf <- rep(NA_real_, length(fitted))
   forecasted_up <- append(forecasted_up, cArima$forecast_upper)
   forecasted_inf <- append(forecasted_inf, cArima$forecast_lower)
-  start <- which(dates == int.date) - round(win * sum(dates < int.date))
-  end <- length(forecasted)
+  n_pre <- length(fitted)
+  start <- max(1L, n_pre + 1L - round(win * n_pre))
+  end <- length(dates)
   x <- dates[start:end]
 
   # Plotting
@@ -203,16 +211,30 @@ plot.cArima <- function(x, type = c("forecast", "impact", "residuals"), horizon 
 
   g <- ggplot(data = dat, aes(x = x, colour = "Legend")) + coord_cartesian(ylim = ylim) + theme_bw(base_size = 15) +
               labs(title = "Forecasted series", y = "", x = "") + scale_colour_manual(values = colours) +
-              geom_vline(aes(xintercept = int.date, linetype = paste(int.date)), colour = "darkgrey", size = lines_size) +
+              geom_vline(aes(xintercept = int.date, linetype = paste(int.date)), colour = "darkgrey", linewidth  = lines_size) +
               scale_linetype_manual(values = "longdash") + labs(color = "Time series", linetype = "Intervention date") +
               guides(colour = guide_legend(order = 1), linetype = guide_legend(order = 2)) +
               guides(color = guide_legend(override.aes = list(fill = NA))) +
               geom_lineribbon(aes(y = forecasted.cut, color = "Forecast", ymin = forecasted_inf, ymax = forecasted_up),
-                              size = lines_size, linetype = "dashed", fill = fill_colour) +
-              geom_line(aes(y = observed.cut, color = "Observed"), size = lines_size)
+                              linewidth  = lines_size, linetype = "dashed", fill = fill_colour) +
+              geom_line(aes(y = observed.cut, color = "Observed"), linewidth  = lines_size)
 
   if (!is.null(horizon)) {
-    g <- g + geom_vline(xintercept = horizon, colour = "darkgrey", size = lines_size, linetype = "dotdash")
+    g <- g + geom_vline(xintercept = horizon, colour = "darkgrey", linewidth  = lines_size, linetype = "dotdash")
+
+    # Warn about missing observed outcomes at the requested horizons
+    ind <- match(horizon, dates)
+    missing_horizons <- unique(horizon[is.na(observed[ind])])
+
+    if (length(missing_horizons) > 0L) {
+      warning(
+        "The observed series has missing values at the selected horizon(s): ",
+        paste(as.character(missing_horizons), collapse = ", "),
+        ".",
+        call. = FALSE
+      )
+    }
+
   }
 
   return(g)
